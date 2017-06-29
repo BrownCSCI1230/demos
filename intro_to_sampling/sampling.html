@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="sampling.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="sampling.js"></script>
+    <title>Sampling</title>
+    <link rel="icon" type="img/gif" href="mandrill256.gif">
+  </head>
+  <body>
+    <img id = "mandrill" src="mandrill256.gif" hidden="true">
+    <div class = "centered">
+        <div class = "container">
+            <div id = "slider"></div>
+            <canvas id="theCanvas" width="262" height="256"></canvas>
+        </div>
+    </div>
+    <br/>
+    <br/>
+    <div class = "centered">
+        <canvas id="graphCanvas" class="centered" width="642" height="230"></canvas>
+    </div>
+    <script>
+      window.onload = function() {
+          setUpWidget();
+      }
+    </script>
+  </body>
+</html>

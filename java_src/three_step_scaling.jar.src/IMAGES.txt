@@ -1,0 +1,8 @@
+Bear=grafiti.gif
+Mona=mona.gif
+Blue=blue1.gif
+Impression=PoppyField.jpg
+FireMap=firemaps.jpg
+Scratch=scratch2.jpg
+Glass=glass.jpg
+Butterfly=noninterlaced.gif
