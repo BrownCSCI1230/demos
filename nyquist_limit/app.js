@@ -1,17 +1,3 @@
-// TODO: Graph object -> inherits display object
-//     Samples
-//     xRange (default sample range)
-//     rRange (default sample range)
-//     Title, XY labels
-//     Children
-//     Draw method [Graphics object, time] (only called repeatedly if necessary)
-//     Tick method [Children, time] (only called repeatedly if necessary)
-//     Update method (tick and draw)
-
-// TODO: interactive bars
-
-// TODO: labels
-
 /* Nyquist limit application */
 var appWidth = 800;
 var appHeight = 600;
@@ -27,7 +13,8 @@ function Sampler(start, end, step, f) {
 }
 
 // Graph class
-function Graph(x = 0, y = 0, width = 0, height = 0, samples = [], isBar = false, xrange, yrange) {
+function Graph(x = 0, y = 0, width = 0, height = 0, samples = [], isBar = false,
+		xrange, yrange, title, xlabel, ylabel) {
   PIXI.Container.call(this);
 
   // Properties
@@ -35,8 +22,8 @@ function Graph(x = 0, y = 0, width = 0, height = 0, samples = [], isBar = false,
   this.y = y;
   this.w = width;
   this.h = height;
-  this.isBar = isBar;
   this.samples = samples;
+  this.isBar = isBar;
 
   if(xrange === undefined && samples.length > 0) {
     this.xrange = [samples[0].x, samples[samples.length - 1].x];
@@ -60,31 +47,98 @@ function Graph(x = 0, y = 0, width = 0, height = 0, samples = [], isBar = false,
     this.yrange = yrange;
   }
 
+  this.titleText = (title !== undefined) ? title : 'function';
+  this.xlabelText = (xlabel !== undefined) ? xlabel : 'x axis';
+  this.ylabelText = (ylabel !== undefined) ? ylabel : 'y axis';
+
   // Graphics object
   this.graphics = new PIXI.Graphics();
   this.addChild(this.graphics);
+
+  // Labels
+  var style = new PIXI.TextStyle({
+    fontFamily: 'Arial',
+    fontSize: 10
+  });
+
+  // TODO: axis padding
+  // TODO: axis tick number
+  // TODO: x and y axis buffer
+  // TODO: text size for labels and title
+  // TODO: tick numbers
+  // TODO: both bars and regular graph
+  // TODO: bar highlighting
+
+  this.title = new PIXI.Text(this.titleText, style);
+  this.ylabel = new PIXI.Text(this.ylabelText, style);
+  this.xlabel = new PIXI.Text(this.xlabelText, style);
+
+  this.title.anchor.set(0.5);
+  this.title.x = this.ylabel.width + this.w / 2;
+  this.title.y = 0;
+  this.addChild(this.title);
+
+
+  this.ylabel.anchor.set(0.5);
+  this.ylabel.x = 0;
+  this.ylabel.y = this.title.height + this.h / 2;
+  this.addChild(this.ylabel);
+
+  this.xlabel.anchor.set(0.5);
+  this.xlabel.x = this.ylabel.width + this.w / 2;
+  this.xlabel.y = this.title.height + this.h + 15;
+  this.addChild(this.xlabel);
 }
+
+// TODO: setter and getter for samples
 
 Graph.constructor = Graph;
 Graph.prototype = Object.create(PIXI.Container.prototype);
 
 Graph.prototype.draw = function() {
-  var sy = this.h + this.yrange[0] / (this.yrange[1] - this.yrange[0]) * this.h;
-
   this.graphics.clear();
+  this.graphics.setTransform(this.ylabel.width, this.title.height);
+
+  // Draw graph lines x-axis
+  var step = this.w / 20;
+  this.graphics.lineStyle(1, 0x000000, 1);
+
+  for(var v = 0; v < this.w; v += step) {
+    this.graphics.moveTo(v, this.h + 2 + 5);
+    this.graphics.lineTo(v, this.h - 2 + 5);
+  }
+
+  this.graphics.moveTo(-5, this.h + 5);
+  this.graphics.lineTo(this.w, this.h + 5);
+
+  // Draw graph lines y-axis
+  var step = this.h / 20;
+  this.graphics.lineStyle(1, 0x000000, 1);
+
+  for(var v = 0; v < this.h; v += step) {
+    this.graphics.moveTo(-5 - 2, v);
+    this.graphics.lineTo(-5 + 2, v);
+  }
+
+  this.graphics.moveTo(-5, 0);
+  this.graphics.lineTo(-5, this.h + 5);
+
+  // Draw graph
   this.graphics.lineStyle(1, 0x000000, 1);
 
   for(var i = 0; i < this.samples.length; i += 1) {
     var s = this.samples[i];
     var px = (s.x - this.xrange[0]) / (this.xrange[1] - this.xrange[0]) * this.w;
     var py = this.h - (s.y - this.yrange[0]) / (this.yrange[1] - this.yrange[0]) * this.h;
+    var sy = this.h + this.yrange[0] / (this.yrange[1] - this.yrange[0]) * this.h;
 
     if(!this.isBar) {
       if(i == 0) {
 	this.graphics.moveTo(px, py);
       }
-
-      this.graphics.lineTo(px, py);
+      else {
+	this.graphics.lineTo(px, py);
+      }
     }
     else {
       this.graphics.moveTo(px, sy);
@@ -100,37 +154,25 @@ $(function() {
   var padding = 50;
 
   // Add application to DOM
-  var app = new PIXI.Application(appWidth, appHeight + 4 * padding, {backgroundColor : 0xffffff});
+  var app = new PIXI.Application(appWidth + 4 * padding, appHeight + 4 * padding, {backgroundColor : 0xffffff});
   app.view.classList.add('centered');
   document.body.appendChild(app.view);
+
+  // TODO: sliders to determine sampling and sine wave frequency
 
   // Sample points for graphs
   var s1 = new Sampler(0, 100, 0.5, function(x) {
     return Math.sin(x / 10 * 2 * Math.PI);
   });
 
-  var s2 = new Sampler(0, 100, 5, function(x) {
+  var s2 = new Sampler(0, 100, 4, function(x) {
     return Math.sin(x / 10 * 2 * Math.PI);
   });
 
-  var s3 = new Sampler(0, 100, 0.5, function(x) {
-    var val = (x / 100) * 10;
-    var start = Math.floor((x / 100) * 10);
-    var end = Math.ceil((x / 100) * 10);
-    var frac = val - start;
-
-    if(Math.abs(frac) < 0.001) {
-      return s2.samples[start];
-    }
-    else {
-      return (1 - frac) * s2.samples[start].y + frac * s2.samples[end].y;
-    }
-  });
-
   // Add graphs
-  var graph1 = new Graph(0, padding, appWidth, appHeight / 4, s1.samples, false);
-  var graph2 = new Graph(0, appHeight / 4 + 2 * padding, appWidth, appHeight / 4, s2.samples, true);
-  var graph3 = new Graph(0, appHeight / 2 + 3 * padding, appWidth, appHeight / 4, s2.samples, false);
+  var graph1 = new Graph(padding, padding, appWidth, appHeight / 4, s1.samples, false);
+  var graph2 = new Graph(padding, appHeight / 4 + 2 * padding, appWidth, appHeight / 4, s2.samples, true, graph1.xrange, graph1.yrange);
+  var graph3 = new Graph(padding, appHeight / 2 + 3 * padding, appWidth, appHeight / 4, s2.samples, false, graph1.xrange, graph1.yrange);
 
   graph1.draw();
   graph2.draw();
