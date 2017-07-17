@@ -6,8 +6,8 @@ $(function() {
   var filter = new Graph(10, 10, 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) [Filter]");
   var result = new Graph(10, 10, 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) [Result]");
 
+  /* Convolve signal with filter */
   var updateResult = function() {
-    /* Convolve signal with filter */
     var resultData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
 
     var resultXDiff = result.xmax - result.xmin;
@@ -31,6 +31,7 @@ $(function() {
     result.setGraphData(resultData);
   }
 
+  /* Hacky way to call previous onMove function, and do something else as well */
   signal.doMove = signal.onMove;
   filter.doMove = filter.onMove;
 
