@@ -38,21 +38,51 @@ class Graph {
     this.drawingIndices = [];
     this.graphData = [];
 
-    this.renderer = new PIXI.CanvasRenderer(window.innerWidth, window.innerHeight, {
+    this.renderer = new PIXI.CanvasRenderer(width, height, {
       resolution: window.devicePixelRatio || 1,
       autoResize: true
     });
     this.renderer.backgroundColor = 0xffffff;
     document.body.appendChild(this.renderer.view);
     this.stage = new PIXI.Container;
+    this.draw();
   }
 
   getGraphData() {
     return this.graphData;
   }
 
-  draw() {
+  getGraphData(x) {
+    var xdiff = this.xmax - this.xmin;
+    var i = Math.round(((x - this.xmin) / xdiff) * this.graphData.length);
+    i = Math.max(0, Math.min(this.graphData.length - 1, i));
 
+    return this.graphData[i];
+  }
+
+  setGraphData(graphData) {
+    this.graphData = graphData;
+
+    for (var i = 0; i < graphData.length; i ++) {
+      var y = graphData[i];
+      var ydiff = this.ymax - this.ymin;
+      var canvasY = Math.round(((y - this.ymin) / ydiff) * this.spritePlot.height);
+      canvasY = Math.max(0, Math.min(this.spritePlot.height, canvasY))
+
+      var clickDraw = new PIXI.Graphics;
+      clickDraw.lineStyle(1, 0x0000ff, 1);
+      clickDraw.moveTo(this.spritePlot.x + i, this.plotDrawingZero);
+      clickDraw.lineTo(this.spritePlot.x + i, this.spritePlot.y + this.spritePlot.height - canvasY);
+
+      // store the bar we're drawing so we can remove it later if we need to
+      this.addBarAt(i, clickDraw);
+      this.stage.addChild(clickDraw);
+    }
+
+    this.renderer.render(this.stage);
+  }
+
+  draw() {
     var textStyle = new PIXI.TextStyle({
       fontSize: 12
     });
@@ -85,9 +115,25 @@ class Graph {
 
     spritePlot.interactive = true;
     var self = this;
-    spritePlot.on('pointerdown', function(){self.onClick(spritePlot);});
-    spritePlot.on('pointerup', function(){self.onUp(spritePlot);});
-    spritePlot.on('pointerupoutside', function(){self.onUp(spritePlot);});
+    spritePlot.on('pointerdown', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onClick(spritePlot, mousePos);
+    });
+    spritePlot.on('pointerup', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onUp(spritePlot, mousePos);
+    });
+    spritePlot.on('pointerupoutside', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onUp(spritePlot, mousePos);
+    });
+    this.spritePlot = spritePlot;
 
     // adjust the zero line for drawing
     this.plotDrawingZero += plotY;
@@ -98,76 +144,80 @@ class Graph {
     this.renderer.render(this.stage);
   }
 
-  onClick(sprite) {
+  addBarAt(i, bar) {
+    // Remove old element and add new element if we need to remove later
+    var oldBar = this.drawingIndices[i];
+    if (oldBar != 0) {
+      this.stage.removeChild(oldBar);
+    }
+    this.drawingIndices[i] = bar;
+    this.stage.addChild(bar);
+  }
+
+  onClick(sprite, mousePos) {
     var clickDraw = new PIXI.Graphics;
     clickDraw.lineStyle(1, 0x0000ff, 1);
-    clickDraw.moveTo(event.clientX, event.clientY);
-    clickDraw.lineTo(event.clientX, this.plotDrawingZero);
-    this.currentMouseX = event.clientX;
-    this.stage.addChild(clickDraw);
+    clickDraw.moveTo(mousePos.x, mousePos.y);
+    clickDraw.lineTo(mousePos.x, this.plotDrawingZero);
+    this.addBarAt(mousePos.x - sprite.x, clickDraw);
+
     var self = this;
-    sprite.on('pointermove', function(){self.onMove(sprite);});
+    sprite.on('pointermove', function(eventData){
+      var data = eventData.data;
+      var pos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, pos, data.global);
+      self.onMove(sprite, pos);
+    });
+
+    this.currentMouseX = mousePos.x;
     this.renderer.render(this.stage);
   }
 
-  onMove(sprite) {
+  onMove(sprite, mousePos) {
     // This is intended to remove spaces between blue lines caused by
     // mouse moves that are faster than the browser can send events.
     // It's a rough solution...
-    var canDraw = (event.clientX > sprite.x && event.clientX < sprite.x + sprite.width);
-    var willDrawToUpperEdge = event.clientY > sprite.y + sprite.height;
-    var willDrawToLowerEdge = event.clientY < sprite.y;
-    if (canDraw) {
+    var clientX = Math.max(sprite.x, Math.min(sprite.x + sprite.width, mousePos.x));
+    var clientY = Math.max(sprite.y, Math.min(sprite.y + sprite.height, mousePos.y));
+    var willDrawToUpperEdge = clientY > sprite.y + sprite.height;
+    var willDrawToLowerEdge = clientY < sprite.y;
 
-      var dx = Math.abs(this.currentMouseX - event.clientX);
+    var dx = this.currentMouseX - clientX;
+    var step = Math.sign(dx);
 
-      for (var i = 0; i < 2 * dx; i++) {
+    if(step !== 0) {
+      for (var i = 0; i !== (dx + step); i += step) {
+	// make sure we don't go off of either of the sides of the plot
+	var canStillDraw = (clientX + i > sprite.x && clientX + i < sprite.x + sprite.width);
 
-        // make sure we don't go off of either of the sides of the plot
-        var canStillDraw = (event.clientX + i > sprite.x && event.clientX + i < sprite.x + sprite.width);
+	if (canStillDraw) {
+	  var clickDraw = new PIXI.Graphics;
+	  clickDraw.lineStyle(1, 0x0000ff, 1);
+	  clickDraw.moveTo(clientX + i, this.plotDrawingZero);
+	  clickDraw.lineTo(clientX + i, clientY);
 
-        if (canStillDraw) {
+	  // store the bar we're drawing so we can remove it later if we need to
+	  this.addBarAt(clientX + i - sprite.x, clickDraw);
 
-          // remove any bar that's already at this point
-          var oldClickDraw = this.drawingIndices[event.clientX + i - sprite.x];
-          if (oldClickDraw != 0) {
-            this.stage.removeChild(oldClickDraw);
-          }
+	  //data
+	  var positionOnGraph = clientY - sprite.y;
+	  var yrange = this.ymax - this.ymin;
+	  var valueOfGraph = (-1 * ((positionOnGraph * yrange) / sprite.height) - this.ymin);
+	  this.graphData[clientX + i - sprite.x] = valueOfGraph;
 
-          var clickDraw = new PIXI.Graphics;
-          clickDraw.lineStyle(1, 0x0000ff, 1);
-          clickDraw.moveTo(event.clientX + i, this.plotDrawingZero);
-
-          if (willDrawToUpperEdge) {
-            clickDraw.lineTo(event.clientX + i, sprite.y + sprite.height);
-          } else if (willDrawToLowerEdge) {
-            clickDraw.lineTo(event.clientX + i, sprite.y)
-          } else {
-            clickDraw.lineTo(event.clientX + i, event.clientY);
-          }
-
-          // store the bar we're drawing so we can remove it later if we need to
-          this.drawingIndices[event.clientX + i - sprite.x] = clickDraw;
-
-          //data
-          var positionOnGraph = event.clientY - sprite.y;
-          var yrange = this.ymax - this.ymin;
-          var valueOfGraph = (-1 * ((positionOnGraph * yrange) / sprite.height) - this.ymin);
-          this.graphData[event.clientX + i - sprite.x] = valueOfGraph;
-
-          this.stage.addChild(clickDraw);
-        }
+	  this.stage.addChild(clickDraw);
+	}
       }
-
-      this.currentMouseX = event.clientX;
-      var self = this;
-      this.renderer.render(this.stage);
     }
+
+    this.currentMouseX = clientX;
+    var self = this;
+    this.renderer.render(this.stage);
   }
 
-  onUp(sprite) {
+  onUp(sprite, mousePos) {
     sprite.off('pointermove');
-    console.log(this.graphData);
+    //console.log(this.graphData);
   }
 
   makeBackground() {
