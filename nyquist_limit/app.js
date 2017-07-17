@@ -237,6 +237,7 @@ Graph.prototype.draw = function() {
 }
 
 /* ConvolutionGraph class */
+/*
 ConvolutionGraph.constructor = ConvolutionGraph;
 ConvolutionGraph.prototype = Object.create(PIXI.Container.prototype);
 
@@ -430,6 +431,7 @@ ConvolutionGraph.prototype.draw = function() {
   this.graphics.drawPolygon(path);
   this.graphics.endFill();
 }
+*/
 
 $(function() {
   var padding = 100;
@@ -453,11 +455,11 @@ $(function() {
   var graph2 = new Graph(padding, appHeight / 4 + 2 * padding, appWidth, appHeight / 4, s2.samples, s2.samples, 1);
   graph2.xRange = graph1.xRange;
   graph2.yRange = graph1.yRange;
-  /*
   var graph3 = new Graph(padding, appHeight / 2 + 3 * padding, appWidth, appHeight / 4, s2.samples, [], 0);
   graph3.xRange = graph1.xRange;
   graph3.yRange = graph1.yRange;
-  */
+
+  /*
   var graph3 = new ConvolutionGraph(padding, appHeight / 2 + 3 * padding, appWidth, appHeight / 4, graph1.xRange, graph1.yRange);
   graph3.interactive = true;
   graph3.hitArea = new PIXI.Rectangle(graph3.yLabel.width, graph3.title.height, graph3.w, graph3.h);
@@ -501,6 +503,7 @@ $(function() {
       }
     }
   };
+  */
 
   graph1.draw();
   graph2.draw();
