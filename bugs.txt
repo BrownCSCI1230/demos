@@ -5,12 +5,3 @@ Sampling
 
 Convolutions
 ------------------------------------------------------------------------------
-1. When drawing, some points will occasionally be missed. This is probably
-  because of the hacky way I've set up the graph to handle mouse input.
-  It turns out that pointermove doesn't send a signal fast enough to catch the
-  mouse moving at every point. I've tried to fill in gaps by increasing the
-  thickness of the lines based on the speed the user is moving the mouse.
-  Somehow, my approach still leaves gaps.
-
-2. Somehow, the opposite of bug #1 also happens. Lines get drawn that cannot
-  be undrawn. I'm not sure what's causing this.
