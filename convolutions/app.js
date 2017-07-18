@@ -2,9 +2,9 @@ var appWidth = 800;
 var appHeight = 600;
 
 $(function() {
-  var signal = new Graph(10, 10, 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) [Function to be Convolved]");
-  var filter = new Graph(10, 10, 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) [Filter]");
-  var result = new Graph(10, 10, 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) [Result]");
+  var signal = new Graph(document.getElementById("signalGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) [Function to be Convolved]");
+  var filter = new Graph(document.getElementById("filterGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "g(x) [Filter]");
+  var result = new Graph(document.getElementById("resultGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) * g(x) [Convolution]");
 
   /* Convolve signal with filter */
   var updateResult = function() {
@@ -21,8 +21,8 @@ $(function() {
       var sum = 0;
 
       for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
-	var signalX = x - filterX;
-	sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
+        var signalX = x - filterX;
+	      sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
       }
 
       resultData[i] = sum;
@@ -44,4 +44,31 @@ $(function() {
     filter.doMove(sprite, mousePos);
     updateResult();
   }
+
+  var clearFunctionButton = document.getElementById("clearFunctionButton");
+  clearFunctionButton.addEventListener("click", function(){
+    signal.clearAllBars();
+    updateResult();
+  });
+
+  var clearFilterButton = document.getElementById("clearFilterButton");
+  clearFilterButton.addEventListener("click", function(){
+    filter.clearAllBars();
+    updateResult();
+  });
+
+  var boxFunctionButton = document.getElementById("boxFunctionButton");
+  boxFunctionButton.addEventListener("click", function(){
+    signal.clearAllBars();
+    signal.drawBox(-0.5, 0.5, 1);
+    updateResult();
+  });
+
+  var boxFilterButton = document.getElementById("boxFilterButton");
+  boxFilterButton.addEventListener("click", function(){
+    filter.clearAllBars();
+    filter.drawBox(-0.5, 0.5, 1);
+    updateResult();
+  });
+
 });

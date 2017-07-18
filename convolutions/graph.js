@@ -1,13 +1,3 @@
-function makeSpriteFromGraphics(graphics, renderer) {
-  var texture = renderer.generateTexture(graphics, new PIXI.Point(1, 1), 2);
-
-  // create sprite and set it's texture to the graphics object
-  var sprite = new PIXI.Sprite();
-  sprite.texture = texture;
-
-  return sprite;
-}
-
 function componentToHex(c) {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
@@ -18,9 +8,10 @@ function rgbToHex(r, g, b) {
 }
 
 class Graph {
-  constructor(x, y, width, height, xmin, xmax, xinc, ymin, ymax, yinc, title) {
-    this.x = x;
-    this.y = y;
+  constructor(element, width, height, xmin, xmax, xinc, ymin, ymax, yinc, title) {
+    //TODO: Change these
+    this.x = 0;
+    this.y = 0;
     this.width = width;
     this.height = height;
     this.xmin = xmin;
@@ -33,6 +24,7 @@ class Graph {
     this.xtitle = title;
     this.ytitle = title;
 
+    this.plot;
     this.currentMouseX = 0;
     this.plotDrawingZero = 0;
     this.drawingIndices = [];
@@ -43,7 +35,7 @@ class Graph {
       autoResize: true
     });
     this.renderer.backgroundColor = 0xffffff;
-    document.body.appendChild(this.renderer.view);
+    element.appendChild(this.renderer.view);
     this.stage = new PIXI.Container;
     this.draw();
   }
@@ -66,16 +58,16 @@ class Graph {
     for (var i = 0; i < graphData.length; i ++) {
       var y = graphData[i];
       var ydiff = this.ymax - this.ymin;
-      var canvasY = Math.round(((y - this.ymin) / ydiff) * this.spritePlot.height);
-      canvasY = Math.max(0, Math.min(this.spritePlot.height, canvasY))
+      var canvasY = Math.round(((y - this.ymin) / ydiff) * this.plot.height);
+      canvasY = Math.max(0, Math.min(this.plot.height, canvasY))
 
       var clickDraw = new PIXI.Graphics;
       clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(this.spritePlot.x + i, this.plotDrawingZero);
-      clickDraw.lineTo(this.spritePlot.x + i, this.spritePlot.y + this.spritePlot.height - canvasY);
+      clickDraw.moveTo(this.plot.x + i, this.plotDrawingZero);
+      clickDraw.lineTo(this.plot.x + i, this.plot.y + this.plot.height - canvasY);
 
       // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, clickDraw);
+      this.addBarAt(i, canvasY, clickDraw);
       this.stage.addChild(clickDraw);
     }
 
@@ -102,122 +94,129 @@ class Graph {
     var plotWidth = background.width - leftPadding - rightPadding;
     var plotHeight = (background.height + background.y) - bottomPadding - plotY;
 
-    var plotBackground = this.makePlotBackground(plotWidth, plotHeight);
+    this.plot = this.makePlotBackground(plotWidth, plotHeight);
 
-    this.makeXAxis(plotBackground, textStyle);
-    this.makeYAxis(plotBackground, textStyle);
-    var spritePlot = makeSpriteFromGraphics(plotBackground, this.renderer);
-    spritePlot.position = new PIXI.Point(plotX, plotY);
+    this.makeXAxis(this.plot, textStyle);
+    this.makeYAxis(this.plot, textStyle);
+    // var this.plot = makeSpriteFromGraphics(plotBackground, this.renderer);
+    this.plot.position = new PIXI.Point(plotX, plotY);
     // creates an array of 0s
     // from https://stackoverflow.com/questions/1295584/most-efficient-way-to-create-a-zero-filled-javascript-array
-    this.graphData = Array.apply(null, Array(spritePlot.width)).map(Number.prototype.valueOf,0);
-    this.drawingIndices = Array.apply(null, Array(spritePlot.width)).map(Number.prototype.valueOf,0);
+    this.graphData = Array.apply(null, Array(this.plot.width)).map(Number.prototype.valueOf,0);
+    this.drawingIndices = Array.apply(null, Array(this.plot.width)).map(Number.prototype.valueOf,0);
 
-    spritePlot.interactive = true;
+    this.plot.interactive = true;
     var self = this;
-    spritePlot.on('pointerdown', function(eventData){
+    this.plot.on('pointerdown', function(eventData){
       var data = eventData.data;
       var mousePos = new PIXI.Point(0, 0);
       data.getLocalPosition(self.stage, mousePos, data.global);
-      self.onClick(spritePlot, mousePos);
+      self.onClick(mousePos);
     });
-    spritePlot.on('pointerup', function(eventData){
+    this.plot.on('pointerup', function(eventData){
       var data = eventData.data;
       var mousePos = new PIXI.Point(0, 0);
       data.getLocalPosition(self.stage, mousePos, data.global);
-      self.onUp(spritePlot, mousePos);
+      self.onUp(mousePos);
     });
-    spritePlot.on('pointerupoutside', function(eventData){
+    this.plot.on('pointerupoutside', function(eventData){
       var data = eventData.data;
       var mousePos = new PIXI.Point(0, 0);
       data.getLocalPosition(self.stage, mousePos, data.global);
-      self.onUp(spritePlot, mousePos);
+      self.onUp(mousePos);
     });
-    this.spritePlot = spritePlot;
 
     // adjust the zero line for drawing
     this.plotDrawingZero += plotY;
-    this.stage.addChild(spritePlot);
+    this.stage.addChild(this.plot);
 
-    this.makeLabels(spritePlot, textStyle);
+    this.makeLabels(this.plot, textStyle);
 
     this.renderer.render(this.stage);
   }
 
-  addBarAt(i, bar) {
-    // Remove old element and add new element if we need to remove later
+  addBarAt(i, j, bar) {
+    // Remove old element and add new element if we might need to remove later
     var oldBar = this.drawingIndices[i];
     if (oldBar != 0) {
       this.stage.removeChild(oldBar);
     }
     this.drawingIndices[i] = bar;
     this.stage.addChild(bar);
+
+    //data
+    var positionOnGraph = j - this.plot.y;
+    var yrange = this.ymax - this.ymin;
+    var valueOfGraph = (-1 * ((positionOnGraph * yrange) / this.plot.height) - this.ymin);
+    this.graphData[i] = valueOfGraph;
   }
 
-  onClick(sprite, mousePos) {
+  clearAllBars() {
+    for (var i = 0; i < this.drawingIndices.length; i++) {
+      var bar = this.drawingIndices[i];
+      if (bar != 0) {
+        this.stage.removeChild(bar);
+        this.drawingIndices[i] = 0;
+        this.graphData[i] = 0;
+      }
+    }
+    this.renderer.render(this.stage);
+  }
+
+  onClick(mousePos) {
     var clickDraw = new PIXI.Graphics;
     clickDraw.lineStyle(1, 0x0000ff, 1);
     clickDraw.moveTo(mousePos.x, mousePos.y);
     clickDraw.lineTo(mousePos.x, this.plotDrawingZero);
-    this.addBarAt(mousePos.x - sprite.x, clickDraw);
+    this.addBarAt(mousePos.x - this.plot.x, mousePos.y, clickDraw);
 
     var self = this;
-    sprite.on('pointermove', function(eventData){
+    this.plot.on('pointermove', function(eventData){
       var data = eventData.data;
       var pos = new PIXI.Point(0, 0);
       data.getLocalPosition(self.stage, pos, data.global);
-      self.onMove(sprite, pos);
+      self.onMove(pos);
     });
 
     this.currentMouseX = mousePos.x;
     this.renderer.render(this.stage);
   }
 
-  onMove(sprite, mousePos) {
+  onMove(mousePos) {
     // This is intended to remove spaces between blue lines caused by
     // mouse moves that are faster than the browser can send events.
     // It's a rough solution...
-    var clientX = Math.max(sprite.x, Math.min(sprite.x + sprite.width, mousePos.x));
-    var clientY = Math.max(sprite.y, Math.min(sprite.y + sprite.height, mousePos.y));
-    var willDrawToUpperEdge = clientY > sprite.y + sprite.height;
-    var willDrawToLowerEdge = clientY < sprite.y;
+    var clientX = Math.max(this.plot.x, Math.min(this.plot.x + this.plot.width, mousePos.x));
+    var clientY = Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y));
+    var willDrawToUpperEdge = clientY > this.plot.y + this.plot.height;
+    var willDrawToLowerEdge = clientY < this.plot.y;
 
     var dx = this.currentMouseX - clientX;
     var step = Math.sign(dx);
 
     if(step !== 0) {
       for (var i = 0; i !== (dx + step); i += step) {
-	// make sure we don't go off of either of the sides of the plot
-	var canStillDraw = (clientX + i > sprite.x && clientX + i < sprite.x + sprite.width);
+      	// make sure we don't go off of either of the sides of the plot
+      	var canStillDraw = (clientX + i > this.plot.x && clientX + i < this.plot.x + this.plot.width);
 
-	if (canStillDraw) {
-	  var clickDraw = new PIXI.Graphics;
-	  clickDraw.lineStyle(1, 0x0000ff, 1);
-	  clickDraw.moveTo(clientX + i, this.plotDrawingZero);
-	  clickDraw.lineTo(clientX + i, clientY);
+      	if (canStillDraw) {
+      	  var clickDraw = new PIXI.Graphics;
+      	  clickDraw.lineStyle(1, 0x0000ff, 1);
+      	  clickDraw.moveTo(clientX + i, this.plotDrawingZero);
+      	  clickDraw.lineTo(clientX + i, clientY);
 
-	  // store the bar we're drawing so we can remove it later if we need to
-	  this.addBarAt(clientX + i - sprite.x, clickDraw);
-
-	  //data
-	  var positionOnGraph = clientY - sprite.y;
-	  var yrange = this.ymax - this.ymin;
-	  var valueOfGraph = (-1 * ((positionOnGraph * yrange) / sprite.height) - this.ymin);
-	  this.graphData[clientX + i - sprite.x] = valueOfGraph;
-
-	  this.stage.addChild(clickDraw);
-	}
+      	  // store the bar we're drawing so we can remove it later if we need to
+      	  this.addBarAt(clientX + i - this.plot.x, clientY, clickDraw);
+      	}
       }
     }
 
     this.currentMouseX = clientX;
-    var self = this;
     this.renderer.render(this.stage);
   }
 
-  onUp(sprite, mousePos) {
-    sprite.off('pointermove');
-    //console.log(this.graphData);
+  onUp(mousePos) {
+    this.plot.off('pointermove');
   }
 
   makeBackground() {
@@ -226,18 +225,16 @@ class Graph {
     background.beginFill(0xd3d3d3, 1); //grey
     background.drawRect(0, 0, this.width, this.height);
     background.endFill();
-    var spriteBackground = makeSpriteFromGraphics(background, this.renderer);
-    spriteBackground.position = new PIXI.Point(this.x, this.y);
+    background.position = new PIXI.Point(this.x, this.y);
     return background;
   }
 
   makeTitle(style) {
     var titleInset = new PIXI.Point(10, 10);
     var pixiTitle = new PIXI.Text(this.title, style);
-    var spritePixiTitle = makeSpriteFromGraphics(pixiTitle, this.renderer);
-    spritePixiTitle.x = this.x + titleInset.x;
-    spritePixiTitle.y = this.y + titleInset.y;
-    return spritePixiTitle;
+    pixiTitle.x = this.x + titleInset.x;
+    pixiTitle.y = this.y + titleInset.y;
+    return pixiTitle;
   }
 
   makePlotBackground(width, height) {
@@ -335,6 +332,33 @@ class Graph {
       // subtracting textHeight / 2 centers the text around the correct point
       ytitle.y = ypos - ytitle.height / 2;
       this.stage.addChild(ytitle);
+    }
+  }
+
+  drawBox(start, end, height) {
+    var startPix = this.convertToPlotPixel(start, true);
+    var endPix = this.convertToPlotPixel(end, true);
+    var heightPix = this.convertToPlotPixel(height, false);
+
+    for (var i = startPix; i < endPix; i++) {
+      var clickDraw = new PIXI.Graphics;
+      clickDraw.lineStyle(1, 0x0000ff, 1);
+      clickDraw.moveTo(i, this.plotDrawingZero);
+      clickDraw.lineTo(i, heightPix);
+
+      this.addBarAt(i - this.plot.x, heightPix, clickDraw);
+    }
+
+    this.renderer.render(this.stage);
+  }
+
+  convertToPlotPixel(unit, isX) {
+    if (isX) {
+      var xrange = this.xmax - this.xmin;
+      return Math.floor(((unit - this.xmin) / xrange) * this.plot.width) + this.plot.x + 4; // label padding
+    } else {
+      var yrange = this.ymax - this.ymin;
+      return Math.floor(((this.ymax - unit) / yrange) * this.plot.height) + this.plot.y;
     }
   }
 }
