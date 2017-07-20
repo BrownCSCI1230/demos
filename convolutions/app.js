@@ -1,34 +1,39 @@
-var appWidth = 800;
-var appHeight = 600;
 
 $(function() {
   var signal = new Graph(document.getElementById("signalGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) [Function to be Convolved]");
   var filter = new Graph(document.getElementById("filterGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "g(x) [Filter]");
+  var product = new Graph(document.getElementById("productGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x)g(x) [Product]");
   var result = new Graph(document.getElementById("resultGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) * g(x) [Convolution]");
 
   /* Convolve signal with filter */
   var updateResult = function() {
     var resultData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
+    var productData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
 
     var resultXDiff = result.xmax - result.xmin;
+    var productXDiff = product.xmax - product.xmin;
     var filterXDiff = filter.xmax - filter.xmin;
 
     var resultStep = resultXDiff / result.graphData.length;
+    var productStep = productXDiff / product.graphData.length;
     var filterStep = filterXDiff / filter.graphData.length;
 
     for(var i = 0; i < result.graphData.length; i++) {
-      var x = i * resultStep + result.xmin;
+      var xProd = i * productStep + product.xmin;
+      var xRes = i * resultStep + result.xmin;
       var sum = 0;
 
       for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
-        var signalX = x - filterX;
+        var signalX = xRes - filterX;
 	      sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
       }
 
       resultData[i] = sum;
+      productData[i] = signal.getGraphData(xProd) * filter.getGraphData(xRes);
     }
 
     result.setGraphData(resultData);
+    product.setGraphData(productData);
   }
 
   /* Hacky way to call previous onMove function, and do something else as well */
