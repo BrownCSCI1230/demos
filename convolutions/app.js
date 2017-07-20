@@ -71,4 +71,25 @@ $(function() {
     updateResult();
   });
 
+  var triangleFilterButton = document.getElementById("triangleFilterButton");
+  triangleFilterButton.addEventListener("click", function(){
+    filter.clearAllBars();
+    filter.drawTriangle(-1, 1, 1);
+    updateResult();
+  });
+
+  var gaussianFilterButton = document.getElementById("gaussianFilterButton");
+  gaussianFilterButton.addEventListener("click", function(){
+    filter.clearAllBars();
+    filter.drawGaussian(-4, 4);
+    updateResult();
+  });
+
+  var sincFilterButton = document.getElementById("sincFilterButton");
+  sincFilterButton.addEventListener("click", function(){
+    filter.clearAllBars();
+    filter.drawSinc(-4, 4);
+    updateResult();
+  });
+
 });

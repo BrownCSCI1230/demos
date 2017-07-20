@@ -352,6 +352,95 @@ class Graph {
     this.renderer.render(this.stage);
   }
 
+  drawTriangle(start, end, height) {
+    var startPix = this.convertToPlotPixel(start, true);
+    var endPix = this.convertToPlotPixel(end, true);
+    var heightPix = this.convertToPlotPixel(height, false);
+
+    for (var i = startPix; i < endPix; i++) {
+      var sampleX = this.convertToPlotCoordinate(i, true);
+      var triangleHeight = (-1 * Math.abs(sampleX) + 1) * height;
+      var triangleHeightPixel = this.convertToPlotPixel(triangleHeight);
+
+      var clickDraw = new PIXI.Graphics;
+      clickDraw.lineStyle(1, 0x0000ff, 1);
+      clickDraw.moveTo(i, this.plotDrawingZero);
+      clickDraw.lineTo(i, triangleHeightPixel, false);
+
+      this.addBarAt(i - this.plot.x, triangleHeightPixel, clickDraw);
+    }
+    this.renderer.render(this.stage);
+  }
+
+  drawGaussian(start, end) {
+    var startPix = this.convertToPlotPixel(start, true);
+    var endPix = this.convertToPlotPixel(end, true);
+
+    for (var i = startPix; i < endPix; i++) {
+      var sampleX = this.convertToPlotCoordinate(i, true);
+      var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI));
+      var gaussianExp = - (1 / 2) * Math.pow(sampleX, 2);
+      var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
+      var pixGaussianVal = this.convertToPlotPixel(gaussianVal, false);
+
+      var clickDraw = new PIXI.Graphics;
+      clickDraw.lineStyle(1, 0x0000ff, 1);
+      clickDraw.moveTo(i, this.plotDrawingZero);
+      clickDraw.lineTo(i, pixGaussianVal);
+
+      this.addBarAt(i - this.plot.x, pixGaussianVal, clickDraw);
+    }
+    this.renderer.render(this.stage);
+  }
+
+  drawGaussian(start, end) {
+    var startPix = this.convertToPlotPixel(start, true);
+    var endPix = this.convertToPlotPixel(end, true);
+
+    for (var i = startPix; i < endPix; i++) {
+      var sampleX = this.convertToPlotCoordinate(i, true);
+      var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI));
+      var gaussianExp = - (1 / 2) * Math.pow(sampleX, 2);
+      var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
+      var pixGaussianVal = this.convertToPlotPixel(gaussianVal, false);
+
+      var clickDraw = new PIXI.Graphics;
+      clickDraw.lineStyle(1, 0x0000ff, 1);
+      clickDraw.moveTo(i, this.plotDrawingZero);
+      clickDraw.lineTo(i, pixGaussianVal);
+
+      this.addBarAt(i - this.plot.x, pixGaussianVal, clickDraw);
+    }
+    this.renderer.render(this.stage);
+  }
+
+  drawSinc(start, end) {
+    var startPix = this.convertToPlotPixel(start, true);
+    var endPix = this.convertToPlotPixel(end, true);
+
+    for (var i = startPix; i < endPix; i++) {
+      var sampleX = this.convertToPlotCoordinate(i, true);
+
+      if (sampleX == 0) {
+        continue;
+      }
+
+      var sincNumerator = Math.sin(Math.PI * sampleX);
+      var sincDenominator = Math.PI * sampleX;
+      var sincVal = sincNumerator / sincDenominator;
+      var pixSincVal = this.convertToPlotPixel(sincVal, false);
+
+      var clickDraw = new PIXI.Graphics;
+      clickDraw.lineStyle(1, 0x0000ff, 1);
+      clickDraw.moveTo(i, this.plotDrawingZero);
+      clickDraw.lineTo(i, pixSincVal);
+
+      this.addBarAt(i - this.plot.x, pixSincVal, clickDraw);
+    }
+    this.renderer.render(this.stage);
+  }
+
+// These two functions aren't quite right
   convertToPlotPixel(unit, isX) {
     if (isX) {
       var xrange = this.xmax - this.xmin;
@@ -361,4 +450,15 @@ class Graph {
       return Math.floor(((this.ymax - unit) / yrange) * this.plot.height) + this.plot.y;
     }
   }
+
+  convertToPlotCoordinate(unit, isX) {
+    if (isX) {
+      var xrange = this.xmax - this.xmin;
+      return (((unit - this.plot.x - 4) / this.plot.width) * xrange) + this.xmin; // label padding
+    } else {
+      var yrange = this.ymax - this.ymin;
+      return -1 * ((((unit + this.plot.y) / this.plot.height) * yrange) - this.ymax);
+    }
+  }
+
 }
