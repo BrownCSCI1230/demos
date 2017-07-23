@@ -45,11 +45,10 @@ class Graph {
   }
 
   getGraphData(x) {
-    var xdiff = this.xmax - this.xmin;
-    var i = Math.round(((x - this.xmin) / xdiff) * this.graphData.length);
-    i = Math.max(0, Math.min(this.graphData.length - 1, i));
-
-    return this.graphData[i];
+    // var xdiff = this.xmax - this.xmin;
+    // var i = Math.round(((x - this.xmin) / xdiff) * this.graphData.length);
+    // i = Math.max(0, Math.min(this.graphData.length - 1, i));
+    return this.graphData[x];
   }
 
   setGraphData(graphData) {
@@ -60,15 +59,36 @@ class Graph {
       var ydiff = this.ymax - this.ymin;
       var canvasY = Math.round(((y - this.ymin) / ydiff) * this.plot.height);
       canvasY = Math.max(0, Math.min(this.plot.height, canvasY))
+      canvasY = this.convertToPlotPixel(y, false);
 
       var clickDraw = new PIXI.Graphics;
       clickDraw.lineStyle(1, 0x0000ff, 1);
       clickDraw.moveTo(this.plot.x + i, this.plotDrawingZero);
-      clickDraw.lineTo(this.plot.x + i, this.plot.y + this.plot.height - canvasY);
+      clickDraw.lineTo(this.plot.x + i, canvasY);
 
       // store the bar we're drawing so we can remove it later if we need to
       this.addBarAt(i, canvasY, clickDraw);
-      this.stage.addChild(clickDraw);
+    }
+
+    this.renderer.render(this.stage);
+  }
+
+  setGraphDataAtIndices(start, end) {
+
+    for (var i = start; i < end; i ++) {
+      var y = this.graphData[i];
+      var ydiff = this.ymax - this.ymin;
+      var canvasY = Math.round(((y - this.ymin) / ydiff) * this.plot.height);
+      canvasY = Math.max(0, Math.min(this.plot.height, canvasY))
+      canvasY = this.convertToPlotPixel(y, false);
+
+      var clickDraw = new PIXI.Graphics;
+      clickDraw.lineStyle(1, 0x0000ff, 1);
+      clickDraw.moveTo(this.plot.x + i, this.plotDrawingZero);
+      clickDraw.lineTo(this.plot.x + i, canvasY);
+
+      // store the bar we're drawing so we can remove it later if we need to
+      this.addBarAt(i, canvasY, clickDraw);
     }
 
     this.renderer.render(this.stage);
@@ -148,7 +168,7 @@ class Graph {
     var positionOnGraph = j - this.plot.y;
     var yrange = this.ymax - this.ymin;
     var valueOfGraph = (-1 * ((positionOnGraph * yrange) / this.plot.height) - this.ymin);
-    this.graphData[i] = valueOfGraph;
+    this.graphData[i] = this.convertToPlotCoordinate(j, false);
   }
 
   clearAllBars() {
@@ -457,7 +477,7 @@ class Graph {
       return (((unit - this.plot.x - 4) / this.plot.width) * xrange) + this.xmin; // label padding
     } else {
       var yrange = this.ymax - this.ymin;
-      return -1 * ((((unit + this.plot.y) / this.plot.height) * yrange) - this.ymax);
+      return -1 * ((((unit - this.plot.y) / this.plot.height) * yrange) - this.ymax);
     }
   }
 

@@ -4,38 +4,80 @@ $(function() {
   var filter = new Graph(document.getElementById("filterGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "g(x) [Filter]");
   var product = new Graph(document.getElementById("productGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x)g(x) [Product]");
   var result = new Graph(document.getElementById("resultGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) * g(x) [Convolution]");
-
+  console.log(signal.convertToPlotPixel(signal.convertToPlotCoordinate(100, false), false));
   /* Convolve signal with filter */
   var updateResult = function() {
     var resultData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
     var productData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
 
-    var resultXDiff = result.xmax - result.xmin;
-    var productXDiff = product.xmax - product.xmin;
-    var filterXDiff = filter.xmax - filter.xmin;
-
-    var resultStep = resultXDiff / result.graphData.length;
-    var productStep = productXDiff / product.graphData.length;
-    var filterStep = filterXDiff / filter.graphData.length;
-
-    for(var i = 0; i < result.graphData.length; i++) {
-      var xProd = i * productStep + product.xmin;
-      var xRes = i * resultStep + result.xmin;
+    for(var xRes = 0; xRes < result.graphData.length; xRes++) {
       var sum = 0;
 
-      for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
-        var signalX = xRes - filterX;
-	      sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
+      for(var filterX = 0; filterX < filter.graphData.length; filterX++) {
+        var converted = filter.convertToPlotCoordinate(xRes) - filter.convertToPlotCoordinate(filterX);
+        var signalX = Math.max(0, Math.min(converted, signal.graphData.length));
+	      sum += filter.getGraphData(filterX) * signal.getGraphData(signalX);
       }
 
-      resultData[i] = sum;
-      productData[i] = signal.getGraphData(xProd) * filter.getGraphData(xRes);
+      resultData[xRes] = sum;
+      productData[xRes] = signal.getGraphData(xRes) * filter.getGraphData(xRes);
     }
 
+    // result.graphData = resultData;
+    // product.graphData = productData;
+
+    console.log(resultData);
     result.setGraphData(resultData);
-    product.setGraphData(productData);
+    console.log(resultData);
   }
 
+  $( "#filterSlider" ).slider({
+    min: 0,
+    max: filter.graphData.length,
+    value: filter.graphData.length / 2,
+    animate: "slow",
+    slide: sliderDidMove
+  });
+
+  function sliderDidMove(eventSlider, uiSlider) {
+    updateResultForValue(uiSlider.value);
+  }
+
+  var lastSliderPos = filter.graphData.length / 2;
+
+  function updateResultForValue(value) {
+
+    // if a user moves quickly, we want to print a lot of filter
+    var buffer = 2 * Math.abs(lastSliderPos - value);
+
+    // for (var i = value - buffer / 2; i < value + buffer / 2; i++) {
+    //   var resultXDiff = result.xmax - result.xmin;
+    //   var productXDiff = product.xmax - product.xmin;
+    //   var filterXDiff = filter.xmax - filter.xmin;
+    //
+    //   var resultStep = resultXDiff / result.graphData.length;
+    //   var productStep = productXDiff / product.graphData.length;
+    //   var filterStep = filterXDiff / filter.graphData.length;
+    //
+    //   var xProd = i * productStep + product.xmin;
+    //   var xRes = i * resultStep + result.xmin;
+    //   var sum = 0;
+    //
+    //   for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
+    //     var signalX = xRes - filterX;
+    //     sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
+    //   }
+    //
+    //   resultData[i] = sum;
+    //   productData[i] = signal.getGraphData(xProd) * filter.getGraphData(xRes);
+    //
+    // }
+
+    result.setGraphDataAtIndices(value, value + buffer);
+    product.setGraphDataAtIndices(value, value + buffer);
+
+    lastSliderPos = value;
+  }
   /* Hacky way to call previous onMove function, and do something else as well */
   signal.doMove = signal.onMove;
   filter.doMove = filter.onMove;
