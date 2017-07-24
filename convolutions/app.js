@@ -4,31 +4,55 @@ $(function() {
   var filter = new Graph(document.getElementById("filterGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "g(x) [Filter]");
   var product = new Graph(document.getElementById("productGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x)g(x) [Product]");
   var result = new Graph(document.getElementById("resultGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) * g(x) [Convolution]");
+
   console.log(signal.convertToPlotPixel(signal.convertToPlotCoordinate(100, false), false));
+
   /* Convolve signal with filter */
+  // Q: Why convert to plot coordinates, seems as if already in plot coordinates
+  //    If new in plot coordinates, why compare to something that is not
+
+  // Q: what are plot coordinates, what are not?
+  // NOTE: looks like convert to plot coordinates is trying to convert index of graph
+  // (from 0 to length - 1 of signal) into corresponding x value, but then why is it
+  // being compared to index, and why is it used as index in getGraphData?
+
   var updateResult = function() {
-    var resultData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
+    var convolutionData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
     var productData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
 
-    for(var xRes = 0; xRes < result.graphData.length; xRes++) {
+    var resultXDiff = result.xmax - result.xmin;
+    var filterXDiff = filter.xmax - filter.xmin;
+
+    var resultStep = resultXDiff / result.graphData.length;
+    var filterStep = filterXDiff / filter.graphData.length;
+
+    // Iterate over all x values in result
+    for(var resultX = result.xmin; resultX <= result.xmax; resultX += resultStep) {
       var sum = 0;
 
-      for(var filterX = 0; filterX < filter.graphData.length; filterX++) {
-        var converted = filter.convertToPlotCoordinate(xRes) - filter.convertToPlotCoordinate(filterX);
-        var signalX = Math.max(0, Math.min(converted, signal.graphData.length));
-	      sum += filter.getGraphData(filterX) * signal.getGraphData(signalX);
+      // Iterate over all x values in filter
+      for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
+	// Product of values of the filter at (filterX) and the original signal at
+	// (resultX - filterX) will contribute to value of result signal at resultX
+	var signalX = resultX - filterX;
+
+	// Accumulate result of convolution at result x
+	sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
       }
 
-      resultData[xRes] = sum;
-      productData[xRes] = signal.getGraphData(xRes) * filter.getGraphData(xRes);
+      // Get index of convolutionData that corresponds to resultX
+      var i = Math.round(((resultX - result.xmin) / (result.xmax - result.xmin)) * convolutionData.length);
+      i = Math.max(0, Math.min(convolutionData.length - 1, i));
+
+      // Convolution result
+      convolutionData[i] = sum;
+
+      // Product result
+      productData[i] = filter.getGraphData(resultX) * signal.getGraphData(resultX);
     }
 
-    // result.graphData = resultData;
-    // product.graphData = productData;
-
-    console.log(resultData);
-    result.setGraphData(resultData);
-    console.log(resultData);
+    result.setGraphData(convolutionData);
+    product.setGraphData(productData);
   }
 
   $( "#filterSlider" ).slider({
@@ -46,50 +70,47 @@ $(function() {
   var lastSliderPos = filter.graphData.length / 2;
 
   function updateResultForValue(value) {
+    convolutionData = result.graphData;
+    productData = product.graphData;
 
-    // if a user moves quickly, we want to print a lot of filter
-    var buffer = 2 * Math.abs(lastSliderPos - value);
+    var resultXDiff = result.xmax - result.xmin;
+    var filterXDiff = filter.xmax - filter.xmin;
+  
+    var resultStep = resultXDiff / result.graphData.length;
+    var filterStep = filterXDiff / filter.graphData.length;
 
-    // for (var i = value - buffer / 2; i < value + buffer / 2; i++) {
-    //   var resultXDiff = result.xmax - result.xmin;
-    //   var productXDiff = product.xmax - product.xmin;
-    //   var filterXDiff = filter.xmax - filter.xmin;
-    //
-    //   var resultStep = resultXDiff / result.graphData.length;
-    //   var productStep = productXDiff / product.graphData.length;
-    //   var filterStep = filterXDiff / filter.graphData.length;
-    //
-    //   var xProd = i * productStep + product.xmin;
-    //   var xRes = i * resultStep + result.xmin;
-    //   var sum = 0;
-    //
-    //   for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
-    //     var signalX = xRes - filterX;
-    //     sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
-    //   }
-    //
-    //   resultData[i] = sum;
-    //   productData[i] = signal.getGraphData(xProd) * filter.getGraphData(xRes);
-    //
-    // }
+    var start = Math.min(lastSliderPos, value);
+    var end = Math.max(lastSliderPos, value);
 
-    result.setGraphDataAtIndices(value, value + buffer);
-    product.setGraphDataAtIndices(value, value + buffer);
+    for (var i = start; i <= end; i++) {
+      var resultX = i * resultStep + result.xmin;
+      var sum = 0;
+    
+      for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
+        var signalX = resultX - filterX;
+        sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
+      }
+    
+      convolutionData[i] = sum;
+      productData[i] = signal.getGraphData(resultX) * filter.getGraphData(resultX);
+    }
+
+    result.setGraphDataAtIndices(convolutionData, start, end);
+    product.setGraphDataAtIndices(productData, start, end);
 
     lastSliderPos = value;
   }
+
   /* Hacky way to call previous onMove function, and do something else as well */
   signal.doMove = signal.onMove;
   filter.doMove = filter.onMove;
 
   signal.onMove = function(sprite, mousePos) {
     signal.doMove(sprite, mousePos);
-    updateResult();
   }
 
   filter.onMove = function(sprite, mousePos) {
     filter.doMove(sprite, mousePos);
-    updateResult();
   }
 
   var clearFunctionButton = document.getElementById("clearFunctionButton");
@@ -139,4 +160,8 @@ $(function() {
     updateResult();
   });
 
+  var convolveButton = document.getElementById("convolveButton");
+  convolveButton.addEventListener("click", function(){
+    updateResult();
+  });
 });
