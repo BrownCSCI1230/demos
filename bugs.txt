@@ -9,3 +9,6 @@ Convolutions
   from "plot coordinates" to "pixel coordinates" and back results in a value that's
   4 pixels greater than it should be, regardless of a conversion in the x or y
   direction.
+
+2. There's a lot of repeated code between continuous and discrete convolutions.
+  Refactor this?
