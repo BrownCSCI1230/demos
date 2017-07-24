@@ -40,15 +40,11 @@ class Graph {
     this.draw();
   }
 
-  getGraphData() {
-    return this.graphData;
-  }
-
   getGraphData(x) {
-    // var xdiff = this.xmax - this.xmin;
-    // var i = Math.round(((x - this.xmin) / xdiff) * this.graphData.length);
-    // i = Math.max(0, Math.min(this.graphData.length - 1, i));
-    return this.graphData[x];
+    var xdiff = this.xmax - this.xmin;
+    var i = Math.round(((x - this.xmin) / xdiff) * this.graphData.length);
+    i = Math.max(0, Math.min(this.graphData.length - 1, i));
+    return this.graphData[i];
   }
 
   setGraphData(graphData) {
@@ -73,7 +69,8 @@ class Graph {
     this.renderer.render(this.stage);
   }
 
-  setGraphDataAtIndices(start, end) {
+  setGraphDataAtIndices(graphData, start, end) {
+    this.graphData = graphData;
 
     for (var i = start; i < end; i ++) {
       var y = this.graphData[i];
