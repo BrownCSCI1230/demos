@@ -52,18 +52,10 @@ class Graph {
 
     for (var i = 0; i < graphData.length; i ++) {
       var y = graphData[i];
-      var ydiff = this.ymax - this.ymin;
-      var canvasY = Math.round(((y - this.ymin) / ydiff) * this.plot.height);
-      canvasY = Math.max(0, Math.min(this.plot.height, canvasY))
-      canvasY = this.convertToPlotPixel(y, false);
-
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(this.plot.x + i, this.plotDrawingZero);
-      clickDraw.lineTo(this.plot.x + i, canvasY);
+      var canvasY = this.convertToPixel(y, false);
 
       // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, canvasY, clickDraw);
+      this.addBarAt(i, canvasY);
     }
 
     this.renderer.render(this.stage);
@@ -73,19 +65,11 @@ class Graph {
     this.graphData = graphData;
 
     for (var i = start; i < end; i ++) {
-      var y = this.graphData[i];
-      var ydiff = this.ymax - this.ymin;
-      var canvasY = Math.round(((y - this.ymin) / ydiff) * this.plot.height);
-      canvasY = Math.max(0, Math.min(this.plot.height, canvasY))
-      canvasY = this.convertToPlotPixel(y, false);
-
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(this.plot.x + i, this.plotDrawingZero);
-      clickDraw.lineTo(this.plot.x + i, canvasY);
+      var y = graphData[i];
+      var canvasY = this.convertToPixel(y, false);
 
       // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, canvasY, clickDraw);
+      this.addBarAt(i, canvasY);
     }
 
     this.renderer.render(this.stage);
@@ -152,20 +136,25 @@ class Graph {
     this.renderer.render(this.stage);
   }
 
-  addBarAt(i, j, bar) {
+  addBarAt(i, j) {
     // Remove old element and add new element if we might need to remove later
     var oldBar = this.drawingIndices[i];
+
     if (oldBar != 0) {
       this.stage.removeChild(oldBar);
     }
+
+    // Add new bar
+    var bar = new PIXI.Graphics;
+    bar.lineStyle(1, 0x0000ff, 1);
+    bar.moveTo(this.plot.x + i, this.plotDrawingZero);
+    bar.lineTo(this.plot.x + i, this.plot.y + j);
+
     this.drawingIndices[i] = bar;
     this.stage.addChild(bar);
 
-    //data
-    var positionOnGraph = j - this.plot.y;
-    var yrange = this.ymax - this.ymin;
-    var valueOfGraph = (-1 * ((positionOnGraph * yrange) / this.plot.height) - this.ymin);
-    this.graphData[i] = this.convertToPlotCoordinate(j, false);
+    // Graph Data
+    this.graphData[i] = this.convertToPlot(j, false);
   }
 
   clearAllBars() {
@@ -181,11 +170,7 @@ class Graph {
   }
 
   onClick(mousePos) {
-    var clickDraw = new PIXI.Graphics;
-    clickDraw.lineStyle(1, 0x0000ff, 1);
-    clickDraw.moveTo(mousePos.x, mousePos.y);
-    clickDraw.lineTo(mousePos.x, this.plotDrawingZero);
-    this.addBarAt(mousePos.x - this.plot.x, mousePos.y, clickDraw);
+    this.addBarAt(mousePos.x - this.plot.x, mousePos.y - this.plot.y);
 
     var self = this;
     this.plot.on('pointermove', function(eventData){
@@ -205,8 +190,6 @@ class Graph {
     // It's a rough solution...
     var clientX = Math.max(this.plot.x, Math.min(this.plot.x + this.plot.width, mousePos.x));
     var clientY = Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y));
-    var willDrawToUpperEdge = clientY > this.plot.y + this.plot.height;
-    var willDrawToLowerEdge = clientY < this.plot.y;
 
     var dx = this.currentMouseX - clientX;
     var step = Math.sign(dx);
@@ -217,13 +200,8 @@ class Graph {
       	var canStillDraw = (clientX + i > this.plot.x && clientX + i < this.plot.x + this.plot.width);
 
       	if (canStillDraw) {
-      	  var clickDraw = new PIXI.Graphics;
-      	  clickDraw.lineStyle(1, 0x0000ff, 1);
-      	  clickDraw.moveTo(clientX + i, this.plotDrawingZero);
-      	  clickDraw.lineTo(clientX + i, clientY);
-
       	  // store the bar we're drawing so we can remove it later if we need to
-      	  this.addBarAt(clientX + i - this.plot.x, clientY, clickDraw);
+      	  this.addBarAt(clientX + i - this.plot.x, clientY - this.plot.y);
       	}
       }
     }
@@ -272,7 +250,7 @@ class Graph {
     var labelPadding = 5;
 
     for (var i = 0; i <= numSteps; i++) {
-      var xpos = labelPadding + i * stepLength - 1;
+      var xpos = plot.x + i * stepLength;
 
       if (i > 0 && i < numSteps) {
         var xaxis = new PIXI.Graphics;
@@ -353,39 +331,31 @@ class Graph {
   }
 
   drawBox(start, end, height) {
-    var startPix = this.convertToPlotPixel(start, true);
-    var endPix = this.convertToPlotPixel(end, true);
-    var heightPix = this.convertToPlotPixel(height, false);
+    var startPix = this.convertToPixel(start, true);
+    var endPix = this.convertToPixel(end, true);
+    var heightPix = this.convertToPixel(height, false);
 
-    for (var i = startPix; i < endPix; i++) {
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(i, this.plotDrawingZero);
-      clickDraw.lineTo(i, heightPix);
-
-      this.addBarAt(i - this.plot.x, heightPix, clickDraw);
+    for (var i = startPix; i <= endPix; i++) {
+      this.addBarAt(i, heightPix);
     }
 
     this.renderer.render(this.stage);
   }
 
   drawTriangle(start, end, height) {
-    var startPix = this.convertToPlotPixel(start, true);
-    var endPix = this.convertToPlotPixel(end, true);
-    var heightPix = this.convertToPlotPixel(height, false);
+    var startPix = this.convertToPixel(start, true);
+    var endPix = this.convertToPixel(end, true);
+    var slope = 2 * height / (end - start);
+    var mid = (end + start) / 2;
 
-    for (var i = startPix; i < endPix; i++) {
-      var sampleX = this.convertToPlotCoordinate(i, true);
-      var triangleHeight = (-1 * Math.abs(sampleX) + 1) * height;
-      var triangleHeightPixel = this.convertToPlotPixel(triangleHeight);
+    for (var i = startPix; i <= endPix; i++) {
+      var sampleX = this.convertToPlot(i, true) - mid;
+      var triangleHeight = (-slope * Math.abs(sampleX - mid) + height);
+      var triangleHeightPixel = this.convertToPixel(triangleHeight, false);
 
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(i, this.plotDrawingZero);
-      clickDraw.lineTo(i, triangleHeightPixel, false);
-
-      this.addBarAt(i - this.plot.x, triangleHeightPixel, clickDraw);
+      this.addBarAt(i, triangleHeightPixel);
     }
+
     this.renderer.render(this.stage);
   }
 
@@ -393,50 +363,42 @@ class Graph {
     var startPix = this.convertToPlotPixel(start, true);
     var endPix = this.convertToPlotPixel(end, true);
 
-    for (var i = startPix; i < endPix; i++) {
+    for (var i = startPix; i <= endPix; i++) {
       var sampleX = this.convertToPlotCoordinate(i, true);
       var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI));
       var gaussianExp = - (1 / 2) * Math.pow(sampleX, 2);
       var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
       var pixGaussianVal = this.convertToPlotPixel(gaussianVal, false);
 
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(i, this.plotDrawingZero);
-      clickDraw.lineTo(i, pixGaussianVal);
-
-      this.addBarAt(i - this.plot.x, pixGaussianVal, clickDraw);
+      this.addBarAt(i, pixGaussianVal);
     }
+
     this.renderer.render(this.stage);
   }
 
   drawGaussian(start, end) {
-    var startPix = this.convertToPlotPixel(start, true);
-    var endPix = this.convertToPlotPixel(end, true);
+    var startPix = this.convertToPixel(start, true);
+    var endPix = this.convertToPixel(end, true);
 
     for (var i = startPix; i < endPix; i++) {
-      var sampleX = this.convertToPlotCoordinate(i, true);
+      var sampleX = this.convertToPlot(i, true);
       var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI));
       var gaussianExp = - (1 / 2) * Math.pow(sampleX, 2);
       var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
-      var pixGaussianVal = this.convertToPlotPixel(gaussianVal, false);
+      var pixGaussianVal = this.convertToPixel(gaussianVal, false);
 
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(i, this.plotDrawingZero);
-      clickDraw.lineTo(i, pixGaussianVal);
-
-      this.addBarAt(i - this.plot.x, pixGaussianVal, clickDraw);
+      this.addBarAt(i, pixGaussianVal);
     }
+
     this.renderer.render(this.stage);
   }
 
   drawSinc(start, end) {
-    var startPix = this.convertToPlotPixel(start, true);
-    var endPix = this.convertToPlotPixel(end, true);
+    var startPix = this.convertToPixel(start, true);
+    var endPix = this.convertToPixel(end, true);
 
     for (var i = startPix; i < endPix; i++) {
-      var sampleX = this.convertToPlotCoordinate(i, true);
+      var sampleX = this.convertToPlot(i, true);
 
       if (sampleX == 0) {
         continue;
@@ -445,37 +407,45 @@ class Graph {
       var sincNumerator = Math.sin(Math.PI * sampleX);
       var sincDenominator = Math.PI * sampleX;
       var sincVal = sincNumerator / sincDenominator;
-      var pixSincVal = this.convertToPlotPixel(sincVal, false);
+      var pixSincVal = this.convertToPixel(sincVal, false);
 
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(i, this.plotDrawingZero);
-      clickDraw.lineTo(i, pixSincVal);
-
-      this.addBarAt(i - this.plot.x, pixSincVal, clickDraw);
+      this.addBarAt(i, pixSincVal);
     }
+
     this.renderer.render(this.stage);
   }
 
-// These two functions aren't quite right
-  convertToPlotPixel(unit, isX) {
+  convertToPixel(unit, isX) {
     if (isX) {
       var xrange = this.xmax - this.xmin;
-      return Math.floor(((unit - this.xmin) / xrange) * this.plot.width) + this.plot.x + 4; // label padding
+      var i = Math.floor(((unit - this.xmin) / xrange) * this.plot.width);
+      return Math.max(0, Math.min(this.plot.width - 1, i));
     } else {
       var yrange = this.ymax - this.ymin;
-      return Math.floor(((this.ymax - unit) / yrange) * this.plot.height) + this.plot.y;
+      var i = Math.floor(((this.ymax - unit) / yrange) * this.plot.height);
+      return Math.max(0, Math.min(this.plot.height - 1, i));
     }
   }
 
-  convertToPlotCoordinate(unit, isX) {
+  convertToPlot(unit, isX) {
     if (isX) {
       var xrange = this.xmax - this.xmin;
-      return (((unit - this.plot.x - 4) / this.plot.width) * xrange) + this.xmin; // label padding
+      var x = ((unit / this.plot.width) * xrange) + this.xmin;
+      return Math.max(this.xmin, Math.min(this.xmax, x));
     } else {
       var yrange = this.ymax - this.ymin;
-      return -1 * ((((unit - this.plot.y) / this.plot.height) * yrange) - this.ymax);
+      var y = (((this.plot.height - unit) / this.plot.height) * yrange) + this.ymin;
+      return Math.max(this.ymin, Math.min(this.ymax, y));
     }
   }
 
+  convertToXIndex(x) {
+      var i = Math.round(((x - this.xmin) / (this.xmax - this.xmin)) * this.graphData.length);
+      return Math.max(0, Math.min(this.plot.width - 1, i));
+  }
+
+  convertToYIndex(y) {
+      var i = Math.round(((y - this.ymin) / (this.ymax - this.ymin)) * this.graphData.length);
+      return Math.max(0, Math.min(this.plot.height, i));
+  }
 }
