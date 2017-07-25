@@ -12,3 +12,6 @@ Convolutions
 
 2. There's a lot of repeated code between continuous and discrete convolutions.
   Refactor this?
+
+3. The pixel coordinates on discrete convolution are also a little bit off... the
+  y-values are a bit higher than they should be.

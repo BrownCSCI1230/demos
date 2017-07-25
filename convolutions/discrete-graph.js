@@ -23,6 +23,7 @@ class Graph {
     this.title = title;
     this.xtitle = title;
     this.ytitle = title;
+    this.isBlank = isBlank;
 
     this.plot;
     this.graphData = [];
@@ -137,38 +138,6 @@ class Graph {
         this.dataPoints[i] = dataPoint;
         dataPoint.x = this.convertToPlotPixel(this.xmin + i, true) - dataPoint.width / 2;
         dataPoint.y = this.convertToPlotPixel(0, false) - dataPoint.height / 2;
-
-        dataPoint.interactive = true;
-        var self = this;
-
-        dataPoint.on('pointerdown', function(eventData){
-          var data = eventData.data;
-          var mousePos = new PIXI.Point(0, 0);
-          data.getLocalPosition(self.stage, mousePos, data.global);
-          self.onClick(mousePos);
-        });
-
-        dataPoint.on('pointermove', function(eventData){
-          var data = eventData.data;
-          var mousePos = new PIXI.Point(0, 0);
-          data.getLocalPosition(self.stage, mousePos, data.global);
-          self.onMove(mousePos);
-        });
-
-        dataPoint.on('pointerup', function(eventData){
-          var data = eventData.data;
-          var mousePos = new PIXI.Point(0, 0);
-          data.getLocalPosition(self.stage, mousePos, data.global);
-          self.onUp(mousePos);
-        });
-
-        dataPoint.on('pointerupoutside', function(eventData){
-          var data = eventData.data;
-          var mousePos = new PIXI.Point(0, 0);
-          data.getLocalPosition(self.stage, mousePos, data.global);
-          self.onUp(mousePos);
-        });
-
         this.stage.addChild(dataPoint);
       }
     }
@@ -176,13 +145,21 @@ class Graph {
     this.renderer.render(this.stage);
   }
 
-  clearAllBars() {
-    for (var i = 0; i < this.drawingIndices.length; i++) {
-      var bar = this.drawingIndices[i];
-      if (bar != 0) {
-        this.stage.removeChild(bar);
-        this.drawingIndices[i] = 0;
-        this.graphData[i] = 0;
+  clearAll() {
+    for (var i = 0; i < this.dataPoints.length; i++) {
+      this.graphData[i] = 0;
+
+      if (this.dataPoints[i] !== null) {
+        this.stage.removeChild(this.dataPoints[i]);
+        this.dataPoints[i] = null;
+      }
+
+      if (!this.isBlank) {
+        var dataPoint = this.makeDataPoint(9, 9);
+        this.dataPoints[i] = dataPoint;
+        dataPoint.x = this.convertToPlotPixel(this.xmin + i, true) - dataPoint.width / 2;
+        dataPoint.y = this.convertToPlotPixel(0, false) - dataPoint.height / 2;
+        this.stage.addChild(dataPoint);
       }
     }
     this.renderer.render(this.stage);
@@ -237,7 +214,7 @@ class Graph {
   moveDataPoint(index, yCoord) {
     var dataPoint = this.dataPoints[index];
 
-    if (dataPoint === undefined) {
+    if (dataPoint == null) {
       dataPoint = this.makeDataPoint(9, 9) // TODO: set constants
       dataPoint.x = this.convertToPlotPixel(index + this.xmin, true) - dataPoint.width / 2;
       this.dataPoints[index] = dataPoint;
@@ -250,27 +227,18 @@ class Graph {
   shiftEntireLine(shift) {
     this.totalShift += shift;
     var newDataPoints = [];
-    var newGraphData = [];
-    console.log(shift);
     for (var i = 0; i < this.dataPoints.length; i++) {
-      if (i < shift || i > this.dataPoints.length - shift - 1) {
-        if (this.dataPoints[i] !== undefined) {
-          this.dataPoints[i].destroy();
-          this.dataPoints[i] = undefined;
-        }
+      if (this.dataPoints[i] != null) {
+        this.stage.removeChild(this.dataPoints[i]);
       }
-      if (i + shift < this.dataPoints.length && i + shift >= 0) {
-        var dataPoint = this.dataPoints[i + shift];
-        if (dataPoint === undefined) {
-          dataPoint = this.makeDataPoint(9, 9);
-          this.stage.addChild(dataPoint);
-        }
-        dataPoint.x = this.convertToPlotPixel(i + this.xmin, true) - dataPoint.width / 2;
-        var yData = this.graphData[i + this.totalShift];
-        dataPoint.y = this.convertToPlotPixel(yData, false) - dataPoint.height / 2;
-        newDataPoints[i] = dataPoint;
+      if (this.graphData[i + this.totalShift] !== undefined) {
+        var newPoint = this.makeDataPoint(9, 9);
+        newPoint.x = this.convertToPlotPixel(i + this.xmin, true) - newPoint.width / 2;
+        newPoint.y = this.convertToPlotPixel(this.graphData[i + this.totalShift], false) - newPoint.height / 2;
+        this.stage.addChild(newPoint);
+        newDataPoints[i] = newPoint;
       } else {
-
+        newDataPoints[i] = null;
       }
     }
     this.dataPoints = newDataPoints;
@@ -395,6 +363,38 @@ class Graph {
     dataPoint.beginFill(0x000000, 1); //white
     dataPoint.drawRect(0, 0, width, height);
     dataPoint.endFill();
+
+    dataPoint.interactive = true;
+    var self = this;
+
+    dataPoint.on('pointerdown', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onClick(mousePos);
+    });
+
+    dataPoint.on('pointermove', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onMove(mousePos);
+    });
+
+    dataPoint.on('pointerup', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onUp(mousePos);
+    });
+
+    dataPoint.on('pointerupoutside', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onUp(mousePos);
+    });
+
     return dataPoint;
   }
 
