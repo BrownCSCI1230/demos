@@ -244,6 +244,24 @@ class Graph {
     this.dataPoints = newDataPoints;
   }
 
+  normalizePoints() {
+    var sum = 0;
+    for (var i = 0; i < this.graphData.length; i++) {
+      sum += this.graphData[i];
+    }
+
+    if (sum != 0) {
+      for (var i = 0; i < this.graphData.length; i++) {
+        var original = this.graphData[i];
+        var newValue = original / sum;
+        this.graphData[i] = newValue;
+        this.moveDataPoint(i, newValue);
+      }
+
+      this.renderer.render(this.stage);
+    }
+  }
+
   makeBackground() {
     var background = new PIXI.Graphics;
     background.lineStyle(3, 0x000000, 1); //black
