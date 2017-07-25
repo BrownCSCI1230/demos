@@ -1,6 +1,7 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="convolutions.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://pixijs.download/release/pixi.min.js"></script>
@@ -13,13 +14,13 @@
     <button class="ui-button ui-widget ui-corner-all" id="clearFunctionButton">Clear Function</button>
     <button class="ui-button ui-widget ui-corner-all" id="boxFunctionButton">Box Function</button>
     <div id="filterGraph"></div>
-    <div id="filterSlider"></div>
     <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton">Clear Filter</button>
     <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton">Box Filter</button>
     <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton">Triangle Filter</button>
     <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton">Gaussian Filter</button>
     <button class="ui-button ui-widget ui-corner-all" id="sincFilterButton">Sinc Filter</button>
     <button class="ui-button ui-widget ui-corner-all" id="convolveButton">Convolve</button>
+    <div id="filterSlider"></div>
     <div id="productGraph"></div>
     <div id="resultGraph"></div>
   </body>

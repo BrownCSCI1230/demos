@@ -5,17 +5,9 @@ $(function() {
   var product = new Graph(document.getElementById("productGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x)g(x) [Product]");
   var result = new Graph(document.getElementById("resultGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) * g(x) [Convolution]");
 
-  console.log(signal.convertToPlotPixel(signal.convertToPlotCoordinate(100, false), false));
+  console.log(signal.convertToPixel(signal.convertToPlot(100, false), false));
 
   /* Convolve signal with filter */
-  // Q: Why convert to plot coordinates, seems as if already in plot coordinates
-  //    If new in plot coordinates, why compare to something that is not
-
-  // Q: what are plot coordinates, what are not?
-  // NOTE: looks like convert to plot coordinates is trying to convert index of graph
-  // (from 0 to length - 1 of signal) into corresponding x value, but then why is it
-  // being compared to index, and why is it used as index in getGraphData?
-
   var updateResult = function() {
     var convolutionData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
     var productData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
@@ -40,11 +32,8 @@ $(function() {
 	sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
       }
 
-      // Get index of convolutionData that corresponds to resultX
-      var i = Math.round(((resultX - result.xmin) / (result.xmax - result.xmin)) * convolutionData.length);
-      i = Math.max(0, Math.min(convolutionData.length - 1, i));
-
       // Convolution result
+      var i = result.convertToPixel(resultX, true);
       convolutionData[i] = sum;
 
       // Product result
@@ -129,35 +118,30 @@ $(function() {
   boxFunctionButton.addEventListener("click", function(){
     signal.clearAllBars();
     signal.drawBox(-0.5, 0.5, 1);
-    updateResult();
   });
 
   var boxFilterButton = document.getElementById("boxFilterButton");
   boxFilterButton.addEventListener("click", function(){
     filter.clearAllBars();
     filter.drawBox(-0.5, 0.5, 1);
-    updateResult();
   });
 
   var triangleFilterButton = document.getElementById("triangleFilterButton");
   triangleFilterButton.addEventListener("click", function(){
     filter.clearAllBars();
     filter.drawTriangle(-1, 1, 1);
-    updateResult();
   });
 
   var gaussianFilterButton = document.getElementById("gaussianFilterButton");
   gaussianFilterButton.addEventListener("click", function(){
     filter.clearAllBars();
     filter.drawGaussian(-4, 4);
-    updateResult();
   });
 
   var sincFilterButton = document.getElementById("sincFilterButton");
   sincFilterButton.addEventListener("click", function(){
     filter.clearAllBars();
     filter.drawSinc(-4, 4);
-    updateResult();
   });
 
   var convolveButton = document.getElementById("convolveButton");
