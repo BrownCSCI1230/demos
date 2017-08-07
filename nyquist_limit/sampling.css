@@ -1,6 +1,9 @@
-#slider {
-  float: left;
-  margin-right: 20px;
+.ui-slider {
+    width: 600px;
+    text-align: center;
+    display: block;
+    margin: auto;
+    margin-bottom: 50px;
 }
 
 .ui-slider {
