@@ -27,13 +27,6 @@ function Graph({element = undefined, frequency = 0,
   // TODO: figure out how to label sliders
   
   // PIXI
-  this.element = document.getElementById(element);
-  this.renderer = new PIXI.CanvasRenderer(width + 100, height + 100, {
-    resolution: window.devicePixelRatio || 1,
-    autoResize: true
-  });
-  this.renderer.backgroundColor = 0xFFFFFF;
-  this.element.appendChild(this.renderer.view);
   this.stage = new PIXI.Container;
 
   // Properties
@@ -77,6 +70,16 @@ function Graph({element = undefined, frequency = 0,
   this.setupGraphics();
   this.setupLabels();
   this.setupAxes();
+
+  // Renderer
+  this.element = document.getElementById(element);
+  this.renderer = new PIXI.CanvasRenderer(width + this.yLabel.width + 30,
+      height + this.title.height + this.xLabel.height + 30, {
+    resolution: window.devicePixelRatio || 1,
+    autoResize: true
+  });
+  this.renderer.backgroundColor = 0xFFFFFF;
+  this.element.appendChild(this.renderer.view);
 }
 
 Graph.prototype.setupRange = function(samples) {
@@ -253,11 +256,13 @@ Graph.prototype.draw = function() {
 Graph.prototype.addBar = function(px, py, i) {
   // Create bar
   var bar = new PIXI.Graphics();
-  bar.interactive = true;
-  bar.alpha = 0.3;
+  var barWidth = this.width / (this.barSamples.length - 1);
 
   bar.setTransform(this.yLabel.width + 15, this.title.height + 15);
+  bar.interactive = true;
+  bar.hitArea = new PIXI.Rectangle(px - barWidth / 2, 0, barWidth, this.height);
 
+  bar.alpha = 0.3;
   bar.beginFill(this.barColor);
   bar.drawRect(px - 1, this.yZero, 2, py - this.yZero);
   bar.endFill();

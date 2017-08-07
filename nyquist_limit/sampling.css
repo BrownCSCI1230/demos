@@ -22,3 +22,8 @@
 .container {
   display: inline-block;
 }
+
+.slider-label {
+  font-family: Arial;
+  margin-bottom: 10px;
+}
