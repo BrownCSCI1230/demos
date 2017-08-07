@@ -22,6 +22,7 @@ function Graph({element = undefined, frequency = 0,
   title = 'function', xLabel = 'x axis', yLabel = 'y axis',
   titleSize = 12, labelSize = 12, titleFont = 'Arial', labelFont = 'Arial'} = {})
 {
+  // TODO: save frequencty elsewhere
   // TODO: label offset
   // TODO: centerd graphs + smaller graphs
   // TODO: figure out how to label sliders
@@ -294,28 +295,30 @@ Graph.prototype.addBar = function(px, py, i) {
 
 $(function() {
   var padding = 100;
+  var numPeriods = 10;
+  var numSamples = 20;
 
   // Sample points for graphs
   var s1 = new Sampler(0, 100, 0.5, function(x) {
-    return Math.sin(x / 10 * 2 * Math.PI);
+    return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
   });
 
-  var s2 = new Sampler(0, 100, 4, function(x) {
-    return Math.sin(x / 10 * 2 * Math.PI);
+  var s2 = new Sampler(0, 100, 100 / numSamples, function(x) {
+    return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
   });
 
   // Add graphs
   var graph1 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight,
     'graphType': 2, 'samples': s1.samples, 'barSamples': s2.samples, 'barColor': 0xFF0000,
-    'element': 'graph1', 'frequency': 10, 'title': 'Orignal Signal', 'xLabel': '', 'yLabel': ''});
+    'element': 'graph1', 'frequency': 10, 'title': 'f(x) [Orignal Function]', 'xLabel': '', 'yLabel': ''});
 
   var graph2 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight, 
     'graphType': 1, 'barSamples': s2.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
-    'element': 'graph2', 'frequency': 20, 'title': 'Samples', 'xLabel': '', 'yLabel': ''});
+    'element': 'graph2', 'frequency': 20, 'title': 'f(X) [Sampled f(x)]', 'xLabel': '', 'yLabel': ''});
 
   var graph3 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight,
     'graphType': 0, 'samples': s2.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
-    'element': 'graph3', 'title': 'Reconstructed Signal', 'xLabel': '', 'yLabel': ''});
+    'element': 'graph3', 'title': 'f\'(x) [Reconstruction of f(x) with Triangle Filter]', 'xLabel': '', 'yLabel': ''});
 
   // Set up pair graphs
   graph1.pairGraph = graph2;
@@ -330,28 +333,28 @@ $(function() {
   var frequencySlider = $("#frequencySlider").slider({
     min: 0,
     max: 20,
-    value: 10,
+    value: numPeriods,
     animate: "slow",
     slide: frequencySliderMoved
   }).slider("pips");
 
   var sampleSlider = $("#sampleSlider").slider({
     min: 0,
-    max: 100,
-    value: 20,
+    max: 40,
+    value: numSamples,
     animate: "slow",
     slide: sampleSliderMoved
   }).slider("pips");
 
   function frequencySliderMoved(eventSlider, uiSlider) {
-    graph1.frequency = uiSlider.value;
+    numPeriods = uiSlider.value;
 
     var s1 = new Sampler(0, 100, 0.1, function(x) {
-      return Math.sin(x / 100 * 2 * Math.PI * graph1.frequency);
+      return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
     });
 
-    var s2 = new Sampler(0, 100, 100 / graph2.frequency, function(x) {
-      return Math.sin(x / 100 * 2 * Math.PI * graph1.frequency);
+    var s2 = new Sampler(0, 100, 100 / numSamples, function(x) {
+      return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
     });
 
     graph1.setSamples(s1.samples);
@@ -365,10 +368,10 @@ $(function() {
   }
 
   function sampleSliderMoved(eventSlider, uiSlider) {
-    graph2.frequency = uiSlider.value;
+    numSamples = uiSlider.value;
 
-    var s2 = new Sampler(0, 100, 100 / graph2.frequency, function(x) {
-      return Math.sin(x / 100 * 2 * Math.PI * graph1.frequency);
+    var s2 = new Sampler(0, 100, 100 / numSamples, function(x) {
+      return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
     });
 
     graph1.setBarSamples(s2.samples);
