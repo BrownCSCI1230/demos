@@ -1,12 +1,11 @@
 /* Nyquist limit application */
-var appWidth = 800;
-var appHeight = 600;
+var graphWidth = 800;
+var graphHeight = 200;
 
 // Sampler class
 function Sampler(start, end, step, f) {
   this.samples = [];
 
-  // TODO: epsilon here
   for(var x = start; x <= end; x += step) {
     this.samples.push(new PIXI.Point(x, f(x)));
   }
@@ -14,27 +13,43 @@ function Sampler(start, end, step, f) {
 
 /* Graph class */
 Graph.constructor = Graph;
-Graph.prototype = Object.create(PIXI.Container.prototype);
 
-function Graph(x = 0, y = 0, width = 0, height = 0,
-    samples = [], barSamples = [], graphType = 0,
-    graphColor = 0x000000, barColor = 0x000000,
-    title = 'function', xLabel = 'x axis', yLabel = 'y axis',
-    titleSize = 12, labelSize = 12, titleFont = 'Arial', labelFont = 'Arial',
-    tickWidth = 2, xGridSize = 5, yGridSize = 4, xRange = [], yRange = []) {
-  PIXI.Container.call(this);
+function Graph({element = undefined, frequency = 0,
+  x = 0, y = 0, width = 0, height = 0, xRange = [], yRange = [],
+  samples = undefined, barSamples = undefined, graphType = 0,
+  tickWidth = 2, xGridSize = 5, yGridSize = 4,
+  graphColor = 0x000000, barColor = 0x000000,
+  title = 'function', xLabel = 'x axis', yLabel = 'y axis',
+  titleSize = 12, labelSize = 12, titleFont = 'Arial', labelFont = 'Arial'} = {})
+{
+  // TODO: save frequencty elsewhere
+  // TODO: label offset
+  // TODO: centerd graphs + smaller graphs
+  // TODO: figure out how to label sliders
+  
+  // PIXI
+  this.stage = new PIXI.Container;
 
   // Properties
+  this.frequency = frequency;
+
   this.x = x;
   this.y = y;
-  this.w = width;
-  this.h = height;
+  this.width = width;
+  this.height = height;
 
-  this.samples = samples.length === 0 ? barSamples : samples;
+  this.samples = samples;
   this.barSamples = barSamples;
   this.graphType = graphType;
   this.graphColor = graphColor;
   this.barColor = barColor;
+
+  if(this.barSamples !== undefined) {
+    this.bars = Array.apply(null, Array(this.barSamples.length)).map(Number.prototype.valueOf,0);
+  }
+  else {
+    this.bars = undefined;
+  }
 
   this.titleText = title;
   this.xLabelText = xLabel;
@@ -52,33 +67,46 @@ function Graph(x = 0, y = 0, width = 0, height = 0,
   this.yRange = yRange;
 
   // Setup
-  this.setupRange();
+  this.setupRange((this.samples === undefined ? this.barSamples : this.samples));
   this.setupGraphics();
   this.setupLabels();
+  this.setupAxes();
+
+  // Renderer
+  this.element = document.getElementById(element);
+  this.renderer = new PIXI.CanvasRenderer(width + this.yLabel.width + 30,
+      height + this.title.height + this.xLabel.height + 30, {
+    resolution: window.devicePixelRatio || 1,
+    autoResize: true
+  });
+  this.renderer.backgroundColor = 0xFFFFFF;
+  this.element.appendChild(this.renderer.view);
 }
 
-Graph.prototype.setupRange = function() {
-  if(this.xRange.length === 0 && this.samples.length > 0) {
-    this.xRange = [this.samples[0].x, this.samples[this.samples.length - 1].x];
+Graph.prototype.setupRange = function(samples) {
+  if(this.xRange.length === 0 && samples.length > 0) {
+    this.xRange = [samples[0].x, samples[samples.length - 1].x];
   }
 
-  if(this.yRange.length === 0 && this.samples.length > 0) {
+  if(this.yRange.length === 0 && samples.length > 0) {
     var ymin = Infinity;
     var ymax = -Infinity;
 
-    for(var i = 0; i < this.samples.length; i += 1) {
-      ymin = Math.min(this.samples[i].y, ymin);
-      ymax = Math.max(this.samples[i].y, ymax);
+    for(var i = 0; i < samples.length; i++) {
+      ymin = Math.min(samples[i].y, ymin);
+      ymax = Math.max(samples[i].y, ymax);
     }
 
     this.yRange = [ymin, ymax];
   }
+
+  this.yZero = this.height + this.yRange[0] / (this.yRange[1] - this.yRange[0]) * this.height;
 }
 
 Graph.prototype.setupGraphics = function() {
   // Graphics object
   this.graphics = new PIXI.Graphics();
-  this.addChild(this.graphics);
+  this.stage.addChild(this.graphics);
 }
 
 Graph.prototype.setupLabels = function() {
@@ -93,39 +121,43 @@ Graph.prototype.setupLabels = function() {
     fontSize: this.titleSize
   });
 
-  // TODO: drawing polygon with negative values
-  // TODO: mouse drag event for convolution graph
-  // TODO: only add labels once
-  // TODO: convolution graph interaction stuff within the class
-  // TODO: label offset
-  // TODO: bar highlighting
-  // TODO: sliders to determine sampling and sine wave frequency
-  // TODO: helper methods, adding interactive circles, adding ticks, adding points, converting point locations, etc.
-  // TODO: helper methods for drawing polygons
-
   this.title = new PIXI.Text(this.titleText, titleStyle);
   this.yLabel = new PIXI.Text(this.yLabelText, labelStyle);
   this.xLabel = new PIXI.Text(this.xLabelText, labelStyle);
 
-  this.title.anchor.set(0.5);
-  this.title.x = this.yLabel.width + this.w / 2;
+  this.title.anchor.set(0.5, 0);
+  this.title.x = this.yLabel.width + this.width / 2 + 15;
   this.title.y = 0;
-  this.addChild(this.title);
+  this.stage.addChild(this.title);
 
-  this.yLabel.anchor.set(0.5);
-  this.yLabel.x = -10;
-  this.yLabel.y = this.title.height + this.h / 2;
-  this.addChild(this.yLabel);
+  this.yLabel.anchor.set(0, 0.5);
+  this.yLabel.x = 0;
+  this.yLabel.y = this.title.height + this.height / 2 + 15;
+  this.stage.addChild(this.yLabel);
 
-  this.xLabel.anchor.set(0.5);
-  this.xLabel.x = this.yLabel.width + this.w / 2;
-  this.xLabel.y = this.title.height + this.h + this.xLabel.height + 10;
-  this.addChild(this.xLabel);
+  this.xLabel.anchor.set(0.5, 1);
+  this.xLabel.x = this.yLabel.width + this.width / 2 + 15;
+  this.xLabel.y = this.title.height + this.height + this.xLabel.height + 15;
+  this.stage.addChild(this.xLabel);
 }
 
-Graph.prototype.draw = function() {
-  this.graphics.clear();
-  this.graphics.setTransform(this.yLabel.width, this.title.height);
+Graph.prototype.setSamples = function(samples) {
+  this.samples = samples;
+}
+
+Graph.prototype.setBarSamples = function(barSamples) {
+  for(var i = 0; i < this.barSamples.length; i++) {
+    this.stage.removeChild(this.bars[i]);
+  }
+
+  this.barSamples = barSamples;
+  this.bars = Array.apply(null, Array(this.barSamples.length)).map(Number.prototype.valueOf,0);
+}
+
+Graph.prototype.setupAxes = function() {
+  this.axes = new PIXI.Graphics();
+  this.axes.setTransform(this.yLabel.width + 15, this.title.height + 15);
+  this.stage.addChild(this.axes);
 
   // Axis numbering font
   var numberStyle = new PIXI.TextStyle({
@@ -134,63 +166,67 @@ Graph.prototype.draw = function() {
   });
 
   // Draw graph lines x-axis
-  var step = this.w / this.xGridSize;
+  var step = this.width / this.xGridSize;
   var xDiff = this.xRange[1] - this.xRange[0];
-  this.graphics.lineStyle(1, 0x000000, 1);
+  this.axes.lineStyle(1, 0x000000, 1);
 
   for(var i = 0; i <= this.xGridSize; i++) {
     var v = step * i;
 
     if(i > 0) {
-      this.graphics.moveTo(v, this.h + this.tickWidth);
-      this.graphics.lineTo(v, this.h - this.tickWidth);
+      this.axes.moveTo(v, this.height + this.tickWidth);
+      this.axes.lineTo(v, this.height - this.tickWidth);
     }
 
     var text = new PIXI.Text((xDiff / this.xGridSize) * i + this.xRange[0], numberStyle);
-    text.setTransform(this.graphics.transform);
+    text.setTransform(this.axes.transform);
     text.anchor.set(0.5);
-    text.x = v + this.yLabel.width;
-    text.y = this.h + this.tickWidth + text.height / 2 + this.title.height;
-    this.addChild(text);
+    text.x = v + this.yLabel.width + 15;
+    text.y = this.height + this.tickWidth + text.height / 2 + this.title.height + 15;
+    this.stage.addChild(text);
   }
 
-  this.graphics.moveTo(-1, this.h);
-  this.graphics.lineTo(this.w, this.h);
+  this.axes.moveTo(-1, this.height);
+  this.axes.lineTo(this.width, this.height);
 
   // Draw graph lines y-axis
-  var step = this.h / this.yGridSize;
+  var step = this.height / this.yGridSize;
   var yDiff = this.yRange[1] - this.yRange[0];
-  this.graphics.lineStyle(1, 0x000000, 1);
+  this.axes.lineStyle(1, 0x000000, 1);
 
   for(var i = 0; i <= this.yGridSize; i++) {
     var v = step * i;
-    this.graphics.moveTo(-this.tickWidth, this.h - v);
-    this.graphics.lineTo(this.tickWidth, this.h - v);
+    this.axes.moveTo(-this.tickWidth, this.height - v);
+    this.axes.lineTo(this.tickWidth, this.height - v);
 
     var text = new PIXI.Text((((yDiff / this.yGridSize) * i) + this.yRange[0]), numberStyle);
-    text.setTransform(this.graphics.transform);
+    text.setTransform(this.axes.transform);
     text.anchor.set(0.5);
-    text.x = -this.tickWidth - text.width / 2 + this.yLabel.width;
-    text.y = this.h - v + this.title.height;
-    this.addChild(text);
+    text.x = -this.tickWidth - text.width / 2 + this.yLabel.width + 15;
+    text.y = this.height - v + this.title.height + 15;
+    this.stage.addChild(text);
   }
 
-  this.graphics.moveTo(0, 0);
-  this.graphics.lineTo(0, this.h + 1);
+  this.axes.moveTo(0, 0);
+  this.axes.lineTo(0, this.height + 1);
 
   // Draw graph line 0
-  var yZero = this.h + this.yRange[0] / (this.yRange[1] - this.yRange[0]) * this.h;
-  this.graphics.moveTo(0, yZero);
-  this.graphics.lineTo(this.w + 1, yZero);
+  this.axes.moveTo(0, this.yZero);
+  this.axes.lineTo(this.width + 1, this.yZero);
+}
+
+Graph.prototype.draw = function() {
+  this.graphics.clear();
+  this.graphics.setTransform(this.yLabel.width + 15, this.title.height + 15);
 
   // Draw graph
   if(this.graphType === 0 || this.graphType === 2) {
     this.graphics.lineStyle(1, this.graphColor, 1);
 
-    for(var i = 0; i < this.samples.length; i += 1) {
+    for(var i = 0; i < this.samples.length; i++) {
       var s = this.samples[i];
-      var px = (s.x - this.xRange[0]) / (this.xRange[1] - this.xRange[0]) * this.w;
-      var py = this.h - (s.y - this.yRange[0]) / (this.yRange[1] - this.yRange[0]) * this.h;
+      var px = (s.x - this.xRange[0]) / (this.xRange[1] - this.xRange[0]) * this.width;
+      var py = this.height - (s.y - this.yRange[0]) / (this.yRange[1] - this.yRange[0]) * this.height;
 
       if(i == 0) {
 	this.graphics.moveTo(px, py);
@@ -206,310 +242,144 @@ Graph.prototype.draw = function() {
   if(this.graphType == 1 || this.graphType === 2) {
     this.graphics.lineStyle(1, this.barColor, 1);
 
-    for(var i = 0; i < this.barSamples.length; i += 1) {
+    for(var i = 0; i < this.barSamples.length; i++) {
       var s = this.barSamples[i];
-      var px = (s.x - this.xRange[0]) / (this.xRange[1] - this.xRange[0]) * this.w;
-      var py = this.h - (s.y - this.yRange[0]) / (this.yRange[1] - this.yRange[0]) * this.h;
-
-      this.graphics.moveTo(px, yZero);
-      this.graphics.lineTo(px, py);
-
-      var barHead = new PIXI.Graphics();
-      barHead.setTransform(this.yLabel.width, this.title.height);
-      barHead.beginFill(0x0000FF);
-      barHead.drawCircle(px, py, 4);
-      barHead.endFill();
-      barHead.alpha = 0.5;
-      this.addChild(barHead);
-      barHead.interactive = true;
-
-      // make circle non-transparent when mouse is over it
-      barHead.mouseover = function(mouseData) {
-	this.alpha = 1;
-      }
-
-      // make circle half-transparent when mouse leaves
-      barHead.mouseout = function(mouseData) {
-	this.alpha = 0.5;
-      }
+      var px = (s.x - this.xRange[0]) / (this.xRange[1] - this.xRange[0]) * this.width;
+      var py = this.height - (s.y - this.yRange[0]) / (this.yRange[1] - this.yRange[0]) * this.height;
+      this.addBar(px, py, i);
     }
   }
+
+  // Render
+  this.renderer.render(this.stage);
 }
 
-/* ConvolutionGraph class */
-/*
-ConvolutionGraph.constructor = ConvolutionGraph;
-ConvolutionGraph.prototype = Object.create(PIXI.Container.prototype);
+Graph.prototype.addBar = function(px, py, i) {
+  // Create bar
+  var bar = new PIXI.Graphics();
+  var barWidth = this.width / (this.barSamples.length - 1);
 
-function ConvolutionGraph(x = 0, y = 0, width = 0, height = 0,
-    xRange = [], yRange = [], resolution = 100,
-    color = 0x000000,
-    title = 'function', xLabel = 'x axis', yLabel = 'y axis',
-    titleSize = 12, labelSize = 12, titleFont = 'Arial', labelFont = 'Arial',
-    tickWidth = 2, xGridSize = 5, yGridSize = 4) {
+  bar.setTransform(this.yLabel.width + 15, this.title.height + 15);
+  bar.interactive = true;
+  bar.hitArea = new PIXI.Rectangle(px - barWidth / 2, 0, barWidth, this.height);
 
-  PIXI.Container.call(this);
+  bar.alpha = 0.3;
+  bar.beginFill(this.barColor);
+  bar.drawRect(px - 1, this.yZero, 2, py - this.yZero);
+  bar.endFill();
 
-  // Properties
-  this.x = x;
-  this.y = y;
-  this.w = width;
-  this.h = height;
-  this.xRange = xRange;
-  this.yRange = yRange;
-  this.resolution = resolution;
-  this.samples = new Array(this.resolution + 1);
+  bar.beginFill(0x0000FF);
+  bar.lineStyle(0, this.barColor, 0);
+  bar.drawCircle(px, py, 4);
+  bar.endFill();
 
-  for(var i = 0; i <= this.resolution; i++) {
-    this.samples[i] = new PIXI.Point(xRange[0] + ((xRange[1] - xRange[0]) / resolution) * i, 1);
-  }
+  // make circle non-transparent when mouse is over it
+  bar.mouseover = (function(mouseData) {
+    this.bars[i].alpha = 1;
+    this.pairGraph.bars[i].alpha = 1;
+    this.renderer.render(this.stage);
+    this.pairGraph.renderer.render(this.pairGraph.stage);
+  }).bind(this);
 
-  this.color = color;
+  // make circle half-transparent when mouse leaves
+  bar.mouseout = (function(mouseData) {
+    this.bars[i].alpha = 0.3;
+    this.pairGraph.bars[i].alpha = 0.3;
+    this.renderer.render(this.stage);
+    this.pairGraph.renderer.render(this.pairGraph.stage);
+  }).bind(this);
 
-  this.titleText = title;
-  this.xLabelText = xLabel;
-  this.yLabelText = yLabel;
-
-  this.titleSize = titleSize;
-  this.labelSize = labelSize;
-  this.titleFont = titleFont;
-  this.labelFont = labelFont;
-
-  this.tickWidth = tickWidth;
-  this.xGridSize = xGridSize;
-  this.yGridSize = yGridSize;
-
-  // Setup
-  this.setupGraphics();
-  this.setupLabels();
+  this.stage.addChild(bar);
+  this.bars[i] = bar;
 }
-
-ConvolutionGraph.prototype.setupGraphics = function() {
-  // Graphics object
-  this.graphics = new PIXI.Graphics();
-  this.addChild(this.graphics);
-}
-
-ConvolutionGraph.prototype.setupLabels = function() {
-  // Labels
-  var labelStyle = new PIXI.TextStyle({
-    fontFamily: this.labelFont,
-    fontSize: this.labelSize
-  });
-
-  var titleStyle = new PIXI.TextStyle({
-    fontFamily: this.titleFont,
-    fontSize: this.titleSize
-  });
-
-  // TODO: label offset
-  // TODO: bar highlighting
-  // TODO: sliders to determine sampling and sine wave frequency
-  // TODO: helper methods, adding interactive circles, adding ticks, etc.
-
-  this.title = new PIXI.Text(this.titleText, titleStyle);
-  this.yLabel = new PIXI.Text(this.yLabelText, labelStyle);
-  this.xLabel = new PIXI.Text(this.xLabelText, labelStyle);
-
-  this.title.anchor.set(0.5);
-  this.title.x = this.yLabel.width + this.w / 2;
-  this.title.y = 0;
-  this.addChild(this.title);
-
-  this.yLabel.anchor.set(0.5);
-  this.yLabel.x = -10;
-  this.yLabel.y = this.title.height + this.h / 2;
-  this.addChild(this.yLabel);
-
-  this.xLabel.anchor.set(0.5);
-  this.xLabel.x = this.yLabel.width + this.w / 2;
-  this.xLabel.y = this.title.height + this.h + this.xLabel.height + 10;
-  this.addChild(this.xLabel);
-}
-
-ConvolutionGraph.prototype.draw = function() {
-  this.graphics.clear();
-  this.graphics.setTransform(this.yLabel.width, this.title.height);
-
-  // Axis numbering font
-  var numberStyle = new PIXI.TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 10
-  });
-
-  // Draw graph lines x-axis
-  var step = this.w / this.xGridSize;
-  var xDiff = this.xRange[1] - this.xRange[0];
-  this.graphics.lineStyle(1, 0x000000, 1);
-
-  for(var i = 0; i <= this.xGridSize; i++) {
-    var v = step * i;
-
-    if(i > 0) {
-      this.graphics.moveTo(v, this.h + this.tickWidth);
-      this.graphics.lineTo(v, this.h - this.tickWidth);
-    }
-
-    var text = new PIXI.Text((xDiff / this.xGridSize) * i + this.xRange[0], numberStyle);
-    text.setTransform(this.graphics.transform);
-    text.anchor.set(0.5);
-    text.x = v + this.yLabel.width;
-    text.y = this.h + this.tickWidth + text.height / 2 + this.title.height;
-    this.addChild(text);
-  }
-
-  this.graphics.moveTo(-1, this.h);
-  this.graphics.lineTo(this.w, this.h);
-
-  // Draw graph lines y-axis
-  var step = this.h / this.yGridSize;
-  var yDiff = this.yRange[1] - this.yRange[0];
-  this.graphics.lineStyle(1, 0x000000, 1);
-
-  for(var i = 0; i <= this.yGridSize; i++) {
-    var v = step * i;
-    this.graphics.moveTo(-this.tickWidth, this.h - v);
-    this.graphics.lineTo(this.tickWidth, this.h - v);
-
-    var text = new PIXI.Text((((yDiff / this.yGridSize) * i) + this.yRange[0]), numberStyle);
-    text.setTransform(this.graphics.transform);
-    text.anchor.set(0.5);
-    text.x = -this.tickWidth - text.width / 2 + this.yLabel.width;
-    text.y = this.h - v + this.title.height;
-    this.addChild(text);
-  }
-
-  this.graphics.moveTo(0, 0);
-  this.graphics.lineTo(0, this.h + 1);
-
-  // Draw graph line 0
-  var yZero = this.h + this.yRange[0] / (this.yRange[1] - this.yRange[0]) * this.h;
-  this.graphics.moveTo(0, yZero);
-  this.graphics.lineTo(this.w + 1, yZero);
-
-  // Draw graph
-  var path = [];
-  var lastSign = 1;
-  var startPoint = new PIXI.Point(0, yZero);
-  var lastPoint = startPoint;
-  path.push(startPoint);
-
-  for(var i = 0; i < this.samples.length; i += 1) {
-    var s = this.samples[i];
-    var px = (s.x - this.xRange[0]) / (this.xRange[1] - this.xRange[0]) * this.w;
-    var py = this.h - (s.y - this.yRange[0]) / (this.yRange[1] - this.yRange[0]) * this.h;
-
-    var curSign = Math.sign(s.y);
-    var curPoint = new PIXI.Point(px, py);
-
-    if(curSign != lastSign) {
-      var newStartPoint = new PIXI.Point((lastPoint.x + curPoint.x) / 2, yZero);
-      path.push(newStartPoint);
-      path.push(startPoint);
-
-      this.graphics.beginFill(this.color);
-      this.graphics.drawPolygon(path);
-      this.graphics.endFill();
-
-      startPoint = newStartPoint;
-      path = [];
-      path.push(startPoint);
-    }
-
-    path.push(curPoint);
-    lastSign = Math.sign(s.y);
-    lastPoint = curPoint;
-  }
-
-  i = this.samples.length - 1;
-  var s = this.samples[i];
-  var px = (s.x - this.xRange[0]) / (this.xRange[1] - this.xRange[0]) * this.w;
-  path.push(new PIXI.Point(px, yZero));
-  path.push(startPoint);
-
-  this.graphics.beginFill(this.color);
-  this.graphics.drawPolygon(path);
-  this.graphics.endFill();
-}
-*/
 
 $(function() {
   var padding = 100;
-
-  // Add application to DOM
-  var app = new PIXI.Application(appWidth + 4 * padding, appHeight + 4 * padding, {backgroundColor : 0xffffff});
-  app.view.classList.add('centered');
-  document.body.appendChild(app.view);
+  var numPeriods = 10;
+  var numSamples = 20;
 
   // Sample points for graphs
   var s1 = new Sampler(0, 100, 0.5, function(x) {
-    return Math.sin(x / 10 * 2 * Math.PI);
+    return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
   });
 
-  var s2 = new Sampler(0, 100, 4, function(x) {
-    return Math.sin(x / 10 * 2 * Math.PI);
+  var s2 = new Sampler(0, 100, 100 / numSamples, function(x) {
+    return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
   });
 
   // Add graphs
-  var graph1 = new Graph(padding, padding, appWidth, appHeight / 4, s1.samples, s2.samples, 2, 0x000000, 0xFF0000);
-  var graph2 = new Graph(padding, appHeight / 4 + 2 * padding, appWidth, appHeight / 4, s2.samples, s2.samples, 1);
-  graph2.xRange = graph1.xRange;
-  graph2.yRange = graph1.yRange;
-  var graph3 = new Graph(padding, appHeight / 2 + 3 * padding, appWidth, appHeight / 4, s2.samples, [], 0);
-  graph3.xRange = graph1.xRange;
-  graph3.yRange = graph1.yRange;
+  var graph1 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight,
+    'graphType': 2, 'samples': s1.samples, 'barSamples': s2.samples, 'barColor': 0xFF0000,
+    'element': 'graph1', 'frequency': 10, 'title': 'f(x) [Orignal Function]', 'xLabel': '', 'yLabel': ''});
 
-  /*
-  var graph3 = new ConvolutionGraph(padding, appHeight / 2 + 3 * padding, appWidth, appHeight / 4, graph1.xRange, graph1.yRange);
-  graph3.interactive = true;
-  graph3.hitArea = new PIXI.Rectangle(graph3.yLabel.width, graph3.title.height, graph3.w, graph3.h);
+  var graph2 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight, 
+    'graphType': 1, 'barSamples': s2.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
+    'element': 'graph2', 'frequency': 20, 'title': 'f(X) [Sampled f(x)]', 'xLabel': '', 'yLabel': ''});
 
-  app.stage.interactive = true;
-  app.stage.mousedown = function(mouseData) {
-    this.isMouseDown = true;
-  };
-  app.stage.mouseup = function(mouseData) {
-    this.isMouseDown = false;
-  };
-  graph3.mousemove = function(mouseData) {
-    if(!this.isMouseDown || this.isMouseDown === undefined) {
-    }
-    else {
-      var data = mouseData.data;
-      var pt = new PIXI.Point(0, 0);
-      data.getLocalPosition(this, pt, data.global);
+  var graph3 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight,
+    'graphType': 0, 'samples': s2.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
+    'element': 'graph3', 'title': 'f\'(x) [Reconstruction of f(x) with Triangle Filter]', 'xLabel': '', 'yLabel': ''});
 
-      if(this.lastClickPoint !== undefined) {
-	pt.x = Math.max(this.yLabel.width, Math.min(this.w + this.yLabel.width, pt.x));
-	pt.y = Math.max(this.title.height, Math.min(this.h + this.title.height, pt.y));
+  // Set up pair graphs
+  graph1.pairGraph = graph2;
+  graph2.pairGraph = graph1;
 
-	var startI = Math.round(((this.lastClickPoint.x - this.yLabel.width) / this.w) * this.samples.length);
-	var stopI = Math.round(((pt.x - this.yLabel.width) / this.w) * this.samples.length);
-	var step = Math.sign(stopI - startI);
-
-	if(step !== 0) {
-	  for(var i = startI; i !== (stopI + step); i += step) {
-	    this.samples[i] = new PIXI.Point(this.xRange[0] + ((this.xRange[1] - this.xRange[0]) / this.resolution) * i,
-		((this.h - (pt.y - this.title.height)) / this.h) * (this.yRange[1] - this.yRange[0]) + this.yRange[0]);
-	  }
-
-	  this.draw();
-	}
-
-	this.lastClickPoint = pt;
-      }
-      else {
-	this.lastClickPoint = pt;
-      }
-    }
-  };
-  */
-
+  // Draw graphs
   graph1.draw();
   graph2.draw();
   graph3.draw();
 
-  app.stage.addChild(graph1);
-  app.stage.addChild(graph2);
-  app.stage.addChild(graph3);
+  // Add sliders
+  var frequencySlider = $("#frequencySlider").slider({
+    min: 0,
+    max: 20,
+    value: numPeriods,
+    animate: "slow",
+    slide: frequencySliderMoved
+  }).slider("pips");
+
+  var sampleSlider = $("#sampleSlider").slider({
+    min: 0,
+    max: 40,
+    value: numSamples,
+    animate: "slow",
+    slide: sampleSliderMoved
+  }).slider("pips");
+
+  function frequencySliderMoved(eventSlider, uiSlider) {
+    numPeriods = uiSlider.value;
+
+    var s1 = new Sampler(0, 100, 0.1, function(x) {
+      return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
+    });
+
+    var s2 = new Sampler(0, 100, 100 / numSamples, function(x) {
+      return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
+    });
+
+    graph1.setSamples(s1.samples);
+    graph1.setBarSamples(s2.samples);
+    graph2.setBarSamples(s2.samples);
+    graph3.setSamples(s2.samples);
+
+    graph1.draw();
+    graph2.draw();
+    graph3.draw();
+  }
+
+  function sampleSliderMoved(eventSlider, uiSlider) {
+    numSamples = uiSlider.value;
+
+    var s2 = new Sampler(0, 100, 100 / numSamples, function(x) {
+      return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
+    });
+
+    graph1.setBarSamples(s2.samples);
+    graph2.setBarSamples(s2.samples);
+    graph3.setSamples(s2.samples);
+
+    graph1.draw();
+    graph2.draw();
+    graph3.draw();
+  }
 });
