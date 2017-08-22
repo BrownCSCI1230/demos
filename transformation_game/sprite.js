@@ -3,23 +3,31 @@
 // Process: outline -> make draw -> make work
 
 // 1) Updating child parameters based on width and height set
-// 1.5) Get sprite transform based on type and value
-// 2) Sprite transformation bag
-// 3) World axes
-// 4) World background and size
-// 5) World draw
-// 6) Sprite image
-// 7) Sprite draw method (coloring image)
-// 8) Sprite and world draw (different types as well)
-// 9) Transformation block image
-// 10) Transformation block draw (with bag)
-// 10) Transformation queue image
-// 11) Transformation queue and block draw
-// 11) event methods
+// 2) Get sprite transform based on type and value
+// 3) Sprite transformation bag
+//    - list of transformations (like queue)
+//    - update events
+// 4) World axes
+// 5) World background and size
+// 6) World draw
+// 7) Sprite image
+// 8) Sprite draw method (coloring image)
+// 9) Sprite and world draw (different types as well)
+// 10) Transformation block image
+// 11) Transformation block draw (with bag)
+// 12) Transformation queue image
+// 13) Transformation queue and block draw
+// 14) event methods
 //    - set everything as interactive
 //    - move transformation block, and update sprite transform (drag block, bag and queue)
 //    - set active transform, and set visible sprite (click block, queue)
 //    - update active transform, depends on whether or not secondary (move sprite, queue)
+// 15) Win condition check on sprite move
+// 16) Level Descriptions
+//    - Target sprite matrix / transform
+//    - List of transformations
+//    - Construct level from description (attach to dom element)
+//    - Callback on win to construct new level
 
 PRIMARY_STYLE = 0;
 SECONDARY_STYLE = 1;
