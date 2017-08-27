@@ -391,12 +391,12 @@ class SpriteTransformBlock extends PIXI.Container {
     else if(this.type === SHEAR_TYPE) {
       if(this.subtype === SUBTYPE_1) {
 	if(this.startSpriteDragMousePos.x !== 0) {
-	  this.value = (curMousePos.y - this.startSpriteDragMousePos.y) / this.startSpriteDragMousePos.x;
+	  this.value += (curMousePos.y - lastMousePos.y) / this.startSpriteDragMousePos.x;
 	}
       }
       else if(this.subtype === SUBTYPE_2) {
 	if(this.startSpriteDragMousePos.y !== 0) {
-	  this.value = (curMousePos.x - this.startSpriteDragMousePos.x) / this.startSpriteDragMousePos.y;
+	  this.value += (curMousePos.x - lastMousePos.x) / this.startSpriteDragMousePos.y;
 	}
       }
     }
