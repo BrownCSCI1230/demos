@@ -259,8 +259,8 @@ Graph.prototype.addBar = function(px, py, i) {
   var bar = new PIXI.Graphics();
   var barWidth = this.width / (this.barSamples.length - 1);
 
-  bar.setTransform(this.yLabel.width + 15, this.title.height + 15);
   bar.interactive = true;
+  bar.setTransform(this.yLabel.width + 15, this.title.height + 15);
   bar.hitArea = new PIXI.Rectangle(px - barWidth / 2, 0, barWidth, this.height);
 
   bar.alpha = 0.3;
