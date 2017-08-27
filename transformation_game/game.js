@@ -24,7 +24,7 @@ class Sprite extends PIXI.Sprite {
   constructor(style = PRIMARY_STYLE, world = undefined) {
     // Get sprite image
     var texture;
-    var alpha = 0.5;
+    var alpha = 1;
 
     if(style === PRIMARY_STYLE) {
       texture = PIXI.Texture.fromImage('res/link.gif');
@@ -728,61 +728,30 @@ class World extends PIXI.Container {
     this.addChild(this._axes);
     this._axes.lineStyle(1, 0x000000, 1);
 
-    /*
     // Setup
     var numberStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
-      fontSize: 10
+      fontSize: 12
     });
-    var tickWidth = 2;
 
     // X Axis
-    var xGridSize = 20;
-    var xStep = width / xGridSize;
-    this._axes.lineStyle(1, 0x000000, 1);
-
-    for(var i = 0; i <= xGridSize; i++) {
-      var v = xStep * i;
-
-      if(i > 0) {
-        this._axes.moveTo(v, height / 2 + tickWidth);
-        this._axes.lineTo(v, height / 2 - tickWidth);
-      }
-
-      var text = new PIXI.Text((this.worldSpaceWidth / xGridSize) * i - this.worldSpaceWidth / 2, numberStyle);
-      text.setTransform(this._axes.transform);
-      text.anchor.set(0.5);
-      text.x = v;
-      text.y = height / 2;
-      this.addChild(text);
-    }
-    */
+    var text = new PIXI.Text('X', numberStyle);
+    text.setTransform(this._axes.transform);
+    text.anchor.set(0.5);
+    text.x = width - 10;
+    text.y = height / 2 + 10;
+    this.addChild(text);
 
     this._axes.moveTo(0, height / 2);
     this._axes.lineTo(width, height / 2);
 
     // Y Axis
-    /*
-    var yGridSize = 20;
-    var yStep = height / yGridSize;
-    this._axes.lineStyle(1, 0x000000, 1);
-
-    for(var i = 0; i <= yGridSize; i++) {
-      var v = yStep * i;
-
-      if(i > 0) {
-        this._axes.moveTo(width / 2 + tickWidth, v);
-        this._axes.lineTo(width / 2 - tickWidth, v);
-      }
-
-      var text = new PIXI.Text((this.worldSpaceHeight / yGridSize) * i - this.worldSpaceHeight / 2, numberStyle);
-      text.setTransform(this._axes.transform);
-      text.anchor.set(0.5);
-      text.x = width / 2;
-      text.y = v;
-      this.addChild(text);
-    }
-    */
+    var text = new PIXI.Text('Y', numberStyle);
+    text.setTransform(this._axes.transform);
+    text.anchor.set(0.5);
+    text.x = width / 2 - 10;
+    text.y = 10;
+    this.addChild(text);
 
     this._axes.moveTo(width / 2, 0);
     this._axes.lineTo(width / 2, height);
