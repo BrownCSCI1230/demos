@@ -148,7 +148,6 @@ class SpriteTransformBlock extends PIXI.Container {
     this._color = 0xFF0000;
     this._makeBackground();
     this._makeTitle();
-    this._makeSubtitle();
 
     // Set up variables for drag events
     this.isMouseDown = false;
@@ -218,9 +217,9 @@ class SpriteTransformBlock extends PIXI.Container {
   }
 
   makeContent() {
+    this._makeBackground();
     this._makeTitle();
     this._makeSubtitle();
-    this._makeBackground();
   }
 
   resetValue() {
@@ -258,9 +257,6 @@ class SpriteTransformBlock extends PIXI.Container {
 
   set color(c) {
     this._color = c;
-    this._makeBackground();
-    this._makeTitle();
-    this._makeSubtitle();
   }
 
   get title() {
@@ -354,9 +350,44 @@ class SpriteTransformBlock extends PIXI.Container {
   onSpriteDragStart(mousePos) {
     this.startSpriteDragValue = this.value;
     this.startSpriteDragMousePos = mousePos;
+    this.transformSubtypeSet = false;
   }
 
   onSpriteDrag(lastMousePos, curMousePos) {
+    if(!this.transformSubtypeSet && this.type !== ROTATE_TYPE) {
+      var mouseOffset = new PIXI.Point(Math.abs(curMousePos.x - this.startSpriteDragMousePos.x),
+	  Math.abs(curMousePos.y - this.startSpriteDragMousePos.y));
+
+      if(mouseOffset.x > 1 || mouseOffset.y > 1) {
+	var subtype;
+
+	if(mouseOffset.x > mouseOffset.y) {
+	  if(this.type === SHEAR_TYPE) {
+	    subtype = SUBTYPE_2;
+	  }
+	  else {
+	    subtype = SUBTYPE_1;
+	  }
+	}
+	else {
+	  if(this.type === SHEAR_TYPE) {
+	    subtype = SUBTYPE_1;
+	  }
+	  else {
+	    subtype = SUBTYPE_2;
+	  }
+	}
+
+	if(this.subtype !== subtype) {
+	  this.subtype = subtype;
+	  this.resetValue();
+	  this.startSpriteDragValue = this.value;
+	}
+
+	this.transformSubtypeSet = true;
+      }
+    }
+
     if(this.type === TRANSLATE_TYPE) {
       if(this.subtype === SUBTYPE_1) {
 	this.value += curMousePos.x - lastMousePos.x;
@@ -372,19 +403,27 @@ class SpriteTransformBlock extends PIXI.Container {
     }
     else if(this.type === SCALE_TYPE) {
       if(this.subtype === SUBTYPE_1) {
-	if(lastMousePos.x === 0) {
-	  this.value = 0;
+	if(this.startSpriteDragMousePos.x === 0) {
+	  this.value = 1;
 	}
 	else {
-	  this.value = curMousePos.x / this.startSpriteDragMousePos.x;
+	  var divisor = this.startSpriteDragMousePos.x;
+	  var numerator = curMousePos.x;
+	  var scaleFactor = (numerator / divisor);
+
+	  this.value = this.startSpriteDragValue * scaleFactor;
 	}
       }
       else if(this.subtype === SUBTYPE_2) {
-	if(lastMousePos.x === 0) {
-	  this.value = 0;
+	if(this.startSpriteDragMousePos.y === 0) {
+	  this.value = 1;
 	}
 	else {
-	  this.value = curMousePos.y / this.startSpriteDragMousePos.y;
+	  var divisor = this.startSpriteDragMousePos.y;
+	  var numerator = curMousePos.y;
+	  var scaleFactor = (numerator / divisor);
+
+	  this.value = this.startSpriteDragValue * scaleFactor;
 	}
       }
     }
@@ -853,6 +892,8 @@ class World extends PIXI.Container {
     var pixelMousePos = this.getPixelMousePosition(mouseData);
     var worldMousePos = new PIXI.Point(0, 0);
     this.getWorldSpaceMatrix().apply(pixelMousePos, worldMousePos);
+    worldMousePos.x = Math.min(Math.max(-this.worldSpaceWidth / 2, worldMousePos.x), this.worldSpaceWidth / 2)
+    worldMousePos.y = Math.min(Math.max(-this.worldSpaceHeight / 2, worldMousePos.y), this.worldSpaceHeight / 2)
     return worldMousePos;
   }
 
