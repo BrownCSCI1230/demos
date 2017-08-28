@@ -31,6 +31,7 @@ class Sprite extends PIXI.Sprite {
     }
     else if(style === SECONDARY_STYLE) {
       texture = PIXI.Texture.fromImage('res/link.gif');
+      alpha = 0.5;
     }
     else if(style === TARGET_STYLE) {
       texture = PIXI.Texture.fromImage('res/link.gif');
@@ -40,7 +41,7 @@ class Sprite extends PIXI.Sprite {
     super(texture);
 
     // Set as interactive
-    this.interactive = true;
+    this.interactive = (style === PRIMARY_STYLE);
     this.buttonMode = true;
 
     // Center image
@@ -204,8 +205,14 @@ class SpriteTransformBlock extends PIXI.Container {
     subtitleText += this.value.toFixed(3);
 
     this.subtitle = new PIXI.Text(subtitleText, textStyle);
-    this.subtitle.anchor.set(0, 0.5);
-    this.subtitle.x = 10;
+    if(this.type === ROTATE_TYPE) {
+      this.subtitle.anchor.set(0.5, 0.5);
+      this.subtitle.x = this.width / 2;
+    }
+    else {
+      this.subtitle.anchor.set(0, 0.5);
+      this.subtitle.x = 10;
+    }
     this.subtitle.y = this.height / 2;
   }
 
@@ -609,7 +616,8 @@ class SpriteTransformBag extends PIXI.Container {
   }
 
   getBlockIndexGlobal(pos) {
-    return Math.min(this.blocks.length, Math.floor((pos.y - this.y) / this.blockHeight));
+    var offset = Math.max(Math.min(pos.y - this.y, this.height), 0);
+    return Math.min(this.blocks.length, Math.floor(offset / this.blockHeight));
   }
 
   getBlockPosition(i) {
@@ -672,8 +680,17 @@ class SpriteTransformQueue extends SpriteTransformBag {
     if(this.activeBlockIndex !== -1) {
       this.blocks[this.activeBlockIndex].color = 0x00FF00;
 
-      var transform = this.getSpriteTransformUpToIndex(this.activeBlockIndex);
-      globalData.world.primarySprite.setWorldSpaceTransform(transform);
+      var curTransform = this.getSpriteTransformUpToIndex(this.activeBlockIndex);
+      globalData.world.primarySprite.setWorldSpaceTransform(curTransform);
+
+      if(this.activeBlockIndex !== this.blocks.length - 1) {
+	var totalTransform = this.getTotalSpriteTransform();
+	globalData.world.secondarySprite = new Sprite(SECONDARY_STYLE, globalData.world);
+	globalData.world.secondarySprite.setWorldSpaceTransform(totalTransform);
+      }
+      else {
+	globalData.world.secondarySprite = null;
+      }
     }
   }
 
@@ -698,7 +715,8 @@ class SpriteTransformQueue extends SpriteTransformBag {
   }
 
   getBlockIndexGlobal(pos) {
-    return Math.min(this.blocks.length, Math.floor((this.width - (pos.x - this.x)) / this.blockWidth));
+    var offset = Math.max(Math.min(pos.x - this.x, this.width), 0);
+    return Math.min(this.blocks.length, Math.floor((this.width - offset) / this.blockWidth));
   }
 
   getBlockPosition(i) {
@@ -825,9 +843,18 @@ class World extends PIXI.Container {
   }
 
   set primarySprite(s) {
-    this.removeChild(this._primarySprite);
-    this._primarySprite = s;
-    this.addChild(s);
+    if(s === null) {
+      if(this._primarySprite !== null) {
+	this.removeChild(this._primarySprite);
+      }
+
+      this._primarySprite = null;
+    }
+    else {
+      this.removeChild(this._primarySprite);
+      this._primarySprite = s;
+      this.addChild(s);
+    }
   }
 
   get secondarySprite() {
@@ -835,9 +862,18 @@ class World extends PIXI.Container {
   }
 
   set secondarySprite(s) {
-    this.removeChild(this._secondarySprite);
-    this._secondarySprite = s;
-    this.addChild(s);
+    if(s === null) {
+      if(this._secondarySprite !== null) {
+	this.removeChild(this._secondarySprite);
+      }
+
+      this._secondarySprite = null;
+    }
+    else {
+      this.removeChild(this._secondarySprite);
+      this._secondarySprite = s;
+      this.addChild(s);
+    }
   }
 
   get targetSprite() {
@@ -845,9 +881,18 @@ class World extends PIXI.Container {
   }
 
   set targetSprite(s) {
-    this.removeChild(this._targetSprite);
-    this._targetSprite = s;
-    this.addChild(s);
+    if(s === null) {
+      if(this._targetSprite !== null) {
+	this.removeChild(this._targetSprite);
+      }
+
+      this._targetSprite = null;
+    }
+    else {
+      this.removeChild(this._targetSprite);
+      this._targetSprite = s;
+      this.addChild(s);
+    }
   }
 
   get width() {
