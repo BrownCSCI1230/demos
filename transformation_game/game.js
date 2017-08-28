@@ -1,20 +1,13 @@
-// Two types of methods: updating things it contains, returning things using what it contains
-// Two more: event, draw (really fall into category of above two)
-// Process: outline -> make draw -> make work
-
-// 15) Win condition check on sprite move
-// 16) Level Descriptions
+// TODO: Setting target sprite
+// TODO: Win condition check on sprite move
+// TODO: Level descriptions
 //    - Target sprite matrix / transform
 //    - List of transformations
 //    - Construct level from description (attach to dom element)
 //    - Callback on win to construct new level
-// 8) Sprite different images (correct sizes) and alphas
-// 10) Transformation block image
-// 12) Transformation queue image
-// 13) Transformation queue and block draw
-//
+// TODO: Transformation block image
+// TODO: Transformation queue image
 // TODO: animations
-// TODO: switch between x and y translations / scales
 
 PRIMARY_STYLE = 0;
 SECONDARY_STYLE = 1;
@@ -34,7 +27,7 @@ class Sprite extends PIXI.Sprite {
       alpha = 0.5;
     }
     else if(style === TARGET_STYLE) {
-      texture = PIXI.Texture.fromImage('res/link.gif');
+      texture = PIXI.Texture.fromImage('res/dark_link.png');
     }
 
     // Call parent class constructor
@@ -685,6 +678,7 @@ class SpriteTransformQueue extends SpriteTransformBag {
 
       if(this.activeBlockIndex !== this.blocks.length - 1) {
 	var totalTransform = this.getTotalSpriteTransform();
+
 	globalData.world.secondarySprite = new Sprite(SECONDARY_STYLE, globalData.world);
 	globalData.world.secondarySprite.setWorldSpaceTransform(totalTransform);
       }
@@ -873,6 +867,11 @@ class World extends PIXI.Container {
       this.removeChild(this._secondarySprite);
       this._secondarySprite = s;
       this.addChild(s);
+
+      if(this._primarySprite !== null) {
+	this.removeChild(this._primarySprite);
+	this.addChild(this._primarySprite);
+      }
     }
   }
 
