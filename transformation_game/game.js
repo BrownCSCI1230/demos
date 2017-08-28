@@ -868,10 +868,7 @@ class World extends PIXI.Container {
       this._secondarySprite = s;
       this.addChild(s);
 
-      if(this._primarySprite !== null) {
-	this.removeChild(this._primarySprite);
-	this.addChild(this._primarySprite);
-      }
+      this.primarySprite = this.primarySprite;
     }
   }
 
@@ -891,6 +888,9 @@ class World extends PIXI.Container {
       this.removeChild(this._targetSprite);
       this._targetSprite = s;
       this.addChild(s);
+
+      this.secondarySprite = this.secondarySprite;
+      this.primarySprite = this.primarySprite;
     }
   }
 
