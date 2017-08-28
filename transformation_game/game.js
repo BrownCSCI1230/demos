@@ -204,8 +204,8 @@ class SpriteTransformBlock extends PIXI.Container {
     subtitleText += this.value.toFixed(3);
 
     this.subtitle = new PIXI.Text(subtitleText, textStyle);
-    this.subtitle.anchor.set(0.5, 0.5);
-    this.subtitle.x = this.width / 2;
+    this.subtitle.anchor.set(0, 0.5);
+    this.subtitle.x = 10;
     this.subtitle.y = this.height / 2;
   }
 
@@ -257,6 +257,14 @@ class SpriteTransformBlock extends PIXI.Container {
 
   set color(c) {
     this._color = c;
+
+    if(this._subtitle) {
+      this.makeContent();
+    }
+    else {
+      this._makeBackground();
+      this._makeTitle();
+    }
   }
 
   get title() {
@@ -545,12 +553,12 @@ class SpriteTransformBag extends PIXI.Container {
       this.activeBlockIndex--;
     }
 
+    this.blocks.splice(i, 1);
+    this.removeChild(block);
+
     if(this.activeBlockIndex === -1 && this.blocks.length > 0) {
       this.activeBlockIndex = 0;
     }
-
-    this.blocks.splice(i, 1);
-    this.removeChild(block);
   }
 
   update() {
