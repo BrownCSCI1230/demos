@@ -41,6 +41,7 @@ $(function() {
     }
 
     result.setGraphData(convolutionData);
+    console.log(result.graphData);
     product.setGraphData(productData);
   }
 
@@ -64,7 +65,7 @@ $(function() {
 
     var resultXDiff = result.xmax - result.xmin;
     var filterXDiff = filter.xmax - filter.xmin;
-  
+
     var resultStep = resultXDiff / result.graphData.length;
     var filterStep = filterXDiff / filter.graphData.length;
 
@@ -74,12 +75,12 @@ $(function() {
     for (var i = start; i <= end; i++) {
       var resultX = i * resultStep + result.xmin;
       var sum = 0;
-    
+
       for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
         var signalX = resultX - filterX;
         sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
       }
-    
+
       convolutionData[i] = sum;
       productData[i] = signal.getGraphData(resultX) * filter.getGraphData(resultX);
     }
