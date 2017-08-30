@@ -5,8 +5,6 @@ $(function() {
   var product = new Graph(document.getElementById("productGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x)g(x) [Product]");
   var result = new Graph(document.getElementById("resultGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) * g(x) [Convolution]");
 
-  console.log(signal.convertToPixel(signal.convertToPlot(100, false), false));
-
   /* Convolve signal with filter */
   var updateResult = function() {
     var convolutionData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
@@ -41,7 +39,6 @@ $(function() {
     }
 
     result.setGraphData(convolutionData);
-    console.log(result.graphData);
     product.setGraphData(productData);
   }
 

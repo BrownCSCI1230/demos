@@ -10,19 +10,27 @@
     <title>Convolutions</title>
   </head>
   <body>
+    <div id="signalModule" class="module">
+        <div id="signalGraph"></div>
+        <button class="ui-button ui-widget ui-corner-all" id="clearFunctionButton">Clear Function</button>
+        <button class="ui-button ui-widget ui-corner-all" id="boxFunctionButton">Box Function</button>
+    </div>
+    <div id="productModule" class="module">
+        <div id="productGraph"></div>
+    </div>
+    <div id="filterModule" class="module">
+        <div id="filterGraph"></div>
+        <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton">Clear Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton">Box Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton">Triangle Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton">Gaussian Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="sincFilterButton">Sinc Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="convolveButton">Convolve</button>
+        <div id="filterSlider"></div>
+    </div>
+    <div id="resultModule" class="module">
+        <div id="resultGraph"></div>
+    </div>
     <button class="ui-button ui-widget ui-corner-all"><a href="discrete-convolutions.html"> Go To Discrete convolutions</a></button>
-    <div id="signalGraph"></div>
-    <button class="ui-button ui-widget ui-corner-all" id="clearFunctionButton">Clear Function</button>
-    <button class="ui-button ui-widget ui-corner-all" id="boxFunctionButton">Box Function</button>
-    <div id="filterGraph"></div>
-    <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton">Clear Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton">Box Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton">Triangle Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton">Gaussian Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="sincFilterButton">Sinc Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="convolveButton">Convolve</button>
-    <div id="filterSlider"></div>
-    <div id="productGraph"></div>
-    <div id="resultGraph"></div>
   </body>
 </html>
