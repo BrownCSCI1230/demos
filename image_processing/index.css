@@ -1,3 +1,7 @@
 #marquee {
   border: 5px solid red;
 }
+
+.scaleCanvas {
+  margin-right: 30px;
+}

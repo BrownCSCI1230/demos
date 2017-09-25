@@ -1,32 +1,41 @@
 $(function() {
-
+  // HTML elements
   var mandrillCanvas = document.getElementById("mandrillCanvas");
   var pixelCanvas = document.getElementById("pixelCanvas");
+  var filteredCanvas1 = document.getElementById("filteredCanvas1");
+  var filteredCanvas2 = document.getElementById("filteredCanvas2");
   var image = document.getElementById("mandrill");
+  var imageWidth = 256;
+  var imageHeight = 256;
 
+  // Pixi objects
   var renderer = PIXI.autoDetectRenderer({
-    width: 256,
-    height: 256,
-    view: mandrillCanvas
+    width: 1000,
+    height: 300,
+    view: mandrillCanvas,
+    backgroundColor: 0xFFFFFF
   });
   var stage = new PIXI.Container;
   var marquee = new PIXI.Graphics;
   var mandrill = new Image();
   var mandrillSprite = new PIXI.Sprite;
-  var dragging = false;
   mandrill.src = 'mandrill.png'
-  mandrill.onload = function(){
-    setUpSprite();
-    setUpMarquee();
-    setUpInteractions();
-    renderer.render(stage);
-  }
+    mandrill.onload = function(){
+      setUpSprite();
+      setUpMarquee();
+      setUpInteractions();
+      renderer.render(stage);
+    }
+
+  // Interaction variables
+  var dragging = false;
+  var dragStartPos = new PIXI.Point(0, 0);
 
   function setUpSprite() {
     var texture = new PIXI.Texture(new PIXI.BaseTexture(mandrill));
     mandrillSprite = new PIXI.Sprite(texture);
-    mandrillSprite.width = renderer.width;
-    mandrillSprite.height = renderer.height;
+    mandrillSprite.width = imageWidth;
+    mandrillSprite.height = imageHeight;
     stage.addChild(mandrillSprite);
     setUpMarquee();
   }
@@ -54,8 +63,10 @@ $(function() {
     marquee.position = mousePos;
     marquee.width = 0;
     marquee.height = 0;
-    dragging = true;
     renderer.render(stage);
+
+    dragging = true;
+    dragStartPos = new PIXI.Point(mousePos.x, mousePos.y);
   }
 
   function dragImage(eventData) {
@@ -63,57 +74,166 @@ $(function() {
       var data = eventData.data;
       var mousePos = new PIXI.Point(0, 0);
       data.getLocalPosition(stage, mousePos, data.global);
+
+      // Stop dragging if mouse outside of image
       if (mousePos.x < stage.x || mousePos.x > stage.x + stage.width ||
-        mousePos.y < stage.y || mousePos.y > stage.y + stage.height) {
-          dragging = false;
-          return;
-        }
-      var oldX = marquee.x;
-      var oldY = marquee.y;
-      var oldWidth = marquee.width;
-      var oldHeight = marquee.height;
-      var newX;
-      var newY;
-      var newWidth;
-      var newHeight;
-      if (mousePos.x <= oldX) {
-        newWidth = oldWidth + Math.abs(mousePos.x - oldX);
-        newX = mousePos.x;
-      } else {
-        newWidth = Math.abs(mousePos.x - oldX);
-        newX = oldX;
+	  mousePos.y < stage.y || mousePos.y > stage.y + stage.height) {
+	mousePos.x = Math.min(stage.x + stage.width, Math.max(stage.x, mousePos.x));
+	mousePos.y = Math.min(stage.y + stage.height, Math.max(stage.y, mousePos.y));
       }
-      if (mousePos.y <= oldY) {
-        newHeight = oldHeight + Math.abs(mousePos.y - oldY);
-        newY = mousePos.y;
+
+      var x, y;
+      var width, height;
+
+      if (mousePos.x <= dragStartPos.x) {
+	width = dragStartPos.x - mousePos.x;
+	x = mousePos.x;
       } else {
-        newHeight = Math.abs(mousePos.y - oldY);
-        newY = oldY;
+	width = mousePos.x - dragStartPos.x;
+	x = dragStartPos.x;
       }
+      if (mousePos.y <= dragStartPos.y) {
+	height = dragStartPos.y - mousePos.y;
+	y = mousePos.y;
+      } else {
+	height = mousePos.y - dragStartPos.y;
+	y = dragStartPos.y;
+      }
+
+      // Draw marquee
       marquee.clear();
       marquee.lineStyle(2, 0x000000, 1);
-      marquee.drawRect(0, 0, newWidth, newHeight);
+      marquee.drawRect(0, 0, width, height);
+
       // don't know why these need to be set twice, but it doesn't work otherwise
-      marquee.x = newX;
-      marquee.y = newY;
-      marquee.width = newWidth;
-      marquee.height = newHeight;
+      marquee.x = x;
+      marquee.y = y;
+      marquee.width = width;
+      marquee.height = height;
+
+      // Render stage
       renderer.render(stage);
     }
   }
 
   function stopDragging(eventData) {
     dragging = false;
-    getPixelsUnderMarquee();
+    displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas1);
+    displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas2);
+  }
+
+  function displayFilteredSelection(imageData, canvas) {
+    var scaledData = scaleImageData(imageData, canvas.width, canvas.height);
+
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    canvas.getContext('2d').putImageData(scaledData, 0, 0);
+  }
+
+  function scaleImageData(imageData, targetWidth, targetHeight) {
+    return scaleImageDataY(scaleImageDataX(imageData, targetWidth), targetHeight);
+  }
+
+  function scaleImageDataY(imageData, targetHeight) {
+    var sourceWidth = imageData.width;
+    var sourceHeight = imageData.height;
+    var data = imageData.data;
+    var scaledData = new Uint8ClampedArray(4 * sourceWidth * targetHeight);
+
+    // Scale the image
+    for(var col = 0; col < sourceWidth; col++) {
+      for(var row = 0; row < targetHeight; row++) {
+	var index = row * sourceWidth + col;
+
+	for(var channel = 0; channel <= 2; channel++) {
+	  scaledData[index * 4 + channel] =
+	    getTargetValueFromSourceY(imageData, row, col, channel, targetHeight, sourceHeight);
+	}
+
+	scaledData[index * 4 + 3] = 255;
+      }
+    }
+
+    var scaledImageData = new ImageData(scaledData, sourceWidth, targetHeight);
+    return scaledImageData;
+  }
+
+  function getTargetValueFromSourceY(imageData, targetRow, targetCol, channel, targetHeight, sourceHeight) {
+    var sourceCol = targetCol;
+    var sourceWidth = imageData.width;
+    var scaleFactor = targetHeight / sourceHeight;
+    var centerSourceRow = (targetRow + 0.5) * (1 / scaleFactor) - 0.5;
+
+    var filterRadius = scaleFactor >= 1 ? 1 : 1 / scaleFactor;
+    var filterStart = Math.floor(Math.max(centerSourceRow - filterRadius, 0));
+    var filterEnd = Math.ceil(Math.min(centerSourceRow + filterRadius, sourceHeight - 1));
+
+    var channelSum = 0;
+    var filterSum = 0;
+
+    for(var sourceRow = filterStart; sourceRow <= filterEnd; sourceRow++) {
+      var filterValue = Math.max(filterRadius - Math.abs(centerSourceRow - sourceRow), 0);
+      var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
+
+      channelSum += imageData.data[index] * filterValue;
+      filterSum += filterValue;
+    }
+
+    return channelSum / filterSum;
+  }
+
+  function scaleImageDataX(imageData, targetWidth) {
+    var sourceWidth = imageData.width;
+    var sourceHeight = imageData.height;
+    var data = imageData.data;
+    var scaledData = new Uint8ClampedArray(4 * targetWidth * sourceHeight);
+
+    // Scale the image
+    for(var row = 0; row < sourceHeight; row++) {
+      for(var col = 0; col < targetWidth; col++) {
+	var index = row * targetWidth + col;
+
+	for(var channel = 0; channel <= 2; channel++) {
+	  scaledData[index * 4 + channel] =
+	    getTargetValueFromSourceX(imageData, row, col, channel, targetWidth, sourceWidth);
+	}
+
+	scaledData[index * 4 + 3] = 255;
+      }
+    }
+
+    var scaledImageData = new ImageData(scaledData, targetWidth, sourceHeight);
+    return scaledImageData;
+  }
+
+  function getTargetValueFromSourceX(imageData, targetRow, targetCol, channel, targetWidth, sourceWidth) {
+    var sourceRow = targetRow;
+    var scaleFactor = targetWidth / sourceWidth;
+    var centerSourceCol = (targetCol + 0.5) * (1 / scaleFactor) - 0.5;
+
+    var filterRadius = scaleFactor >= 1 ? 1 : 1 / scaleFactor;
+    var filterStart = Math.floor(Math.max(centerSourceCol - filterRadius, 0));
+    var filterEnd = Math.ceil(Math.min(centerSourceCol + filterRadius, sourceWidth - 1));
+
+    var channelSum = 0;
+    var filterSum = 0;
+
+    for(var sourceCol = filterStart; sourceCol <= filterEnd; sourceCol++) {
+      var filterValue = Math.max(filterRadius - Math.abs(centerSourceCol - sourceCol), 0);
+      var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
+
+      channelSum += imageData.data[index] * filterValue;
+      filterSum += filterValue;
+    }
+
+    return channelSum / filterSum;
   }
 
   function getPixelsUnderMarquee() {
-    pixelCanvas.getContext('2d').drawImage(image, 0, 0, 256, 256);
+    pixelCanvas.getContext('2d').drawImage(image, 0, 0, imageWidth, imageHeight);
     var imageData = pixelCanvas.getContext('2d').getImageData(marquee.x + 1, marquee.y + 1,
-      marquee.width - 1, marquee.height - 1);
-      pixelCanvas.getContext('2d').clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
+	marquee.width - 1, marquee.height - 1);
+    pixelCanvas.getContext('2d').clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
     pixelCanvas.getContext('2d').putImageData(imageData, 0, 0);
-    console.log(imageData);
+    return imageData;
   }
-
 })
