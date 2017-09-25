@@ -121,22 +121,22 @@ $(function() {
 
     function stopDragging(eventData) {
       dragging = false;
-      displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas1);
-      displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas2);
+      displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas1, graph1);
+      displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas2, graph2);
     }
 
-    function displayFilteredSelection(imageData, canvas) {
-      var scaledData = scaleImageData(imageData, canvas.width, canvas.height);
+    function displayFilteredSelection(imageData, canvas, graph) {
+      var scaledData = scaleImageData(imageData, canvas.width, canvas.height, graph);
 
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
       canvas.getContext('2d').putImageData(scaledData, 0, 0);
     }
 
-    function scaleImageData(imageData, targetWidth, targetHeight) {
-      return scaleImageDataY(scaleImageDataX(imageData, targetWidth), targetHeight);
+    function scaleImageData(imageData, targetWidth, targetHeight, graph) {
+      return scaleImageDataY(scaleImageDataX(imageData, targetWidth, graph), targetHeight, graph);
     }
 
-    function scaleImageDataY(imageData, targetHeight) {
+    function scaleImageDataY(imageData, targetHeight, graph) {
       var sourceWidth = imageData.width;
       var sourceHeight = imageData.height;
       var data = imageData.data;
@@ -149,7 +149,7 @@ $(function() {
 
           for(var channel = 0; channel <= 2; channel++) {
             scaledData[index * 4 + channel] =
-            getTargetValueFromSourceY(imageData, row, col, channel, targetHeight, sourceHeight);
+            getTargetValueFromSourceY(imageData, row, col, channel, targetHeight, sourceHeight, graph);
           }
 
           scaledData[index * 4 + 3] = 255;
@@ -160,7 +160,7 @@ $(function() {
       return scaledImageData;
     }
 
-    function getTargetValueFromSourceY(imageData, targetRow, targetCol, channel, targetHeight, sourceHeight) {
+    function getTargetValueFromSourceY(imageData, targetRow, targetCol, channel, targetHeight, sourceHeight, graph) {
       var sourceCol = targetCol;
       var sourceWidth = imageData.width;
       var scaleFactor = targetHeight / sourceHeight;
@@ -174,7 +174,7 @@ $(function() {
       var filterSum = 0;
 
       for(var sourceRow = filterStart; sourceRow <= filterEnd; sourceRow++) {
-        var filterValue = Math.max(filterRadius - Math.abs(centerSourceRow - sourceRow), 0);
+        var filterValue = Math.max(graph.getGraphData(filterRadius - (centerSourceRow - sourceRow)), 0);
         var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
 
         channelSum += imageData.data[index] * filterValue;
@@ -184,7 +184,7 @@ $(function() {
       return channelSum / filterSum;
     }
 
-    function scaleImageDataX(imageData, targetWidth) {
+    function scaleImageDataX(imageData, targetWidth, graph) {
       var sourceWidth = imageData.width;
       var sourceHeight = imageData.height;
       var data = imageData.data;
@@ -197,7 +197,7 @@ $(function() {
 
           for(var channel = 0; channel <= 2; channel++) {
             scaledData[index * 4 + channel] =
-            getTargetValueFromSourceX(imageData, row, col, channel, targetWidth, sourceWidth);
+            getTargetValueFromSourceX(imageData, row, col, channel, targetWidth, sourceWidth, graph);
           }
 
           scaledData[index * 4 + 3] = 255;
@@ -208,7 +208,7 @@ $(function() {
       return scaledImageData;
     }
 
-    function getTargetValueFromSourceX(imageData, targetRow, targetCol, channel, targetWidth, sourceWidth) {
+    function getTargetValueFromSourceX(imageData, targetRow, targetCol, channel, targetWidth, sourceWidth, graph) {
       var sourceRow = targetRow;
       var scaleFactor = targetWidth / sourceWidth;
       var centerSourceCol = (targetCol + 0.5) * (1 / scaleFactor) - 0.5;
@@ -221,7 +221,7 @@ $(function() {
       var filterSum = 0;
 
       for(var sourceCol = filterStart; sourceCol <= filterEnd; sourceCol++) {
-        var filterValue = Math.max(filterRadius - Math.abs(centerSourceCol - sourceCol), 0);
+        var filterValue = graph.getGraphData(filterRadius - (centerSourceCol - sourceCol));
         var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
 
         channelSum += imageData.data[index] * filterValue;

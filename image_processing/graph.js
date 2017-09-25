@@ -281,7 +281,6 @@ class Graph {
 
       if (this.ymin + i * this.yinc == 0) {
         this.plotDrawingZero = stepLength - 1 ;
-        console.log(ypos);
         axisColor = 0x000000; //black
       }
 
