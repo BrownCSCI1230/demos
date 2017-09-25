@@ -174,14 +174,14 @@ $(function() {
       var filterSum = 0;
 
       for(var sourceRow = filterStart; sourceRow <= filterEnd; sourceRow++) {
-        var filterValue = Math.max(graph.getGraphData(filterRadius - (centerSourceRow - sourceRow)), 0);
+        var filterValue = Math.max(graph.getGraphData(centerSourceRow - sourceRow), 0);
         var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
 
         channelSum += imageData.data[index] * filterValue;
         filterSum += filterValue;
       }
 
-      return channelSum / filterSum;
+      return graph.getGraphArea() * channelSum / filterSum;
     }
 
     function scaleImageDataX(imageData, targetWidth, graph) {
@@ -221,22 +221,22 @@ $(function() {
       var filterSum = 0;
 
       for(var sourceCol = filterStart; sourceCol <= filterEnd; sourceCol++) {
-        var filterValue = graph.getGraphData(filterRadius - (centerSourceCol - sourceCol));
+        var filterValue = graph.getGraphData(centerSourceCol - sourceCol);
         var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
 
         channelSum += imageData.data[index] * filterValue;
         filterSum += filterValue;
       }
 
-      return channelSum / filterSum;
+      return graph.getGraphArea() * channelSum / filterSum;
     }
 
     function getPixelsUnderMarquee() {
       pixelCanvas.getContext('2d').drawImage(image, 0, 0, imageWidth, imageHeight);
-      var imageData = pixelCanvas.getContext('2d').getImageData(marquee.x + 1, marquee.y + 1,
-        marquee.width - 1, marquee.height - 1);
-        pixelCanvas.getContext('2d').clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
-        pixelCanvas.getContext('2d').putImageData(imageData, 0, 0);
-        return imageData;
-      }
-    })
+      var imageData = pixelCanvas.getContext('2d').getImageData(marquee.x, marquee.y,
+		      marquee.width, marquee.height);
+      pixelCanvas.getContext('2d').clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
+      pixelCanvas.getContext('2d').putImageData(imageData, 0, 0);
+      return imageData;
+    }
+  });

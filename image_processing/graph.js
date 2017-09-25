@@ -26,6 +26,7 @@ class Graph {
 
     this.plot;
     this.currentMouseX = 0;
+    this.currentMouseY = 0;
     this.plotDrawingZero = 0;
     this.drawingIndices = [];
     this.graphData = [];
@@ -38,6 +39,17 @@ class Graph {
     element.appendChild(this.renderer.view);
     this.stage = new PIXI.Container;
     this.draw();
+  }
+
+  getGraphArea() {
+    var sum = 0;
+
+    for(var i = 0; i < this.graphData.length; i++) {
+      sum += this.graphData[i];
+    }
+
+    var width = this.xmax - this.xmin;
+    return width * sum / this.graphData.length;
   }
 
   getGraphData(x) {
@@ -181,6 +193,7 @@ class Graph {
     });
 
     this.currentMouseX = mousePos.x;
+    this.currentMouseY = mousePos.y;
     this.renderer.render(this.stage);
   }
 
@@ -200,13 +213,17 @@ class Graph {
       	var canStillDraw = (clientX + i > this.plot.x && clientX + i < this.plot.x + this.plot.width);
 
       	if (canStillDraw) {
+	  var startY = this.currentMouseY - this.plot.y;
+	  var lambda = Math.abs(i / dx);
+
       	  // store the bar we're drawing so we can remove it later if we need to
-      	  this.addBarAt(clientX + i - this.plot.x, clientY - this.plot.y);
+      	  this.addBarAt(clientX + i - this.plot.x, (1 - lambda) * (clientY - this.plot.y) + lambda * startY);
       	}
       }
     }
 
     this.currentMouseX = clientX;
+    this.currentMouseY = clientY;
     this.renderer.render(this.stage);
   }
 
