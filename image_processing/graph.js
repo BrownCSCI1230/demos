@@ -279,14 +279,15 @@ class Graph {
     for (var i = 0; i <= numSteps; i++) {
       var ypos = i * stepLength - 1;
 
+      if (this.ymin + i * this.yinc == 0) {
+        this.plotDrawingZero = stepLength - 1 ;
+        console.log(ypos);
+        axisColor = 0x000000; //black
+      }
+
       if (i > 0 && i < numSteps) {
         var yaxis = new PIXI.Graphics;
         var axisColor = 0xd3d3d3; //grey
-
-        if (this.ymin + i * this.yinc == 0) {
-          this.plotDrawingZero = ypos;
-          axisColor = 0x000000; //black
-        }
 
         yaxis.lineStyle(axisThickness, axisColor);
 
