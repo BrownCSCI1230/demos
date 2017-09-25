@@ -8,8 +8,8 @@ $(function() {
   var imageWidth = 256;
   var imageHeight = 256;
 
-  var graph1 = new Graph(document.getElementById("graph1"), 256, 256, -1, 1, 1, 0, 1, 1, "", false);
-  var graph2 = new Graph(document.getElementById("graph2"), 256, 256, -1, 1, 1, 0, 1, 1, "", false);
+  var graph1 = new Graph(document.getElementById("graph1"), 500, 250, -4, 4, 1, 0, 1, 1, "", false);
+  var graph2 = new Graph(document.getElementById("graph2"), 500, 250, -4, 4, 1, 0, 1, 1, "", false);
 
   // Pixi objects
   var renderer = PIXI.autoDetectRenderer({
@@ -239,4 +239,51 @@ $(function() {
       pixelCanvas.getContext('2d').putImageData(imageData, 0, 0);
       return imageData;
     }
+
+    var clearFilterButton1 = document.getElementById("clearFilterButton1");
+    clearFilterButton1.addEventListener("click", function(){
+      graph1.clearAllBars();
+    });
+
+    var clearFilterButton2 = document.getElementById("clearFilterButton2");
+    clearFilterButton2.addEventListener("click", function(){
+      graph2.clearAllBars();
+    });
+
+    var boxFilterButton1 = document.getElementById("boxFilterButton1");
+    boxFilterButton1.addEventListener("click", function(){
+      graph1.clearAllBars();
+      graph1.drawBox(-1, 1, 0.5);
+    });
+
+    var boxFilterButton2 = document.getElementById("boxFilterButton2");
+    boxFilterButton2.addEventListener("click", function(){
+      graph2.clearAllBars();
+      graph2.drawBox(-1, 1, 0.5);
+    });
+
+    var triangleFilterButton1 = document.getElementById("triangleFilterButton1");
+    triangleFilterButton1.addEventListener("click", function(){
+      graph1.clearAllBars();
+      graph1.drawTriangle(-1, 1, 1);
+    });
+
+    var triangleFilterButton2 = document.getElementById("triangleFilterButton2");
+    triangleFilterButton2.addEventListener("click", function(){
+      graph2.clearAllBars();
+      graph2.drawTriangle(-1, 1, 1);
+    });
+
+    var gaussianFilterButton1 = document.getElementById("gaussianFilterButton1");
+    gaussianFilterButton1.addEventListener("click", function(){
+      graph1.clearAllBars();
+      graph1.drawGaussian(-4, 4);
+    });
+
+    var gaussianFilterButton2 = document.getElementById("gaussianFilterButton2");
+    gaussianFilterButton2.addEventListener("click", function(){
+      graph2.clearAllBars();
+      graph2.drawGaussian(-4, 4);
+    });
+
   });
