@@ -6,3 +6,41 @@
   margin-right: 30px;
   margin-top: 20px;
 }
+
+.ui-button {
+  transform: scale(0.5);
+  margin-left: -32px;
+  margin-right: -35px;
+  horizontal-align: text-top;
+}
+
+.inline {
+  width: auto;
+  display: inline-block;
+  vertical-align: text-top;
+}
+
+.graphContainer {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.centered {
+  text-align: center;
+  display: block;
+  margin: auto;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  font-family: Sans-serif;
+}
+
+.bottom-margin {
+  margin-bottom: 10px;
+}
+
+.top-margin {
+  margin-top: 50px;
+}

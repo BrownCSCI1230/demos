@@ -12,19 +12,43 @@
   </head>
   <body>
     <img id = "mandrill" src="mandrill.png" hidden="true">
-    <canvas id="mandrillCanvas" width=256 height=256></canvas>
-    <br>
     <canvas id="pixelCanvas" width=256 height=256 hidden=true></canvas>
-    <div id="graph1" width=256 height=256></div>
-    <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton1">Clear Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton1">Box Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton1">Triangle Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton1">Gaussian Filter</button>
-    <div id="graph2" width=256 height=256></div>
-    <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton2">Clear Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton2">Box Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton2">Triangle Filter</button>
-    <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton2">Gaussian Filter</button>
-    <canvas class="scaleCanvas" id="filteredCanvas1" width=256 height=256></canvas>
-    <canvas class="scaleCanvas" id="filteredCanvas2" width=256 height=256></canvas>
+
+    <div class="inline">
+        <div class="title centered">Image</div>
+        <canvas class="" id="mandrillCanvas" width=256 height=256></canvas>
+    </div>
+
+    <div class="inline graphContainer">
+        <div class="title centered">Filter 1</div>
+        <div id="graph1" width=256 height=256></div>
+        <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton1">Clear Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="applyFilterButton1">Apply Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="normalizeFilterButton1">Normalize Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton1">Box Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton1">Triangle Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton1">Gaussian Filter</button>
+    </div>
+
+    <div class="inline graphContainer">
+        <div class="title centered">Filter 2</div>
+        <div id="graph2" width=256 height=256></div>
+        <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton2">Clear Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="applyFilterButton2">Apply Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="normalizeFilterButton2">Normalize Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton2">Box Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton2">Triangle Filter</button>
+        <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton2">Gaussian Filter</button>
+    </div>
+
+    <br>
+    <div class="inline graphContainer">
+        <div class="title centered top-margin">Scaled Image 1</div>
+        <canvas class="scaleCanvas" id="filteredCanvas1" width=256 height=256></canvas>
+    </div>
+
+    <div class="inline graphContainer top-margin">
+        <div class="title centered">Scaled Image 2</div>
+        <canvas class="scaleCanvas" id="filteredCanvas2" width=256 height=256></canvas>
+    </div>
   </body>

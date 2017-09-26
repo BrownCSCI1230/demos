@@ -13,8 +13,8 @@ $(function() {
 
   // Pixi objects
   var renderer = PIXI.autoDetectRenderer({
-    width: 1000,
-    height: 300,
+    width: 256,
+    height: 256,
     view: mandrillCanvas,
     backgroundColor: 0xFFFFFF
   });
@@ -27,6 +27,8 @@ $(function() {
     setUpSprite();
     setUpMarquee();
     setUpInteractions();
+    stopDragging(null);
+
     renderer.render(stage);
   }
 
@@ -250,40 +252,65 @@ $(function() {
       graph2.clearAllBars();
     });
 
+    var applyFilterButton1 = document.getElementById("applyFilterButton1");
+    applyFilterButton1.addEventListener("click", function(){
+      displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas1, graph1);
+    });
+
+    var applyFilterButton2 = document.getElementById("applyFilterButton2");
+    applyFilterButton2.addEventListener("click", function(){
+      displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas2, graph2);
+    });
+
+    var normalizeFilterButton1 = document.getElementById("normalizeFilterButton1");
+    normalizeFilterButton1.addEventListener("click", function(){
+      graph1.normalize();
+    });
+
+    var normalizeFilterButton2 = document.getElementById("normalizeFilterButton2");
+    normalizeFilterButton2.addEventListener("click", function(){
+      graph2.normalize();
+    });
+
     var boxFilterButton1 = document.getElementById("boxFilterButton1");
     boxFilterButton1.addEventListener("click", function(){
       graph1.clearAllBars();
       graph1.drawBox(-1, 1, 0.5);
+      graph1.normalize();
     });
 
     var boxFilterButton2 = document.getElementById("boxFilterButton2");
     boxFilterButton2.addEventListener("click", function(){
       graph2.clearAllBars();
       graph2.drawBox(-1, 1, 0.5);
+      graph2.normalize();
     });
 
     var triangleFilterButton1 = document.getElementById("triangleFilterButton1");
     triangleFilterButton1.addEventListener("click", function(){
       graph1.clearAllBars();
       graph1.drawTriangle(-1, 1, 1);
+      graph1.normalize();
     });
 
     var triangleFilterButton2 = document.getElementById("triangleFilterButton2");
     triangleFilterButton2.addEventListener("click", function(){
       graph2.clearAllBars();
       graph2.drawTriangle(-1, 1, 1);
+      graph2.normalize();
     });
 
     var gaussianFilterButton1 = document.getElementById("gaussianFilterButton1");
     gaussianFilterButton1.addEventListener("click", function(){
       graph1.clearAllBars();
       graph1.drawGaussian(-4, 4);
+      graph1.normalize();
     });
 
     var gaussianFilterButton2 = document.getElementById("gaussianFilterButton2");
     gaussianFilterButton2.addEventListener("click", function(){
       graph2.clearAllBars();
       graph2.drawGaussian(-4, 4);
+      graph2.normalize();
     });
-
   });

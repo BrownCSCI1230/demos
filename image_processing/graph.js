@@ -23,6 +23,7 @@ class Graph {
     this.title = title;
     this.xtitle = title;
     this.ytitle = title;
+    this.element = element;
 
     this.plot;
     this.currentMouseX = 0;
@@ -50,6 +51,18 @@ class Graph {
 
     var width = this.xmax - this.xmin;
     return width * sum / this.graphData.length;
+  }
+
+  normalize() {
+    var area = this.getGraphArea();
+
+    if(area > 0) {
+      for(var i = 0; i < this.graphData.length; i++) {
+	this.graphData[i] = this.graphData[i] / area;
+      }
+
+      this.setGraphData(this.graphData);
+    }
   }
 
   getGraphData(x) {
@@ -149,6 +162,8 @@ class Graph {
   }
 
   addBarAt(i, j) {
+    i = Math.min(Math.max(Math.floor(i), 0), this.plot.width - 1);
+
     // Remove old element and add new element if we might need to remove later
     var oldBar = this.drawingIndices[i];
 
@@ -182,9 +197,8 @@ class Graph {
   }
 
   onClick(mousePos) {
-    this.addBarAt(mousePos.x - this.plot.x, mousePos.y - this.plot.y);
-
     var self = this;
+
     this.plot.on('pointermove', function(eventData){
       var data = eventData.data;
       var pos = new PIXI.Point(0, 0);
@@ -201,13 +215,13 @@ class Graph {
     // This is intended to remove spaces between blue lines caused by
     // mouse moves that are faster than the browser can send events.
     // It's a rough solution...
-    var clientX = Math.max(this.plot.x, Math.min(this.plot.x + this.plot.width, mousePos.x));
-    var clientY = Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y));
+    var clientX = Math.floor(Math.max(this.plot.x, Math.min(this.plot.x + this.plot.width, mousePos.x)));
+    var clientY = Math.floor(Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y)));
 
-    var dx = this.currentMouseX - clientX;
+    var dx = Math.floor(this.currentMouseX - clientX);
     var step = Math.sign(dx);
 
-    if(step !== 0) {
+    if(step !== 0 && dx !== 0) {
       for (var i = 0; i !== (dx + step); i += step) {
       	// make sure we don't go off of either of the sides of the plot
       	var canStillDraw = (clientX + i > this.plot.x && clientX + i < this.plot.x + this.plot.width);
