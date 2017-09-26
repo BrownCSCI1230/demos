@@ -1,8 +1,22 @@
-#marquee {
-  border: 5px solid red;
+#canvases {
+  text-align: center;
+  padding: 10px;
 }
 
-.scaleCanvas {
-  margin-right: 30px;
-  margin-top: 20px;
+#graphs {
+  text-align: center;
+}
+
+#graph1Module {
+  display: inline-block;
+  padding: 10px;
+}
+
+#graph2Module {
+  display: inline-block;
+  padding: 10px;
+}
+
+.ui-button {
+  margin-top: 10px;
 }
