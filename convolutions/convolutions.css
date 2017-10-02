@@ -1,4 +1,30 @@
+body {
+	max-width: 1200px;
+	margin: 1em auto;
+	text-align: center;
+}
 
+.modules {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.module {
+	width: 600px;
+	margin-bottom: 1em;
+}
+
+.ui-widget {
+	margin-top: 0.5em;
+}
+
+#convolutionLink {
+	width: 600px;
+	margin-top: 1em;
+}
+
+/*
 .ui-button {
 	margin-top: 5px;
 }
@@ -29,4 +55,4 @@ a
 {
    color: #555555;
    text-decoration: none;
-}
+}*/
