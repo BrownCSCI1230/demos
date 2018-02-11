@@ -175,12 +175,12 @@ class Graph {
       var dataPoint = this.graphData[i];
       if (dataPoint != 0) {
         this.graphData[i] = 0
-        if (i >= this.drawingIndices.length && i < 2 * this.drawingIndices.length) {
-          var bar = this.drawingIndices[i - this.drawingIndices.length]
-          if (bar != 0) {
-            this.stage.removeChild(bar);
-            this.drawingIndices[i] = 0;
-          }
+      }
+      if (i >= this.drawingIndices.length && i < 2 * this.drawingIndices.length) {
+        var bar = this.drawingIndices[i - this.drawingIndices.length]
+        if (bar != 0) {
+          this.stage.removeChild(bar);
+          this.drawingIndices[i - this.drawingIndices.length] = 0;
         }
       }
     }
@@ -247,6 +247,7 @@ class Graph {
   }
 
   shiftEntireLine(shift) {
+    this.totalShift += shift;
     var newData = [];
     for (var i = 0; i < this.graphData.length; i++) {
       if (this.graphData[i + shift] !== undefined) {

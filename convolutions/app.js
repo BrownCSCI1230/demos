@@ -93,7 +93,8 @@ $(function() {
     max: filter.drawingIndices.length,
     value: filter.drawingIndices.length / 2,
     animate: "slow",
-    slide: sliderDidMove
+    slide: sliderDidMove,
+    change: sliderDidMove
   });
 
   function sliderDidMove(eventSlider, uiSlider) {
@@ -105,6 +106,7 @@ $(function() {
   /* Hacky way to call previous onMove function, and do something else as well */
   signal.doMove = signal.onMove;
   filter.doMove = filter.onMove;
+  // Keep clicks on these graphs from doing anything
   product.onClick = function() {};
   result.onClick = function() {};
   product.onMove = function() {};
@@ -113,10 +115,10 @@ $(function() {
   signal.onMove = function(sprite, mousePos) {
     if (signal.isClicking) {
       if (filter.totalShift != 0) {
+        signal.clearAllBars();
         result.clearAllBars();
         $("#filterSlider").slider({
-          value: Math.floor(filter.drawingIndices.length / 2),
-          change: sliderDidMove
+          value: Math.floor(filter.drawingIndices.length / 2)
         });
         signal.onUp(sprite, mousePos);
         return;
@@ -128,10 +130,10 @@ $(function() {
   filter.onMove = function(sprite, mousePos) {
     if (filter.isClicking) {
       if (filter.totalShift != 0) {
+        filter.clearAllBars();
         result.clearAllBars();
         $("#filterSlider").slider({
-          value: Math.floor(filter.drawingIndices.length / 2),
-          change: sliderDidMove
+          value: Math.floor(filter.drawingIndices.length / 2)
         });
         filter.onUp(sprite, mousePos);
         return;
@@ -142,48 +144,61 @@ $(function() {
 
   var clearFunctionButton = document.getElementById("clearFunctionButton");
   clearFunctionButton.addEventListener("click", function(){
+    $("#filterSlider").slider('value', Math.floor(filter.drawingIndices.length / 2));
     signal.clearAllBars();
     updateResult();
   });
 
   var clearFilterButton = document.getElementById("clearFilterButton");
   clearFilterButton.addEventListener("click", function(){
+    $("#filterSlider").slider('value', Math.floor(filter.drawingIndices.length / 2));
     filter.clearAllBars();
     updateResult();
   });
 
   var boxFunctionButton = document.getElementById("boxFunctionButton");
   boxFunctionButton.addEventListener("click", function(){
+    $("#filterSlider").slider('value', Math.floor(filter.drawingIndices.length / 2));
     signal.clearAllBars();
+    result.clearAllBars();
     signal.drawBox(-0.5, 0.5, 1);
   });
 
   var boxFilterButton = document.getElementById("boxFilterButton");
   boxFilterButton.addEventListener("click", function(){
+    $("#filterSlider").slider('value', Math.floor(filter.drawingIndices.length / 2));
     filter.clearAllBars();
+    result.clearAllBars();
     filter.drawBox(-0.5, 0.5, 1);
   });
 
   var triangleFilterButton = document.getElementById("triangleFilterButton");
   triangleFilterButton.addEventListener("click", function(){
+    $("#filterSlider").slider('value', Math.floor(filter.drawingIndices.length / 2));
     filter.clearAllBars();
+    result.clearAllBars();
     filter.drawTriangle(-1, 1, 1);
   });
 
   var gaussianFilterButton = document.getElementById("gaussianFilterButton");
   gaussianFilterButton.addEventListener("click", function(){
+    $("#filterSlider").slider('value', Math.floor(filter.drawingIndices.length / 2));
     filter.clearAllBars();
+    result.clearAllBars();
     filter.drawGaussian(-4, 4);
   });
 
   var sincFilterButton = document.getElementById("sincFilterButton");
   sincFilterButton.addEventListener("click", function(){
+    $("#filterSlider").slider('value', Math.floor(filter.drawingIndices.length / 2));
     filter.clearAllBars();
+    result.clearAllBars();
     filter.drawSinc(-4, 4);
   });
 
   var convolveButton = document.getElementById("convolveButton");
   convolveButton.addEventListener("click", function(){
+    $("#filterSlider").slider('value', Math.floor(filter.drawingIndices.length / 2));
     updateResult();
   });
 });

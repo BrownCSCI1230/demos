@@ -64,6 +64,7 @@ $(function() {
   /* Hacky way to call previous onMove function, and do something else as well */
   signal.doMove = signal.onMove;
   filter.doMove = filter.onMove;
+  // Keep clicks on these graphs from doing anything
   product.onClick = function(){};
   result.onClick = function(){};
 
