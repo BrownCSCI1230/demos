@@ -31,7 +31,7 @@
 .inline {
   width: auto;
   display: inline-block;
-  vertical-align: text-top;
+  vertical-align: top;
 }
 
 .graphContainer {
@@ -45,6 +45,11 @@
   margin: auto;
 }
 
+.vertical-centered {
+  display: table-cell;
+  vertical-align: middle;
+}
+
 .title {
   font-size: 20px;
   font-weight: bold;
@@ -56,5 +61,9 @@
 }
 
 .top-margin {
-  margin-top: 50px;
+  margin-top: 150px;
+}
+
+.top-small-margin {
+  margin-top: 10px;
 }

@@ -7,8 +7,6 @@ Convolutions
 ------------------------------------------------------------------------------
 1. y-value issue on initial click.
 
-1a. Gotta clear shit like the discrete demo.
-
 2. There's a lot of repeated code between continuous and discrete convolutions.
   Refactor this?
 
