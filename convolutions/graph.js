@@ -7,6 +7,11 @@ function rgbToHex(r, g, b) {
     return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
+function lerp(x1, x2, y1, y2, x) {
+  var m = (y2 - y1) / (x2 - x1);
+  return (m * (x - x1) + y1);
+}
+
 class Graph {
   constructor(element, width, height, xmin, xmax, xinc, ymin, ymax, yinc, title) {
     //TODO: Change these
@@ -26,9 +31,12 @@ class Graph {
 
     this.plot;
     this.currentMouseX = 0;
+    this.currentMouseY = 0;
     this.plotDrawingZero = 0;
+    this.totalShift = 0;
     this.drawingIndices = [];
     this.graphData = [];
+    this.isClicking = false;
 
     this.renderer = new PIXI.CanvasRenderer(width, height, {
       resolution: window.devicePixelRatio || 1,
@@ -42,15 +50,15 @@ class Graph {
 
   getGraphData(x) {
     var xdiff = this.xmax - this.xmin;
-    var i = Math.round(((x - this.xmin) / xdiff) * this.graphData.length);
-    i = Math.max(0, Math.min(this.graphData.length - 1, i));
-    return this.graphData[i];
+    var i = Math.round(((x - this.xmin) / xdiff) * this.drawingIndices.length);
+    i = Math.max(0, Math.min(this.drawingIndices.length - 1, i));
+    return this.graphData[i + this.drawingIndices.length];
   }
 
   setGraphData(graphData) {
     this.graphData = graphData;
 
-    for (var i = 0; i < graphData.length; i ++) {
+    for (var i = 0; i < this.graphData.length; i ++) {
       var y = graphData[i];
       var canvasY = this.convertToPixel(y, false);
 
@@ -103,7 +111,7 @@ class Graph {
     this.plot.position = new PIXI.Point(plotX, plotY);
     // creates an array of 0s
     // from https://stackoverflow.com/questions/1295584/most-efficient-way-to-create-a-zero-filled-javascript-array
-    this.graphData = Array.apply(null, Array(this.plot.width)).map(Number.prototype.valueOf,0);
+    this.graphData = Array.apply(null, Array(3 * this.plot.width)).map(Number.prototype.valueOf,0);
     this.drawingIndices = Array.apply(null, Array(this.plot.width)).map(Number.prototype.valueOf,0);
 
     this.plot.interactive = true;
@@ -137,40 +145,50 @@ class Graph {
   }
 
   addBarAt(i, j) {
-    // Remove old element and add new element if we might need to remove later
-    var oldBar = this.drawingIndices[i];
 
-    if (oldBar != 0) {
-      this.stage.removeChild(oldBar);
+    if (i >= this.drawingIndices.length && i < 2 * this.drawingIndices.length) {
+      // Remove old element and add new element if we might need to remove later
+      var drawingIndex = i - this.drawingIndices.length;
+      var oldBar = this.drawingIndices[drawingIndex];
+
+      if (oldBar != 0) {
+        this.stage.removeChild(oldBar);
+      }
+
+      // Add new bar
+      var bar = new PIXI.Graphics;
+
+      bar.lineStyle(1, 0x0000ff, 1);
+      bar.moveTo(this.plot.x + drawingIndex, this.plotDrawingZero);
+      bar.lineTo(this.plot.x + drawingIndex, this.plot.y + j);
+
+      this.drawingIndices[drawingIndex] = bar;
+      this.stage.addChild(bar);
     }
-
-    // Add new bar
-    var bar = new PIXI.Graphics;
-    bar.lineStyle(1, 0x0000ff, 1);
-    bar.moveTo(this.plot.x + i, this.plotDrawingZero);
-    bar.lineTo(this.plot.x + i, this.plot.y + j);
-
-    this.drawingIndices[i] = bar;
-    this.stage.addChild(bar);
 
     // Graph Data
     this.graphData[i] = this.convertToPlot(j, false);
   }
 
   clearAllBars() {
-    for (var i = 0; i < this.drawingIndices.length; i++) {
-      var bar = this.drawingIndices[i];
-      if (bar != 0) {
-        this.stage.removeChild(bar);
-        this.drawingIndices[i] = 0;
-        this.graphData[i] = 0;
+    for (var i = 0; i < this.graphData.length; i++) {
+      var dataPoint = this.graphData[i];
+      if (dataPoint != 0) {
+        this.graphData[i] = 0
+        if (i >= this.drawingIndices.length && i < 2 * this.drawingIndices.length) {
+          var bar = this.drawingIndices[i - this.drawingIndices.length]
+          if (bar != 0) {
+            this.stage.removeChild(bar);
+            this.drawingIndices[i] = 0;
+          }
+        }
       }
     }
     this.renderer.render(this.stage);
   }
 
   onClick(mousePos) {
-    this.addBarAt(mousePos.x - this.plot.x, mousePos.y - this.plot.y);
+    this.addBarAt(Math.round(mousePos.x - this.plot.x) + this.drawingIndices.length, mousePos.y - this.plot.y);
 
     var self = this;
     this.plot.on('pointermove', function(eventData){
@@ -181,37 +199,64 @@ class Graph {
     });
 
     this.currentMouseX = mousePos.x;
+    this.isClicking = true;
     this.renderer.render(this.stage);
   }
 
   onMove(mousePos) {
-    // This is intended to remove spaces between blue lines caused by
-    // mouse moves that are faster than the browser can send events.
-    // It's a rough solution...
-    var clientX = Math.max(this.plot.x, Math.min(this.plot.x + this.plot.width, mousePos.x));
-    var clientY = Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y));
+    if (this.isClicking) {
+      // This is intended to remove spaces between blue lines caused by
+      // mouse moves that are faster than the browser can send events.
+      // It's a rough solution...
+      var clientX = Math.max(this.plot.x, Math.min(this.plot.x + this.plot.width, mousePos.x));
+      var clientY = Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y));
 
-    var dx = this.currentMouseX - clientX;
-    var step = Math.sign(dx);
+      var start;
+      var stop;
 
-    if(step !== 0) {
-      for (var i = 0; i !== (dx + step); i += step) {
+      if (clientX > this.currentMouseX) {
+        start = Math.round(this.currentMouseX - this.plot.x);
+        stop = Math.round(clientX - this.plot.x);
+      } else {
+        start = Math.round(clientX - this.plot.x);
+        stop = Math.round(this.currentMouseX - this.plot.x);
+      }
+
+      for (var i = start; i < stop; i += 1) {
       	// make sure we don't go off of either of the sides of the plot
-      	var canStillDraw = (clientX + i > this.plot.x && clientX + i < this.plot.x + this.plot.width);
+      	var canStillDraw = (i > 0 && i < this.plot.width);
 
       	if (canStillDraw) {
       	  // store the bar we're drawing so we can remove it later if we need to
-      	  this.addBarAt(clientX + i - this.plot.x, clientY - this.plot.y);
+          var lerpy = lerp(clientX - this.plot.x, this.currentMouseX - this.plot.x, clientY - this.plot.y, this.currentMouseY - this.plot.y, i);
+      	  this.addBarAt(i + this.drawingIndices.length, lerpy);
       	}
       }
-    }
 
-    this.currentMouseX = clientX;
-    this.renderer.render(this.stage);
+      this.currentMouseX = clientX;
+      this.currentMouseY = clientY;
+      this.renderer.render(this.stage);
+    }
   }
 
   onUp(mousePos) {
+    if (this.isClicking) {
+      this.isClicking = false;
+    }
     this.plot.off('pointermove');
+  }
+
+  shiftEntireLine(shift) {
+    var newData = [];
+    for (var i = 0; i < this.graphData.length; i++) {
+      if (this.graphData[i + shift] !== undefined) {
+        newData[i] = this.graphData[i + shift];
+      } else {
+        newData[i] = 0;
+      }
+    }
+
+    this.setGraphData(newData);
   }
 
   makeBackground() {
@@ -336,7 +381,7 @@ class Graph {
     var heightPix = this.convertToPixel(height, false);
 
     for (var i = startPix; i <= endPix; i++) {
-      this.addBarAt(i, heightPix);
+      this.addBarAt(i + this.drawingIndices.length, heightPix);
     }
 
     this.renderer.render(this.stage);
@@ -353,7 +398,7 @@ class Graph {
       var triangleHeight = (-slope * Math.abs(sampleX - mid) + height);
       var triangleHeightPixel = this.convertToPixel(triangleHeight, false);
 
-      this.addBarAt(i, triangleHeightPixel);
+      this.addBarAt(i + this.drawingIndices.length, triangleHeightPixel);
     }
 
     this.renderer.render(this.stage);
@@ -370,7 +415,7 @@ class Graph {
       var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
       var pixGaussianVal = this.convertToPlotPixel(gaussianVal, false);
 
-      this.addBarAt(i, pixGaussianVal);
+      this.addBarAt(i + this.drawingIndices.length, pixGaussianVal);
     }
 
     this.renderer.render(this.stage);
@@ -387,7 +432,7 @@ class Graph {
       var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
       var pixGaussianVal = this.convertToPixel(gaussianVal, false);
 
-      this.addBarAt(i, pixGaussianVal);
+      this.addBarAt(i + this.drawingIndices.length, pixGaussianVal);
     }
 
     this.renderer.render(this.stage);
@@ -409,7 +454,7 @@ class Graph {
       var sincVal = sincNumerator / sincDenominator;
       var pixSincVal = this.convertToPixel(sincVal, false);
 
-      this.addBarAt(i, pixSincVal);
+      this.addBarAt(i + this.drawingIndices.length, pixSincVal);
     }
 
     this.renderer.render(this.stage);
@@ -437,15 +482,5 @@ class Graph {
       var y = (((this.plot.height - unit) / this.plot.height) * yrange) + this.ymin;
       return Math.max(this.ymin, Math.min(this.ymax, y));
     }
-  }
-
-  convertToXIndex(x) {
-      var i = Math.round(((x - this.xmin) / (this.xmax - this.xmin)) * this.graphData.length);
-      return Math.max(0, Math.min(this.plot.width - 1, i));
-  }
-
-  convertToYIndex(y) {
-      var i = Math.round(((y - this.ymin) / (this.ymax - this.ymin)) * this.graphData.length);
-      return Math.max(0, Math.min(this.plot.height, i));
   }
 }

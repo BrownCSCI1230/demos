@@ -5,6 +5,8 @@ $(function() {
   var product = new Graph(document.getElementById("productGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x)g(x) [Product]");
   var result = new Graph(document.getElementById("resultGraph"), 600, 200, -4, 4, 1, -1, 1, 0.5, "f(x) * g(x) [Convolution]");
 
+  var lastSliderPos = Math.floor(filter.drawingIndices.length / 2);
+
   /* Convolve signal with filter */
   var updateResult = function() {
     var convolutionData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
@@ -13,90 +15,128 @@ $(function() {
     var resultXDiff = result.xmax - result.xmin;
     var filterXDiff = filter.xmax - filter.xmin;
 
-    var resultStep = resultXDiff / result.graphData.length;
-    var filterStep = filterXDiff / filter.graphData.length;
+    var resultStep = resultXDiff / result.drawingIndices.length;
+    var filterStep = filterXDiff / filter.drawingIndices.length;
 
     // Iterate over all x values in result
     for(var resultX = result.xmin; resultX <= result.xmax; resultX += resultStep) {
       var sum = 0;
 
-      // Iterate over all x values in filter
+      // Iterate over all visible x values in filter
       for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
-	// Product of values of the filter at (filterX) and the original signal at
-	// (resultX - filterX) will contribute to value of result signal at resultX
-	var signalX = resultX - filterX;
+      	// Product of values of the filter at (filterX) and the original signal at
+      	// (resultX - filterX) will contribute to value of result signal at resultX
+      	var signalX = resultX - filterX;
 
-	// Accumulate result of convolution at result x
-	sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
+      	// Accumulate result of convolution at result x
+      	sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
       }
 
       // Convolution result
-      var i = result.convertToPixel(resultX, true);
-      convolutionData[i] = sum;
+      var i = result.convertToPixel(resultX, true) + Math.floor(result.drawingIndices.length / 2);
+      convolutionData[i + result.drawingIndices.length / 2] = sum;
 
       // Product result
-      productData[i] = filter.getGraphData(resultX) * signal.getGraphData(resultX);
+      productData[i + result.drawingIndices.length / 2] = filter.getGraphData(resultX) * signal.getGraphData(resultX);
     }
 
     result.setGraphData(convolutionData);
     product.setGraphData(productData);
   }
 
+  // This function could be seriously cleaned up / combined with the previous
+  var updateResultForValue = function(value) {
+    var convolutionData = result.graphData;
+    var productData = Array.apply(null, Array(result.graphData.length)).map(Number.prototype.valueOf, 0);
+
+    var productXDiff = product.xmax - product.xmin;
+    var filterXDiff = filter.xmax - filter.xmin;
+
+    var productStep = productXDiff / product.drawingIndices.length;
+    var filterStep = filterXDiff / filter.drawingIndices.length;
+
+    // Iterate over all x values in product
+    for(var productX = product.xmin; productX <= product.xmax; productX += productStep) {
+      // Product result
+      var i = value - product.convertToPixel(productX, true) + Math.floor(product.drawingIndices.length / 2);
+      productData[i + result.drawingIndices.length] = filter.getGraphData(productX) * signal.getGraphData(productX);
+    }
+    product.setGraphData(productData);
+
+    var start = Math.min(lastSliderPos, value);
+    var end = Math.max(lastSliderPos, value);
+
+    var resultXDiff = result.xmax - result.xmin;
+    var resultStep = resultXDiff / result.drawingIndices.length;
+
+    var startX = result.xmin
+
+    for (var i = start; i <= end; i++) {
+      var resultX = i * resultStep + result.xmin;
+      var shift = (value - i) * filterStep;
+      var sum = 0;
+
+      for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
+        sum += filter.getGraphData(filterX + shift) * signal.getGraphData(filterX) * filterStep;
+      }
+
+      convolutionData[i + result.drawingIndices.length] = sum;
+    }
+
+    start += result.drawingIndices.length;
+    end += result.drawingIndices.length;
+    result.setGraphDataAtIndices(convolutionData, start, end);
+  }
+
   $( "#filterSlider" ).slider({
     min: 0,
-    max: filter.graphData.length,
-    value: filter.graphData.length / 2,
+    max: filter.drawingIndices.length,
+    value: filter.drawingIndices.length / 2,
     animate: "slow",
     slide: sliderDidMove
   });
 
   function sliderDidMove(eventSlider, uiSlider) {
+    filter.shiftEntireLine(lastSliderPos - uiSlider.value);
     updateResultForValue(uiSlider.value);
-  }
-
-  var lastSliderPos = filter.graphData.length / 2;
-
-  function updateResultForValue(value) {
-    convolutionData = result.graphData;
-    productData = product.graphData;
-
-    var resultXDiff = result.xmax - result.xmin;
-    var filterXDiff = filter.xmax - filter.xmin;
-
-    var resultStep = resultXDiff / result.graphData.length;
-    var filterStep = filterXDiff / filter.graphData.length;
-
-    var start = Math.min(lastSliderPos, value);
-    var end = Math.max(lastSliderPos, value);
-
-    for (var i = start; i <= end; i++) {
-      var resultX = i * resultStep + result.xmin;
-      var sum = 0;
-
-      for(var filterX = filter.xmin; filterX <= filter.xmax; filterX += filterStep) {
-        var signalX = resultX - filterX;
-        sum += filter.getGraphData(filterX) * signal.getGraphData(signalX) * filterStep;
-      }
-
-      convolutionData[i] = sum;
-      productData[i] = signal.getGraphData(resultX) * filter.getGraphData(resultX);
-    }
-
-    result.setGraphDataAtIndices(convolutionData, start, end);
-    product.setGraphDataAtIndices(productData, start, end);
-
-    lastSliderPos = value;
+    lastSliderPos = uiSlider.value;
   }
 
   /* Hacky way to call previous onMove function, and do something else as well */
   signal.doMove = signal.onMove;
   filter.doMove = filter.onMove;
+  product.onClick = function() {};
+  result.onClick = function() {};
+  product.onMove = function() {};
+  result.onMove = function() {};
 
   signal.onMove = function(sprite, mousePos) {
+    if (signal.isClicking) {
+      if (filter.totalShift != 0) {
+        result.clearAllBars();
+        $("#filterSlider").slider({
+          value: Math.floor(filter.drawingIndices.length / 2),
+          change: sliderDidMove
+        });
+        signal.onUp(sprite, mousePos);
+        return;
+      }
+    }
     signal.doMove(sprite, mousePos);
   }
 
   filter.onMove = function(sprite, mousePos) {
+    if (filter.isClicking) {
+      if (filter.totalShift != 0) {
+        result.clearAllBars();
+        $("#filterSlider").slider({
+          value: Math.floor(filter.drawingIndices.length / 2),
+          change: sliderDidMove
+        });
+        filter.onUp(sprite, mousePos);
+        return;
+      }
+    }
     filter.doMove(sprite, mousePos);
   }
 
