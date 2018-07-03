@@ -1,0 +1,399 @@
+
+<!-- saved from url=(0066)http://cs.brown.edu/courses/cs123/demos/crawlies/crawlie_demo.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=GBK">
+    <script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+    <script type="text/javascript" src="js/webgl-utils.js"></script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec4 vColor;
+    varying vec2 vTextureCoord;
+
+    uniform sampler2D uSampler;
+
+    void main(void) {
+        gl_FragColor = texture2D(uSampler, vTextureCoord);
+    }
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec4 aVertexColor;
+    attribute vec2 aTextureCoord;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+
+    varying vec4 vColor;
+    varying vec2 vTextureCoord;
+
+    void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vColor = aVertexColor;
+        vTextureCoord = aTextureCoord;
+    }
+</script>
+
+
+<script type="text/javascript">
+    function getShader(gl, id) {
+        var shaderScript = document.getElementById(id);
+        if (!shaderScript) {
+            return null;
+        }
+
+        var str = "";
+        var k = shaderScript.firstChild;
+        while (k) {
+            if (k.nodeType == 3) {
+                str += k.textContent;
+            }
+            k = k.nextSibling;
+        }
+
+        var shader;
+        if (shaderScript.type == "x-shader/x-fragment") {
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+        } else if (shaderScript.type == "x-shader/x-vertex") {
+            shader = gl.createShader(gl.VERTEX_SHADER);
+        } else {
+            return null;
+        }
+
+        gl.shaderSource(shader, str);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert(gl.getShaderInfoLog(shader));
+            return null;
+        }
+
+        return shader;
+    }
+
+
+    var shaderProgram;
+
+    function initShaders() {
+        var fragmentShader = getShader(gl, "shader-fs");
+        var vertexShader = getShader(gl, "shader-vs");
+
+        shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            alert("Could not initialise shaders");
+        }
+
+        gl.useProgram(shaderProgram);
+
+        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+        shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+        gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
+
+        shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+        shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+    }
+
+
+    var mvMatrix = mat4.create();
+    var pMatrix = mat4.create();
+
+    function setMatrixUniforms() {
+        gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+    }
+
+
+
+    var triangleVertexPositionBuffer;
+    var squareVertexPositionBuffer;
+    var cube = {posBuffer: null,
+                colorBuffer: null,
+                texCoordBuffer: null,
+                indexBuffer: null,
+                trans_mat: mat4.scale(mat4.translate(mat4.identity(mat4.create()), [0, 0.0, -7.0]), [4.1, 1, 4.1]) ,
+            };
+
+    var checkerTexture;
+    function initTexture() {
+        checkerTexture = gl.createTexture();
+        checkerTexture.image = new Image();
+        checkerTexture.image.onload = function() {
+          handleLoadedTexture(checkerTexture)
+        }
+
+        checkerTexture.image.src = "images/checker_small.gif";
+    }
+
+    function initBuffers() {
+        //Vertices
+        cube.posBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, cube.posBuffer);
+        vertices = [
+            // Bottom face
+          -30.0, -3.0, -30.0,
+           30.0, -3.0, -30.0,
+           30.0, -0.0,  30.0,
+          -30.0, -0.0,  30.0,
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        cube.posBuffer.itemSize = 3;
+        cube.posBuffer.numItems = 4;
+
+        cube.texCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, cube.texCoordBuffer);
+        var textureCoords = [
+          // Bottom face
+          20.0, 20.0,
+          0.0, 20.0,
+          0.0, 0.0,
+          20.0, 0.0,
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
+        cube.texCoordBuffer.itemSize = 2;
+        cube.texCoordBuffer.numItems = 4;
+
+        //Indices
+        cube.indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cube.indexBuffer);
+       var cubeVertexIndices = [
+          0, 1, 2,   0, 2, 3, // Bottom face
+
+        ];
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+        cube.indexBuffer.itemSize = 1;
+        cube.indexBuffer.numItems = 6;
+    }
+
+    function render() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        mat4.identity(mvMatrix);
+        mat4.multiply(mvMatrix,trans);
+        mat4.rotateY(mvMatrix,rot)
+
+        mat4.multiply(mvMatrix, cube.trans_mat);
+
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, cube.posBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cube.posBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, cube.texCoordBuffer);
+        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, cube.texCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, checkerTexture);
+        gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cube.indexBuffer);
+        setMatrixUniforms();
+        gl.drawElements(gl.TRIANGLES, cube.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    }
+
+    //general utils
+    function degToRad(deg){
+        return deg * Math.PI/180;
+    }
+
+
+    //GL setup / utils
+    var gl;
+    function initGL(canvas) {
+        try {
+            gl = canvas.getContext("experimental-webgl");
+            gl.viewportWidth = canvas.width;
+            gl.viewportHeight = canvas.height;
+        } catch (e) {
+        }
+        if (!gl) {
+            alert("Could not initialise WebGL, sorry :-(");
+        }
+    }
+
+    function handleLoadedTexture(texture){
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+
+
+        nearestFilter(texture);
+
+    }
+
+    function linearFilter(texture){
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    function nearestFilter(texture){
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    function mipmapFilter(texture){
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    function updateCamera(camera){
+        mat4.identity(pMatrix);
+        mat4.perspective(camera.fov, camera.aspectRatio, camera.near, camera.far, pMatrix);
+    }
+
+    var lastTime = 0;
+    function animate(){
+        var timeNow = new Date().getTime();
+        //No good way to handle the first tick so skip it
+        if (lastTime != 0) {
+          var secondsSinceTick = (timeNow - lastTime)/1000.0;
+        }
+        lastTime = timeNow;
+    }
+
+
+    function tick(){
+        requestAnimFrame(tick);
+        render();
+        animate();
+        handleKeysHeld();
+    }
+
+    function webGLStart() {
+        var canvas = document.getElementById("canvas");
+        initGL(canvas);
+        initShaders();
+        initBuffers();
+        initTexture();
+
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.enable(gl.DEPTH_TEST);
+
+        var camera = {fov: 45,
+                      aspectRatio: 1,
+                      near: .01,
+                      far: 100};
+        updateCamera(camera);
+
+        document.onkeydown = handleKeyDown;
+        document.onkeyup = handleKeyUp;
+
+        tick();
+    }
+
+    var trans = mat4.identity(mat4.create());
+    var rot = 0;
+    function handleKeysHeld(){
+        if (keysHeld["W"]){
+            trans = mat4.translate(trans, [0, 0, .06]);
+        }
+        if (keysHeld["S"]){
+            trans = mat4.translate(trans, [0, 0, -.06]);
+        }
+        if (keysHeld["A"]){
+            trans = mat4.translate(trans, [.06, 0, 0]);
+        }
+        if (keysHeld["D"]){
+            trans = mat4.translate(trans, [-.06, 0, 0]);
+        }
+        if (keysHeld["X"]){
+            trans = mat4.translate(trans, [0, -.06, 0]);
+        }
+        if (keysHeld["Z"]){
+            trans = mat4.translate(trans, [0, .06, 0]);
+        }
+        if (keysHeld["E"]){
+           rot += degToRad(.6);
+        }
+        if (keysHeld["Q"]){
+            rot += degToRad(-.6);
+        }
+
+    }
+
+
+    var keysHeld = {};
+    function handleKeyDown(event){
+        if (String.fromCharCode(event.keyCode) == "M"){
+            mipmapFilter(checkerTexture);
+        } else if (String.fromCharCode(event.keyCode) == "L"){
+            linearFilter(checkerTexture);
+        } else if (String.fromCharCode(event.keyCode) == "N"){
+            nearestFilter(checkerTexture);
+        }
+        keysHeld[String.fromCharCode(event.keyCode)] = true;
+    }
+
+    function handleKeyUp(event){
+        keysHeld[String.fromCharCode(event.keyCode)] = false;
+    }
+
+    //Matrix utils
+    var mvStack = [];
+    function pushMatrix(){
+        var copy = mat4.create();
+        mat4.set(mvMatrix, copy);
+        mvStack.push(copy);
+    }
+
+    function popMatrix(){
+        if (mvMatrix.length != 0){
+            mvMatrix = mvStack.pop();
+        }
+    }
+
+
+
+</script>
+</head>
+<body onload="webGLStart();">
+
+    <canvas id="canvas" style="border: none; width: 100%; height: 60%; margin: 0px" width="600" height="500"></canvas>
+    <div style="float: left; margin: 20px;">
+        <h3> Controls </h3>
+        <p>
+            w -- move forward
+            <br>
+            s -- move back
+            <br>
+            a -- move left
+            <br>
+            d -- move right
+            <br>
+            q -- rotate counterclockwise
+            <br>
+            e -- rotate clockwise
+            <br>
+            x -- move up
+            <br>
+            z -- move down
+        </p>
+    </div>
+    <div style="float: left; margin: 20px;">
+        <h3> Anti aliasing techniques </h3>
+        <p>
+            n -- nearest
+            <br>
+            l -- linear
+            <br>
+            m -- mipmap
+        </p>
+    </div>
+
+</body></html>
