@@ -57,8 +57,8 @@ var lightButtons = [redLightButton, greenLightButton, blueLightButton, cylonLigh
 var paintButtons = [redPaintButton, greenPaintButton, bluePaintButton, cylonPaintButton, magentaPaintButton, yellowPaintButton, blackPaintButton, whitePaintButton]
 var filterButtons = [redFilterButton, greenFilterButton, blueFilterButton, cylonFilterButton, magentaFilterButton, yellowFilterButton];
 
-var paintColors = {0:0xffd900, 1:0xffd900, 2:0xffd900, 3:0xffd900, 4:0xffd900, 5:0xffd900, 6:0xffd900, 7:0xffd900, 8:0xffd900, 9:0xffd900, 10:0xffd900};
-
+var colorsHex = [0xFF0000,0x00FF00,0x0000FF,0xFF0000,0xF0000,0xF00000,0xFFFFFF,0x000000];
+var paintColors = new Map()
 var lightButtonPositions = [
     50, 50,
     100, 50,
@@ -132,6 +132,7 @@ for (var i = 0; i < lightButtons.length; i++) {
     button.interactive = true;
     button.buttonMode = true;
 
+    paintColors.set(button.texture.baseTexture.imageUrl, colorsHex[i])
     button.on('pointerdown', addSurfaceColor);
 
     // add it to the stage
@@ -241,7 +242,7 @@ function addSurfaceColor() {
     }
   }
 
-  colorSurface(this.color);
+  colorSurfaceRectangle(paintColors.get(this.texture.baseTexture.imageUrl));
 
 }
 
@@ -277,16 +278,15 @@ function onButtonOut() {
     this.texture = redLightButton;
 }
 
-
-colorSurface(0xFF3300);
-colorEye(0xFF3300);
-
-function colorSurface(color) {
 var coloredSurface = new PIXI.Graphics();
+colorSurfaceRectangle(0xFF3300);
+
+function colorSurfaceRectangle(color) {
+    console.log(color);
 var sur_x = SURFACE_X + 15;
 var sur_y = SURFACE_Y + 12;
 coloredSurface.beginFill(color);
-coloredSurface.lineStyle(4, 0xffd900, 1);
+coloredSurface.lineStyle(4, color, 1);
 coloredSurface.moveTo(sur_x,sur_y);
 coloredSurface.lineTo(sur_x + 40, sur_y);
 coloredSurface.lineTo(sur_x + 75, sur_y + 80);
@@ -296,12 +296,14 @@ coloredSurface.endFill();
 app.stage.addChild(coloredSurface);
 }
 
-function colorEye(color) {
-  var colorEye = new PIXI.Graphics();
+var colorEye = new PIXI.Graphics();
+colorEyeRectangle(0xFF3300);
+
+function colorEyeRectangle(color) {
 var rec_x = EYE_X + 75;
 var rec_y = EYE_Y;
 colorEye.beginFill(color);
-colorEye.lineStyle(4, 0xffd900, 1);
+colorEye.lineStyle(4, color, 1);
 colorEye.moveTo(rec_x,rec_y);
 colorEye.lineTo(rec_x + 100,rec_y);
 colorEye.lineTo(rec_x + 100,rec_y + 50);
