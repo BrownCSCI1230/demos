@@ -234,15 +234,14 @@ var beamButtonObj = new PIXI.Sprite(beamButton);
 
     app.stage.addChild(beamButtonObj);
 
-function drawBeam() {
     var beam = new PIXI.Graphics();
-    beam.beginFill(currentColor);
-    beam.lineStyle(4, currentColor, 1);
+
+function drawBeam() {
+    beam.lineStyle(5, currentColor);
     beam.moveTo(FRONT_LIGHT_X,FRONT_LIGHT_Y);
-    beam.lineTo(SURFACE_X, SURFACE_Y);
-    beam.lineTo(EYE_X, EYE_Y);
-    beam.endFill();
-    app.stage.addChild(colorEye);
+    beam.lineTo(SURFACE_X + 50, SURFACE_Y + 50);
+    beam.lineTo(EYE_X, EYE_Y + 50);
+    app.stage.addChild(beam);
 }
 
 function addFilter() {
