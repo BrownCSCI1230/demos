@@ -19,19 +19,22 @@ var OFFSET_X = 30;
 var OFFSET_Y = 25;
 
 var frontLightSelected = true;
-var currentColor = 0x000000;
+var currentColor = 0xFF0000;
+var lightColor = 0xFF0000;
+var paintColor = 0xFF0000;
+var filterColor = 0xFF0000;
 
 var redLightButton = PIXI.Texture.fromImage('images/rl1.gif');
 var greenLightButton = PIXI.Texture.fromImage('images/gl1.gif');
 var blueLightButton = PIXI.Texture.fromImage('images/bl1.gif');
-var cylonLightButton = PIXI.Texture.fromImage('images/cl1.gif');
+var cyanLightButton = PIXI.Texture.fromImage('images/cl1.gif');
 var magentaLightButton = PIXI.Texture.fromImage('images/ml1.gif');
 var yellowLightButton = PIXI.Texture.fromImage('images/yl1.gif');
 
 var redPaintButton = PIXI.Texture.fromImage('images/rp1.gif');
 var greenPaintButton = PIXI.Texture.fromImage('images/gp1.gif');
 var bluePaintButton = PIXI.Texture.fromImage('images/bp1.gif');
-var cylonPaintButton = PIXI.Texture.fromImage('images/cp1.gif');
+var cyanPaintButton = PIXI.Texture.fromImage('images/cp1.gif');
 var magentaPaintButton = PIXI.Texture.fromImage('images/mp1.gif');
 var yellowPaintButton = PIXI.Texture.fromImage('images/yp1.gif');
 var blackPaintButton = PIXI.Texture.fromImage('images/kp1.gif');
@@ -40,7 +43,7 @@ var whitePaintButton = PIXI.Texture.fromImage('images/wp1.gif');
 var redFilterButton = PIXI.Texture.fromImage('images/rf1.gif');
 var greenFilterButton = PIXI.Texture.fromImage('images/gf1.gif');
 var blueFilterButton = PIXI.Texture.fromImage('images/bf1.gif');
-var cylonFilterButton = PIXI.Texture.fromImage('images/cf1.gif');
+var cyanFilterButton = PIXI.Texture.fromImage('images/cf1.gif');
 var magentaFilterButton = PIXI.Texture.fromImage('images/mf1.gif');
 var yellowFilterButton = PIXI.Texture.fromImage('images/yf1.gif');
 
@@ -54,9 +57,9 @@ var surface = PIXI.Texture.fromImage('images/surfaceObj.gif');
 var filterStand = PIXI.Texture.fromImage('images/filterStand.gif');
 var beamButton = PIXI.Texture.fromImage('images/beamButton.gif');
 
-var lightButtons = [redLightButton, greenLightButton, blueLightButton, cylonLightButton, magentaLightButton, yellowLightButton]
-var paintButtons = [redPaintButton, greenPaintButton, bluePaintButton, cylonPaintButton, magentaPaintButton, yellowPaintButton, blackPaintButton, whitePaintButton]
-var filterButtons = [redFilterButton, greenFilterButton, blueFilterButton, cylonFilterButton, magentaFilterButton, yellowFilterButton];
+var lightButtons = [redLightButton, greenLightButton, blueLightButton, cyanLightButton, magentaLightButton, yellowLightButton]
+var paintButtons = [redPaintButton, greenPaintButton, bluePaintButton, cyanPaintButton, magentaPaintButton, yellowPaintButton, blackPaintButton, whitePaintButton]
+var filterButtons = [redFilterButton, greenFilterButton, blueFilterButton, cyanFilterButton, magentaFilterButton, yellowFilterButton];
 
 var colorsHex = [0xFF0000,0x00FF00,0x0000FF,0xFF0000,0xF0000,0xF00000,0xFFFFFF,0x000000];
 var paintColors = new Map()
@@ -340,13 +343,13 @@ app.stage.addChild(coloredSurface);
 }
 
 var colorEye = new PIXI.Graphics();
-colorEyeRectangle(0xFF3300);
+colorEyeRectangle();
 
-function colorEyeRectangle(color) {
+function colorEyeRectangle() {
 var rec_x = EYE_X + 75;
 var rec_y = EYE_Y;
-colorEye.beginFill(color);
-colorEye.lineStyle(4, color, 1);
+colorEye.beginFill(currentColor);
+colorEye.lineStyle(4, currentColor, 1);
 colorEye.moveTo(rec_x,rec_y);
 colorEye.lineTo(rec_x + 100,rec_y);
 colorEye.lineTo(rec_x + 100,rec_y + 50);
@@ -354,6 +357,10 @@ colorEye.lineTo(rec_x,rec_y + 50);
 colorEye.lineTo(rec_x,rec_y);
 colorEye.endFill();
 app.stage.addChild(colorEye);
+}
+
+function calculateColor() {
+    return coloredSurface;
 }
 
 });
