@@ -19,10 +19,10 @@ var OFFSET_X = 30;
 var OFFSET_Y = 25;
 
 var frontLightSelected = true;
-var currentColor = 0xFF0000;
-var currentLightColor = 0xFF0000;
-var currentPaintColor = 0xFF0000;
-var currentFilterColor = 0xFF0000;
+var currentColor = 0xFFFFFF;
+var currentLightColor = 0xFFFFFF;
+var currentPaintColor = 0xFFFFFF;
+var currentFilterColor = 0xFFFFFF;
 
 var redLightButton = PIXI.Texture.fromImage('images/rl1.gif');
 var greenLightButton = PIXI.Texture.fromImage('images/gl1.gif');
@@ -61,7 +61,7 @@ var lightButtons = [redLightButton, greenLightButton, blueLightButton, cyanLight
 var paintButtons = [redPaintButton, greenPaintButton, bluePaintButton, cyanPaintButton, magentaPaintButton, yellowPaintButton, blackPaintButton, whitePaintButton]
 var filterButtons = [redFilterButton, greenFilterButton, blueFilterButton, cyanFilterButton, magentaFilterButton, yellowFilterButton];
 
-var colorsHex = ["0xFF0000","0x00FF00", "0x0000FF","0xFF0000","0xF0000","0xF00000","0xFFFFFF","0x000000"];
+var colorsHex = ["0xff0000","0x00ff00", "0x0000ff","#00ffff","#ff00ff","#ffff00","0x000000","0xFFFFFF"];
 var allColors = new Map()
 var lightButtonPositions = [
     50, 50,
@@ -236,14 +236,31 @@ var beamButtonObj = new PIXI.Sprite(beamButton);
 
     app.stage.addChild(beamButtonObj);
 
-    var beam = new PIXI.Graphics();
+    var beam1 = new PIXI.Graphics();
+    var beam2 = new PIXI.Graphics();
+    var beam3 = new PIXI.Graphics();
 
 function drawBeam() {
-    beam.lineStyle(5, currentColor);
-    beam.moveTo(FRONT_LIGHT_X,FRONT_LIGHT_Y);
-    beam.lineTo(SURFACE_X + 50, SURFACE_Y + 50);
-    beam.lineTo(EYE_X, EYE_Y + 50);
-    app.stage.addChild(beam);
+    beam1.lineStyle(5, currentLightColor);
+    beam1.moveTo(FRONT_LIGHT_X,FRONT_LIGHT_Y);
+    beam1.lineTo(SURFACE_X + 50, SURFACE_Y + 50);
+    app.stage.addChild(beam1);
+
+    var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
+    var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
+    var total = [clamp(rgbLight[0] + rgbPaint[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2],0.0,1.0)];
+    lightAndPaintColor = PIXI.utils.rgb2hex(total); 
+
+    beam2.lineStyle(5, lightAndPaintColor);
+    beam2.moveTo(SURFACE_X + 50, SURFACE_Y + 50);
+    beam2.lineTo(FILTER_X + 50, FILTER_Y + 50);
+    app.stage.addChild(beam2);
+
+    beam3.lineStyle(5, currentLightColor);
+    beam3.moveTo(FILTER_X + 50, FILTER_Y + 50);
+    beam3.lineTo(EYE_X, EYE_Y + 50);
+    app.stage.addChild(beam3);
+
     calculateColor();
 }
 
@@ -304,7 +321,7 @@ function addSurfaceColor() {
 }
 
 var coloredSurface = new PIXI.Graphics();
-colorSurfaceRectangle(0xFF3300);
+colorSurfaceRectangle(0xFFFFFF);
 
 function colorSurfaceRectangle(color) {
     console.log(color);
