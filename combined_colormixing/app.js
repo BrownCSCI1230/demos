@@ -19,6 +19,7 @@ var OFFSET_X = 30;
 var OFFSET_Y = 25;
 
 var frontLightSelected = true;
+var currentColor = 0x000000;
 
 var redLightButton = PIXI.Texture.fromImage('images/rl1.gif');
 var greenLightButton = PIXI.Texture.fromImage('images/gl1.gif');
@@ -163,6 +164,7 @@ for (var i = 0; i < lightButtons.length; i++) {
     app.stage.addChild(button);
   }
 
+// Canvas objects:
 var surfaceObj = new PIXI.Sprite(surface);
     surfaceObj.position.x = SURFACE_X;
     surfaceObj.position.y = SURFACE_Y;
@@ -184,20 +186,61 @@ app.stage.addChild(eyeObj);
 var frontLightObj = new PIXI.Sprite(light);
     frontLightObj.position.x = FRONT_LIGHT_X;
     frontLightObj.position.y = FRONT_LIGHT_Y;
-
+    frontLightObj.buttonMode = true;
+    frontLightObj.anchor.set(0.5);
+    // make the button interactive...
+    frontLightObj.interactive = true;
+    frontLightObj.buttonMode = true;
+    frontLightObj.on('pointerdown', selectFrontLight);
 app.stage.addChild(frontLightObj);
 
 var backLightObj = new PIXI.Sprite(light);
     backLightObj.position.x = BACK_LIGHT_X;
     backLightObj.position.y = BACK_LIGHT_Y;
+    backLightObj.buttonMode = true;
+    backLightObj.anchor.set(0.5);
+    // make the button interactive...
+    backLightObj.interactive = true;
+    backLightObj.buttonMode = true;
+    backLightObj.on('pointerdown', selectBackLight);
 
 app.stage.addChild(backLightObj);
 
+function selectFrontLight() {
+    frontLightSelected = true;
+}
+
+function selectBackLight() {
+    frontLightSelected = false;
+}
+
+// Draw beams:
 var beamButtonObj = new PIXI.Sprite(beamButton);
     beamButtonObj.position.x = BEAM_BUTTON_X;
     beamButtonObj.position.y = BEAM_BUTTON_Y;
 
-app.stage.addChild(beamButtonObj);
+    beamButtonObj.buttonMode = true;
+
+    beamButtonObj.anchor.set(0.5);
+
+    // make the button interactive...
+    beamButtonObj.interactive = true;
+    beamButtonObj.buttonMode = true;
+
+    beamButtonObj.on('pointerdown', drawBeam);
+
+    app.stage.addChild(beamButtonObj);
+
+function drawBeam() {
+    var beam = new PIXI.Graphics();
+    beam.beginFill(currentColor);
+    beam.lineStyle(4, currentColor, 1);
+    beam.moveTo(FRONT_LIGHT_X,FRONT_LIGHT_Y);
+    beam.lineTo(SURFACE_X, SURFACE_Y);
+    beam.lineTo(EYE_X, EYE_Y);
+    beam.endFill();
+    app.stage.addChild(colorEye);
+}
 
 function addFilter() {
   while(this.position.x < FILTER_X + OFFSET_X) {
