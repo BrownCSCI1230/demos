@@ -2,12 +2,14 @@ $(function() {
   var app = new PIXI.Application(1600, 750, {backgroundColor : 0x000000});
   document.body.appendChild(app.view);
 
+  var stage = new PIXI.Container();
+
 var BEAM_BUTTON_X = 1000;
-var BEAM_BUTTON_Y = 0;
+var BEAM_BUTTON_Y = 25;
 var FRONT_LIGHT_X = 750;
-var FRONT_LIGHT_Y = 0;
+var FRONT_LIGHT_Y = 25;
 var BACK_LIGHT_X = 800;
-var BACK_LIGHT_Y = 0;
+var BACK_LIGHT_Y = 25;
 var SURFACE_X = 400;
 var SURFACE_Y = 200;
 var FILTER_X = SURFACE_X + 250;
@@ -53,6 +55,8 @@ var filtersLabel = PIXI.Texture.fromImage('images/filtersLabel.gif');
 
 var gradientEye = PIXI.Texture.fromImage('images/gradientEye.gif');
 var light = PIXI.Texture.fromImage('images/light.gif');
+var lightHalo = PIXI.Texture.fromImage('images/lightHalo.gif');
+var lightFront = PIXI.Texture.fromImage('images/lightFront.gif');
 var surface = PIXI.Texture.fromImage('images/surfaceObj.gif');
 var filterStand = PIXI.Texture.fromImage('images/filterStand.gif');
 var beamButton = PIXI.Texture.fromImage('images/beamButton.gif');
@@ -61,7 +65,7 @@ var lightButtons = [redLightButton, greenLightButton, blueLightButton, cyanLight
 var paintButtons = [redPaintButton, greenPaintButton, bluePaintButton, cyanPaintButton, magentaPaintButton, yellowPaintButton, blackPaintButton, whitePaintButton]
 var filterButtons = [redFilterButton, greenFilterButton, blueFilterButton, cyanFilterButton, magentaFilterButton, yellowFilterButton];
 
-var colorsHex = ["0xff0000","0x00ff00", "0x0000ff","#00ffff","#ff00ff","#ffff00","0x000000","0xFFFFFF"];
+var colorsHex = ["0xff0000","0x00ff00", "0x0000ff","0x00ffff","0xff00ff","0xffff00","0x000000","0xFFFFFF"];
 var allColors = new Map()
 var lightButtonPositions = [
     50, 50,
@@ -188,6 +192,11 @@ var eyeObj = new PIXI.Sprite(gradientEye);
 
 app.stage.addChild(eyeObj);
 
+var selectedLightHalo = new PIXI.Sprite(lightHalo);
+    selectedLightHalo.position.x = FRONT_LIGHT_X - 25;
+    selectedLightHalo.position.y = FRONT_LIGHT_Y - 25;
+app.stage.addChild(selectedLightHalo);
+
 var frontLightObj = new PIXI.Sprite(light);
     frontLightObj.position.x = FRONT_LIGHT_X;
     frontLightObj.position.y = FRONT_LIGHT_Y;
@@ -213,10 +222,14 @@ app.stage.addChild(backLightObj);
 
 function selectFrontLight() {
     frontLightSelected = true;
+    selectedLightHalo.position.x = FRONT_LIGHT_X - 25;
+    selectedLightHalo.position.y = FRONT_LIGHT_Y - 25;
 }
 
 function selectBackLight() {
     frontLightSelected = false;
+    selectedLightHalo.position.x = BACK_LIGHT_X - 25;
+    selectedLightHalo.position.y = BACK_LIGHT_Y - 25;
 }
 
 // Draw beams:
@@ -367,5 +380,13 @@ function calculateColor() {
 function clamp(num, min, max) {
   return num <= min ? min : num >= max ? max : num;
 }
+
+// requestAnimationFrame(animate);
+
+// function animate()
+// {
+//     requestAnimationFrame(animate);
+//     renderer.render(stage);
+// }
 
 });
