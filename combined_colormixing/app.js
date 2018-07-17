@@ -1,4 +1,5 @@
 $(function() {
+  PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   var app = new PIXI.Application(1600, 750, {backgroundColor : 0x000000});
   document.body.appendChild(app.view);
 
@@ -86,43 +87,22 @@ var magentaFilter = {button: magentaFilterButton, color:"0xff00ff", x:100, y:500
 var yellowFilter = {button: yellowFilterButton, color:"0xffff00", x:150, y:500}
 var Filters = [redFilter, greenFilter, blueFilter, cyanFilter, magentaFilter, yellowFilter]
 
-var paintButtons = [redPaintButton, greenPaintButton, bluePaintButton, cyanPaintButton, magentaPaintButton, yellowPaintButton, blackPaintButton, whitePaintButton]
-var filterButtons = [redFilterButton, greenFilterButton, blueFilterButton, cyanFilterButton, magentaFilterButton, yellowFilterButton];
+var redPaint = {button: redPaintButton, color:"0xff0000", x:50, y:200}
+var greenPaint = {button: greenPaintButton, color:"0x00ff00", x:100, y:200}
+var bluePaint = {button: bluePaintButton, color:"0x0000ff", x:50, y:250}
+var cyanPaint = {button: cyanPaintButton, color:"0x00ffff", x:100, y:250}
+var magentaPaint = {button: magentaPaintButton, color:"0xff00ff", x:50, y:300}
+var yellowPaint = {button: yellowPaintButton, color:"0xffff00", x:100, y:300}
+var blackPaint = {button: blackPaintButton, color:"0x000000", x:50, y:350}
+var whitePaint = {button: whitePaintButton, color:"0xFFFFFF", x:100, y:350}
+var Paints = [redPaint, greenPaint, bluePaint, cyanPaint, magentaPaint, yellowPaint, blackPaint, whitePaint]
 
 var colorsHex = ["0xff0000","0x00ff00", "0x0000ff","0x00ffff","0xff00ff","0xffff00","0x000000","0xFFFFFF"];
 var allColors = new Map()
-var lightButtonPositions = [
-    50, 50,
-    100, 50,
-    150, 50,
-    50, 100,
-    100, 100,
-    150, 100
-];
-
-var paintButtonPositions = [
-    50, 200,
-    100, 200,
-    50, 250,
-    100, 250,
-    50, 300,
-    100, 300,
-    50, 350,
-    100, 350
-];
-
-var filterButtonPositions = [
-    50, 450,
-    100, 450,
-    150, 450,
-    50, 500,
-    100, 500,
-    150, 500
-];
 
     var label = new PIXI.Sprite(lightsLabel);
-    label.position.x = lightButtonPositions[0] - 50;
-    label.position.y = lightButtonPositions[1] - 50;
+    label.position.x = Lights[0].x - 50;
+    label.position.y = Lights[0].y - 50;
     app.stage.addChild(label);
 
 for (var i = 0; i < Lights.length; i++) {
@@ -143,23 +123,19 @@ for (var i = 0; i < Lights.length; i++) {
 }
 
     var label = new PIXI.Sprite(paintsLabel);
-    label.position.x = paintButtonPositions[0] - 50;
-    label.position.y = paintButtonPositions[1] - 50;
+    label.position.x = Paints[0].x - 50;
+    label.position.y = Paints[0].y - 50;
     app.stage.addChild(label);
 
-for (var i = 0; i < paintButtons.length; i++) {
-    var button = new PIXI.Sprite(paintButtons[i]);
+for (var i = 0; i < Paints.length; i++) {
+    var button = new PIXI.Sprite(Paints[i].button);
     button.buttonMode = true;
-
     button.anchor.set(0.5);
-    button.x = paintButtonPositions[i*2];
-    button.y = paintButtonPositions[i*2 + 1];
-
-    // make the button interactive...
+    button.x = Paints[i].x;
+    button.y = Paints[i].y;
     button.interactive = true;
-    button.buttonMode = true;
 
-    allColors.set(button.texture.baseTexture.imageUrl, colorsHex[i])
+    allColors.set(button.texture.baseTexture.imageUrl, Paints[i].color)
     button.on('pointerdown', addSurfaceColor);
 
     // add it to the stage
@@ -167,24 +143,20 @@ for (var i = 0; i < paintButtons.length; i++) {
   }
 
     var label = new PIXI.Sprite(filtersLabel);
-    label.position.x = filterButtonPositions[0] - 50;
-    label.position.y = filterButtonPositions[1] - 50;
+    label.position.x = Filters[0].x - 50;
+    label.position.y = Filters[0].y - 50;
 
     app.stage.addChild(label);
 
-for (var i = 0; i < filterButtons.length; i++) {
-    var button = new PIXI.Sprite(filterButtons[i]);
+for (var i = 0; i < Filters.length; i++) {
+    var button = new PIXI.Sprite(Filters[i].button);
     button.buttonMode = true;
-
     button.anchor.set(0.5);
-    button.x = filterButtonPositions[i*2];
-    button.y = filterButtonPositions[i*2 + 1];
-
-    // make the button interactive...
+    button.x = Filters[i].x;
+    button.y = Filters[i].y;
     button.interactive = true;
-    button.buttonMode = true;
 
-    allColors.set(button.texture.baseTexture.imageUrl, colorsHex[i])
+    allColors.set(button.texture.baseTexture.imageUrl, Filters[i].color)
     button.on('pointerdown', addFilter);
 
     // add it to the stage
