@@ -265,6 +265,7 @@ function drawBeam() {
     app.stage.addChild(beam3);
 
     calculateColor();
+    colorEyeRectangle();;
 }
 
 function addFilter() {
@@ -278,6 +279,7 @@ function addFilter() {
     }
 
     currentFilterColor = allColors.get(this.texture.baseTexture.imageUrl)
+    calculateColor();
     colorEyeRectangle();
     currentFilter = this;
 }
@@ -287,6 +289,10 @@ function removeFilter() {
 }
 
 function addFrontLight() {
+//   if(this != currentLightColor) {
+//   currentLightColor.position.x = redLight.x;
+//   currentLightColor.position.y = redLight.y;
+// }
   var x = this.position.x;
   var y = this.position.y;
   while(this.position.x < FRONT_LIGHT_X - 8) {
@@ -298,6 +304,7 @@ function addFrontLight() {
     }
     }
     currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
+    calculateColor();
     colorEyeRectangle();
 
     this.buttonMode = false;
@@ -323,6 +330,7 @@ function addBackLight() {
     }
   }
   currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
+  calculateColor();
   colorEyeRectangle();
 
     this.buttonMode = false;
@@ -349,6 +357,7 @@ function addSurfaceColor() {
 
   currentPaintColor = allColors.get(this.texture.baseTexture.imageUrl)
   colorSurfaceRectangle(currentPaintColor);
+  calculateColor();
   colorEyeRectangle();
 
     while(this.position.x > x) {
