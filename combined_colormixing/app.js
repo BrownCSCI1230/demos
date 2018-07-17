@@ -244,10 +244,23 @@ var beamButtonObj = new PIXI.Sprite(beamButton);
     var beam3 = new PIXI.Graphics();
 
 function drawBeam() {
-    beam1.lineStyle(5, currentLightColor);
-    beam1.moveTo(FRONT_LIGHT_X,FRONT_LIGHT_Y);
-    beam1.lineTo(SURFACE_X + 50, SURFACE_Y + 50);
-    app.stage.addChild(beam1);
+    // beam1.lineStyle(5, currentLightColor);
+    // beam1.moveTo(FRONT_LIGHT_X,FRONT_LIGHT_Y);
+    // beam1.lineTo(SURFACE_X + 50, SURFACE_Y + 50);
+    // app.stage.addChild(beam1);
+
+    var x = FRONT_LIGHT_X;
+    var y = FRONT_LIGHT_Y;
+    while(x < SURFACE_X + 50) {
+      var tempBeam = new PIXI.Graphics();
+      tempBeam.lineStyle(5, currentLightColor);
+      tempBeam.moveTo(x,y);
+      if(y < SURFACE_Y + 50) {
+        y = y + 1;
+      }
+      tempBeam.lineTo(x, y);
+      app.stage.addChild(tempBeam);
+    }
 
     var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
     var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
