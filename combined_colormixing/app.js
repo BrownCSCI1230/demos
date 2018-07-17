@@ -26,12 +26,21 @@ var currentLightColor = 0xFFFFFF;
 var currentPaintColor = 0xFFFFFF;
 var currentFilterColor = 0xFFFFFF;
 
+var currentFilter;
+
 var redLightButton = PIXI.Texture.fromImage('images/rl1.gif');
 var greenLightButton = PIXI.Texture.fromImage('images/gl1.gif');
 var blueLightButton = PIXI.Texture.fromImage('images/bl1.gif');
 var cyanLightButton = PIXI.Texture.fromImage('images/cl1.gif');
 var magentaLightButton = PIXI.Texture.fromImage('images/ml1.gif');
 var yellowLightButton = PIXI.Texture.fromImage('images/yl1.gif');
+
+var redLightButton5 = PIXI.Texture.fromImage('images/rl5.gif');
+var greenLightButton5 = PIXI.Texture.fromImage('images/gl5.gif');
+var blueLightButton5 = PIXI.Texture.fromImage('images/bl5.gif');
+var cyanLightButton5 = PIXI.Texture.fromImage('images/cl5.gif');
+var magentaLightButton5 = PIXI.Texture.fromImage('images/ml5.gif');
+var yellowLightButton5 = PIXI.Texture.fromImage('images/yl5.gif');
 
 var redPaintButton = PIXI.Texture.fromImage('images/rp1.gif');
 var greenPaintButton = PIXI.Texture.fromImage('images/gp1.gif');
@@ -56,12 +65,27 @@ var filtersLabel = PIXI.Texture.fromImage('images/filtersLabel.gif');
 var gradientEye = PIXI.Texture.fromImage('images/gradientEye.gif');
 var light = PIXI.Texture.fromImage('images/light.gif');
 var lightHalo = PIXI.Texture.fromImage('images/lightHalo.gif');
-var lightFront = PIXI.Texture.fromImage('images/lightFront.gif');
+var lightOn = PIXI.Texture.fromImage('images/lightFront.gif');
 var surface = PIXI.Texture.fromImage('images/surfaceObj.gif');
 var filterStand = PIXI.Texture.fromImage('images/filterStand.gif');
 var beamButton = PIXI.Texture.fromImage('images/beamButton.gif');
 
-var lightButtons = [redLightButton, greenLightButton, blueLightButton, cyanLightButton, magentaLightButton, yellowLightButton]
+var redLight = {button: redLightButton, color:"0xff0000", x:50, y:50}
+var greenLight = {button: greenLightButton, color:"0x00ff00", x:100, y:50}
+var blueLight = {button: blueLightButton, color:"0x0000ff", x:150, y:50}
+var cyanLight = {button: cyanLightButton, color:"0x00ffff", x:50, y:100}
+var magentaLight = {button: magentaLightButton, color:"0xff00ff", x:100, y:100}
+var yellowLight = {button: yellowLightButton, color:"0xffff00", x:150, y:100}
+var Lights = [redLight, greenLight, blueLight, cyanLight, magentaLight, yellowLight]
+
+var redFilter = {button: redFilterButton, color:"0xff0000", x:50, y:450}
+var greenFilter = {button: greenFilterButton, color:"0x00ff00", x:100, y:450}
+var blueFilter = {button: blueFilterButton, color:"0x0000ff", x:150, y:450}
+var cyanFilter = {button: cyanFilterButton, color:"0x00ffff", x:50, y:500}
+var magentaFilter = {button: magentaFilterButton, color:"0xff00ff", x:100, y:500}
+var yellowFilter = {button: yellowFilterButton, color:"0xffff00", x:150, y:500}
+var Filters = [redFilter, greenFilter, blueFilter, cyanFilter, magentaFilter, yellowFilter]
+
 var paintButtons = [redPaintButton, greenPaintButton, bluePaintButton, cyanPaintButton, magentaPaintButton, yellowPaintButton, blackPaintButton, whitePaintButton]
 var filterButtons = [redFilterButton, greenFilterButton, blueFilterButton, cyanFilterButton, magentaFilterButton, yellowFilterButton];
 
@@ -101,25 +125,19 @@ var filterButtonPositions = [
     label.position.y = lightButtonPositions[1] - 50;
     app.stage.addChild(label);
 
-for (var i = 0; i < lightButtons.length; i++) {
-    var button = new PIXI.Sprite(lightButtons[i]);
-    button.buttonMode = true;
-
+for (var i = 0; i < Lights.length; i++) {
+    var button = new PIXI.Sprite(Lights[i].button);
     button.anchor.set(0.5);
-    button.x = lightButtonPositions[i*2];
-    button.y = lightButtonPositions[i*2 + 1];
-
-    // make the button interactive...
+    button.x = Lights[i].x;
+    button.y = Lights[i].y;
     button.interactive = true;
     button.buttonMode = true;
-
-    allColors.set(button.texture.baseTexture.imageUrl, colorsHex[i])
+    allColors.set(button.texture.baseTexture.imageUrl, Lights[i].color)
     if(frontLightSelected) {
       button.on('pointerdown', addFrontLight);
     } else {
       button.on('pointerdown', addBackLight);
     }
-
     // add it to the stage
     app.stage.addChild(button);
 }
@@ -289,12 +307,19 @@ function addFilter() {
 
     currentFilterColor = allColors.get(this.texture.baseTexture.imageUrl)
     colorEyeRectangle();
+    currentFilter = this;
+}
+
+function removeFilter() {
+  currentFilter.position.x
 }
 
 function addFrontLight() {
-  while(this.position.x < FRONT_LIGHT_X + OFFSET_X) {
+  var x = this.position.x;
+  var y = this.position.y;
+  while(this.position.x < FRONT_LIGHT_X - 8) {
     this.position.x += 1;
-    if(this.position.y > FRONT_LIGHT_Y + OFFSET_Y) {
+    if(this.position.y > FRONT_LIGHT_Y + 12) {
       this.position.y -= 1;
     } else {
       this.position.y += 1;
@@ -302,12 +327,24 @@ function addFrontLight() {
     }
     currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
     colorEyeRectangle();
+
+    this.buttonMode = false;
+    this.texture = redLightButton5;
+    if(frontLightSelected) {
+      frontLightObj.texture = lightOn;
+    } else {
+      backLightObj.texture = lightOn;
+    }
+
+
 }
 
 function addBackLight() {
-  while(this.position.x < BACK_LIGHT_X + OFFSET_X) {
+  var x = this.position.x;
+  var y = this.position.y;
+  while(this.position.x < BACK_LIGHT_X - 8) {
     this.position.x += 1;
-    if(this.position.y > BACK_LIGHT_Y + OFFSET_Y) {
+    if(this.position.y > BACK_LIGHT_Y + 12) {
       this.position.y -= 1;
     } else {
       this.position.y += 1;
@@ -315,9 +352,20 @@ function addBackLight() {
   }
   currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
   colorEyeRectangle();
+
+    this.buttonMode = false;
+    this.texture = redLightButton5;
+    if(frontLightSelected) {
+      frontLightObj.texture = lightOn;
+    } else {
+      backLightObj.texture = lightOn;
+    }
+
 }
 
 function addSurfaceColor() {
+  var x = this.position.x;
+  var y = this.position.y; 
   while(this.position.x < SURFACE_X + OFFSET_X) {
     this.position.x += 1;
     if(this.position.y > SURFACE_Y + OFFSET_Y) {
@@ -330,6 +378,15 @@ function addSurfaceColor() {
   currentPaintColor = allColors.get(this.texture.baseTexture.imageUrl)
   colorSurfaceRectangle(currentPaintColor);
   colorEyeRectangle();
+
+    while(this.position.x > x) {
+    this.position.x -= 1;
+    if(this.position.y > y) {
+      this.position.y -= 1;
+    } else {
+      this.position.y += 1;
+    }
+  }
 
 }
 
