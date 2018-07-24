@@ -405,12 +405,12 @@ function selectBackLight() {
     var first = true;
     var second = false;
     var third = false;
-    var x = FRONT_LIGHT_X;
-    var y = FRONT_LIGHT_Y;
+    var x = FRONT_LIGHT_X + 5;
+    var y = FRONT_LIGHT_Y + 5;
     function drawBeam() {
       if(!frontLightSelected) {
-        x = BACK_LIGHT_X;
-        y = BACK_LIGHT_Y
+        x = BACK_LIGHT_X + 5;
+        y = BACK_LIGHT_Y + 5;
       }
       requestAnimationFrame(animateBeam);;
     }
