@@ -49,6 +49,7 @@ $(function() {
 
   // CANVAS VALUES:
   var currentColor = 0xFFFFFF;
+  var currentMiddleColor = 0xFFFFFF;
   var currentLightColor = 0xFFFFFF;
   var currentPaintColor = 0xFFFFFF;
   var currentFilterColor = 0xFFFFFF;
@@ -69,6 +70,12 @@ $(function() {
   var OFFSET_Y = 25;
 
   var allColors = new Map()
+
+  // LIGHT HALO
+  var selectedLightHalo = new PIXI.Sprite(lightHalo);
+    selectedLightHalo.position.x = FRONT_LIGHT_X - 25;
+    selectedLightHalo.position.y = FRONT_LIGHT_Y - 25;
+  app.stage.addChild(selectedLightHalo);
 
   // LIGHT BUTTONS:
 
@@ -111,6 +118,7 @@ $(function() {
 
   var toRotateLight = true;
   function addFrontLight() {
+    this.buttonMode = false;
     frontLightSelected = true;
     if(currentLight != null) {
       returnLight();
@@ -127,6 +135,7 @@ $(function() {
   }
 
   function addBackLight() {
+    this.buttonMode = false;
     frontLightSelected = false;
     if(currentLight != null) {
       returnLight();
@@ -190,6 +199,7 @@ $(function() {
     currentLight.rotation = 0;
     currentLight.position.x = originalLight.x;
     currentLight.position.y = originalLight.y;
+    currentLight.buttonMode = true;
     frontLightObj.texture = light;
     backLightObj.texture = light;
   }
@@ -262,7 +272,9 @@ $(function() {
     if(!toRotatePaint) {
       currentPaint.rotation = -2.2;
       colorSurfaceRectangle(currentPaintColor);
+      window.setInterval(function() {
       returnPaint()
+      }, 500);
     }
     renderer.render(stage);
   }
@@ -297,12 +309,11 @@ $(function() {
   app.stage.addChild(label);
 
   // Animate Filter:
-  var toRotateFilter = true;
   function addFilter() {
     originalFilter.x = this.position.x
     originalFilter.y = this.position.y
+    this.on('pointerdown', returnFilter);
     currentFilter = this
-    toRotateFilter = true;
     requestAnimationFrame(animateFilter);
     currentFilterColor = allColors.get(this.texture.baseTexture.imageUrl)
     calculateColor();
@@ -310,15 +321,25 @@ $(function() {
   }
 
   function animateFilter() {
+    console.log("animate filter");
     requestAnimationFrame(animateFilter);
-    if (currentFilter.position.x <= FILTER_X) {
+    if (currentFilter.position.x <= FILTER_X + 25) {
       currentFilter.position.x += 5;
     }
-    if (currentFilter.position.y >= FILTER_Y) {
-      currentFilter.position.y -= 0.8;
+    if (currentFilter.position.y >= FILTER_Y + 25) {
+      currentFilter.position.y -= 2;
     }
     renderer.render(stage);
   }
+
+  function returnFilter() {
+    console.log("test")
+    currentFilter.position.x = originalFilter.x;
+    currentFilter.position.y = originalFilter.y;
+    button.on('pointerdown', addFilter);
+  }
+
+  // RENDER SCENE:
 
   renderImage();
 
@@ -348,10 +369,6 @@ var eyeObj = new PIXI.Sprite(gradientEye);
 
 app.stage.addChild(eyeObj);
 
-var selectedLightHalo = new PIXI.Sprite(lightHalo);
-    selectedLightHalo.position.x = FRONT_LIGHT_X - 25;
-    selectedLightHalo.position.y = FRONT_LIGHT_Y - 25;
-app.stage.addChild(selectedLightHalo);
 
 var frontLightObj = new PIXI.Sprite(light);
     frontLightObj.position.x = FRONT_LIGHT_X;
@@ -405,23 +422,32 @@ function selectBackLight() {
     var first = true;
     var second = false;
     var third = false;
-    var x = FRONT_LIGHT_X + 5;
-    var y = FRONT_LIGHT_Y + 5;
+    var x = FRONT_LIGHT_X - 15;
+    var y = FRONT_LIGHT_Y + 15;
+    var beamDrawn = false;
     function drawBeam() {
+      if(beamDrawn) {
+        clearBeam();
+      }
       if(!frontLightSelected) {
-        x = BACK_LIGHT_X + 5;
-        y = BACK_LIGHT_Y + 5;
+        x = BACK_LIGHT_X - 15;
+        y = BACK_LIGHT_Y + 15;
       }
       requestAnimationFrame(animateBeam);;
     }
 
     function animateBeam() {
+      if(currentLight != null && currentPaint != null) {
       requestAnimationFrame(animateBeam);
       if(first) {
         beam.lineStyle(5, currentLightColor);
         beam.moveTo(x,y);
         if(x > SURFACE_X + 70) {
-          x = x - 5;
+          if(frontLightSelected) {
+            x = x - 5;
+          } else {
+            x = x - 6;
+          }
         }
         if(y < SURFACE_Y + 50) {
           y = y + 4;
@@ -433,28 +459,35 @@ function selectBackLight() {
           first = false;
         }
       } else if(second) {
-          beam.lineStyle(5, currentLightColor);
+          beam.lineStyle(5, currentMiddleColor);
           beam.moveTo(x,y);
           if(x < FILTER_X + 50) {
             x = x + 5;
           }
           beam.lineTo(x, y);
           app.stage.addChild(beam);
-          if(x <= FILTER_X + 50) {
+          if(x >= FILTER_X + 50) {
           second = false;
           third = true;
         }
       } else if(third) {
-          beam.lineStyle(5, currentLightColor);
+          beam.lineStyle(5, currentColor);
           beam.moveTo(x,y);
-          if(x < EYE_X + 50) {
+          if(x < EYE_X + 25) {
             x = x + 5;
           }
           beam.lineTo(x, y);
           app.stage.addChild(beam);
+          if(x >= EYE_X + 25) {
+            beamDrawn = true;
+          }
       }
-
       renderer.render(stage);
+      }
+    }
+
+    function clearBeam() {
+      beam.clear();
     }
 
   // Color Surfaces
@@ -462,7 +495,6 @@ var coloredSurface = new PIXI.Graphics();
 colorSurfaceRectangle(0xFFFFFF);
 
 function colorSurfaceRectangle(color) {
-    console.log(color);
     var sur_x = SURFACE_X + 15;
     var sur_y = SURFACE_Y + 12;
     coloredSurface.beginFill(color);
@@ -483,6 +515,7 @@ var coloredSurface = new PIXI.Graphics();
 colorSurfaceRectangle(0xFFFFFF);
 
 function colorEyeRectangle() {
+  if(currentLight != null && currentPaint != null) {
     var rec_x = EYE_X + 75;
     var rec_y = EYE_Y;
     colorEye.beginFill(currentColor);
@@ -494,15 +527,29 @@ function colorEyeRectangle() {
     colorEye.lineTo(rec_x,rec_y);
     colorEye.endFill();
     app.stage.addChild(colorEye);
+  }
+}
+
+function calculateMiddleColor() {
+    var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
+    var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
+    var total = [clamp(rgbLight[0] + rgbPaint[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2],0.0,1.0)];
+    console.log(total);
+    currentMiddleColor = PIXI.utils.rgb2hex(total); 
 }
 
 function calculateColor() {
-    var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
-    var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
-    var rgbFilter = PIXI.utils.hex2rgb(currentPaintColor);
-    var total = [clamp(rgbLight[0] + rgbPaint[0] + rgbFilter[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1] + rgbFilter[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2] + rgbFilter[2],0.0,1.0)];
-    console.log(total);
-    currentColor = PIXI.utils.rgb2hex(total); 
+    if(currentFilter == null) {
+      calculateMiddleColor();
+      currentColor = currentMiddleColor;
+    } else {
+      var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
+      var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
+      var rgbFilter = PIXI.utils.hex2rgb(currentPaintColor);
+      var total = [clamp(rgbLight[0] + rgbPaint[0] + rgbFilter[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1] + rgbFilter[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2] + rgbFilter[2],0.0,1.0)];
+      console.log(total);
+      currentColor = PIXI.utils.rgb2hex(total); 
+  }
 }
 
 function clamp(num, min, max) {
