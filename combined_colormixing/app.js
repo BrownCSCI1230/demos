@@ -61,9 +61,9 @@ $(function() {
   var SURFACE_X = 400;
   var SURFACE_Y = 200;
   var FILTER_X = SURFACE_X + 250;
-  var FILTER_Y = SURFACE_Y;
+  var FILTER_Y = SURFACE_Y + 20;
   var EYE_X = SURFACE_X + 450;
-  var EYE_Y = SURFACE_Y;
+  var EYE_Y = SURFACE_Y + 20;
 
   var OFFSET_X = 30;
   var OFFSET_Y = 25;
@@ -111,6 +111,7 @@ $(function() {
 
   var toRotateLight = true;
   function addFrontLight() {
+    frontLightSelected = true;
     if(currentLight != null) {
       returnLight();
     }
@@ -126,6 +127,7 @@ $(function() {
   }
 
   function addBackLight() {
+    frontLightSelected = false;
     if(currentLight != null) {
       returnLight();
     }
@@ -142,13 +144,13 @@ $(function() {
 
   function animateLight() {
     requestAnimationFrame(animateLight);
-    if (currentLight.position.x <= FRONT_LIGHT_X) {
+    if (currentLight.position.x <= FRONT_LIGHT_X - 20) {
       currentLight.position.x += 5;
     }
-    if (currentLight.position.y >= FRONT_LIGHT_Y) {
+    if (currentLight.position.y >= FRONT_LIGHT_Y + 15) {
       currentLight.position.y -= 0.8;
     }
-    if (currentLight.position.x >= (FRONT_LIGHT_X - 1) && currentLight.position.y >= (FRONT_LIGHT_Y - 1) && toRotateLight) {
+    if (currentLight.position.x >= (FRONT_LIGHT_X - 20 - 1) && currentLight.position.y >= (FRONT_LIGHT_Y + 15 - 1) && toRotateLight) {
       console.log("woo!");
       currentLight.rotation -= .2
       if(currentLight.rotation <= -2.2) {
@@ -157,6 +159,7 @@ $(function() {
     }
     if(!toRotateLight) {
       currentLight.rotation = -2.2;
+      frontLightObj.texture = lightOn;
     }
     renderer.render(stage);
   }
@@ -178,6 +181,7 @@ $(function() {
     }
     if(!toRotateLight) {
       currentLight.rotation = -2.2;
+      backLightObj.texture = lightOn;
     }
     renderer.render(stage);
   }
@@ -186,6 +190,8 @@ $(function() {
     currentLight.rotation = 0;
     currentLight.position.x = originalLight.x;
     currentLight.position.y = originalLight.y;
+    frontLightObj.texture = light;
+    backLightObj.texture = light;
   }
 
   // PAINT BUTTONS:
@@ -233,7 +239,7 @@ $(function() {
     colorEyeRectangle();
   }
 
-  function returnLight() {
+  function returnPaint() {
     currentPaint.rotation = 0;
     currentPaint.position.x = originalPaint.x;
     currentPaint.position.y = originalPaint.y;
@@ -256,7 +262,7 @@ $(function() {
     if(!toRotatePaint) {
       currentPaint.rotation = -2.2;
       colorSurfaceRectangle(currentPaintColor);
-      returnLight()
+      returnPaint()
     }
     renderer.render(stage);
   }
@@ -399,18 +405,22 @@ function selectBackLight() {
     var first = true;
     var second = false;
     var third = false;
+    var x = FRONT_LIGHT_X;
+    var y = FRONT_LIGHT_Y;
     function drawBeam() {
+      if(!frontLightSelected) {
+        x = BACK_LIGHT_X;
+        y = BACK_LIGHT_Y
+      }
       requestAnimationFrame(animateBeam);;
     }
 
-    var x = FRONT_LIGHT_X;
-    var y = FRONT_LIGHT_Y;
     function animateBeam() {
       requestAnimationFrame(animateBeam);
       if(first) {
         beam.lineStyle(5, currentLightColor);
         beam.moveTo(x,y);
-        if(x > SURFACE_X + 50) {
+        if(x > SURFACE_X + 70) {
           x = x - 5;
         }
         if(y < SURFACE_Y + 50) {
@@ -418,7 +428,7 @@ function selectBackLight() {
         }
         beam.lineTo(x, y);
         app.stage.addChild(beam);
-        if(x <= SURFACE_X + 50 && y >= SURFACE_Y + 50) {
+        if(x <= SURFACE_X + 70 && y >= SURFACE_Y + 50) {
           second = true;
           first = false;
         }
