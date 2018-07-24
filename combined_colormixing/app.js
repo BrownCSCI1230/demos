@@ -93,6 +93,7 @@ $(function() {
     button.on('pointerdown', addFrontLight);
     button.rotate = 0;
     app.stage.addChild(button);
+    allColors.set(button.texture.baseTexture.imageUrl, Lights[i].color)
 }
 
 // Light label:
@@ -113,6 +114,10 @@ $(function() {
     currentLight = this
     toRotateLight = true;
     requestAnimationFrame(animateLight);
+
+    currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
+    calculateColor();
+    colorEyeRectangle();
   }
 
   function animateLight() {
@@ -165,6 +170,7 @@ $(function() {
     button.interactive = true;
     button.on('pointerdown', addSurfaceColor);
     app.stage.addChild(button);
+    allColors.set(button.texture.baseTexture.imageUrl, Paints[i].color)
   }
 
     var label = new PIXI.Sprite(paintsLabel);
@@ -181,17 +187,26 @@ $(function() {
     currentPaint = this
     toRotatePaint = true;
     requestAnimationFrame(animatePaint);
+    currentPaintColor = allColors.get(this.texture.baseTexture.imageUrl)
+    calculateColor();
+    colorEyeRectangle();
+  }
+
+  function returnLight() {
+    currentPaint.rotation = 0;
+    currentPaint.position.x = originalPaint.x;
+    currentPaint.position.y = originalPaint.y;
   }
 
   function animatePaint() {
     requestAnimationFrame(animatePaint);
-    if (currentPaint.position.x <= SURFACE_X) {
+    if (currentPaint.position.x <= SURFACE_X + 50) {
       currentPaint.position.x += 5;
     }
-    if (currentPaint.position.y >= SURFACE_Y) {
+    if (currentPaint.position.y >= SURFACE_Y - 25) {
       currentPaint.position.y -= 0.8;
     }
-    if (currentPaint.position.x >= (SURFACE_X - 1) && currentPaint.position.y >= (SURFACE_Y - 1) && toRotatePaint) {
+    if (currentPaint.position.x >= (SURFACE_X + 50 - 1) && currentPaint.position.y >= (SURFACE_Y - 25 - 1) && toRotatePaint) {
       currentPaint.rotation -= .2
       if(currentPaint.rotation <= -2.2) {
         toRotatePaint = false;
@@ -199,6 +214,8 @@ $(function() {
     }
     if(!toRotatePaint) {
       currentPaint.rotation = -2.2;
+      colorSurfaceRectangle(currentPaintColor);
+      returnLight()
     }
     renderer.render(stage);
   }
@@ -224,6 +241,7 @@ $(function() {
     button.interactive = true;
     button.on('pointerdown', addFilter);
     app.stage.addChild(button);
+    allColors.set(button.texture.baseTexture.imageUrl, Filters[i].color)
   }
 
   var label = new PIXI.Sprite(filtersLabel);
@@ -239,6 +257,9 @@ $(function() {
     currentFilter = this
     toRotateFilter = true;
     requestAnimationFrame(animateFilter);
+    currentFilterColor = allColors.get(this.texture.baseTexture.imageUrl)
+    calculateColor();
+    colorEyeRectangle();
   }
 
   function animateFilter() {
@@ -406,6 +427,9 @@ function colorSurfaceRectangle(color) {
 
 var colorEye = new PIXI.Graphics();
 colorEyeRectangle();
+
+var coloredSurface = new PIXI.Graphics();
+colorSurfaceRectangle(0xFFFFFF);
 
 function colorEyeRectangle() {
     var rec_x = EYE_X + 75;
