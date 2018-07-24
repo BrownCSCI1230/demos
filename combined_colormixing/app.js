@@ -1,4 +1,6 @@
 $(function() {
+  PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
+
   // Label Textures:
   var lightsLabel = PIXI.Texture.fromImage('images/lightsLabel.gif');
   var paintsLabel = PIXI.Texture.fromImage('images/paintsLabel.gif');
@@ -556,5 +558,11 @@ function clamp(num, min, max) {
   return num <= min ? min : num >= max ? max : num;
 }
 
+function resize() {
+    var w = window.innerWidth;
+    var h = window.innerHeight
+    renderer.resize(w, h);
+}
+window.onresize = resize;
 
   });
