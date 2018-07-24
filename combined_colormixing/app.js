@@ -83,6 +83,7 @@ $(function() {
   var yellowLight = {button: yellowLightButton, color:"0xffff00", x:150, y:100}
   var Lights = [redLight, greenLight, blueLight, cyanLight, magentaLight, yellowLight]
 
+  var frontLightSelected = true;
   for (var i = 0; i < Lights.length; i++) {
     var button = new PIXI.Sprite(Lights[i].button);
     button.anchor.set(0.5);
@@ -90,7 +91,11 @@ $(function() {
     button.y = Lights[i].y;
     button.interactive = true;
     button.buttonMode = true;
-    button.on('pointerdown', addFrontLight);
+    if(frontLightSelected) {
+      button.on('pointerdown', addFrontLight);
+    } else {
+      button.on('pointerdown', addBackLight);
+    }
     button.rotate = 0;
     app.stage.addChild(button);
     allColors.set(button.texture.baseTexture.imageUrl, Lights[i].color)
@@ -120,6 +125,21 @@ $(function() {
     colorEyeRectangle();
   }
 
+  function addBackLight() {
+    if(currentLight != null) {
+      returnLight();
+    }
+    originalLight.x = this.position.x
+    originalLight.y = this.position.y
+    currentLight = this
+    toRotateLight = true;
+    requestAnimationFrame(animateLightBack);
+
+    currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
+    calculateColor();
+    colorEyeRectangle();
+  }
+
   function animateLight() {
     requestAnimationFrame(animateLight);
     if (currentLight.position.x <= FRONT_LIGHT_X) {
@@ -129,6 +149,27 @@ $(function() {
       currentLight.position.y -= 0.8;
     }
     if (currentLight.position.x >= (FRONT_LIGHT_X - 1) && currentLight.position.y >= (FRONT_LIGHT_Y - 1) && toRotateLight) {
+      console.log("woo!");
+      currentLight.rotation -= .2
+      if(currentLight.rotation <= -2.2) {
+        toRotateLight = false;
+      }
+    }
+    if(!toRotateLight) {
+      currentLight.rotation = -2.2;
+    }
+    renderer.render(stage);
+  }
+
+    function animateLightBack() {
+    requestAnimationFrame(animateLightBack);
+    if (currentLight.position.x <= BACK_LIGHT_X) {
+      currentLight.position.x += 5;
+    }
+    if (currentLight.position.y >= BACK_LIGHT_Y) {
+      currentLight.position.y -= 0.8;
+    }
+    if (currentLight.position.x >= (BACK_LIGHT_X - 1) && currentLight.position.y >= (BACK_LIGHT_Y - 1) && toRotateLight) {
       console.log("woo!");
       currentLight.rotation -= .2
       if(currentLight.rotation <= -2.2) {
