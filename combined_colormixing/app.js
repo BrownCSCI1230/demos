@@ -311,11 +311,20 @@ $(function() {
   app.stage.addChild(label);
 
   // Animate Filter:
+  var stopFilterAnimation = true;
+  var return_x;
+  var return_y;
   function addFilter() {
-    originalFilter.x = this.position.x
-    originalFilter.y = this.position.y
-    this.on('pointerdown', returnFilter);
+    if(currentFilter != null) {
+      returnFilter();
+    }
+    stopFilterAnimation = false;
+    if(return_x == null || return_y == null) {
+      return_x = this.position.x;
+      return_y = this.position.y;
+    }
     currentFilter = this
+    this.on('pointerdown', returnFilter);
     requestAnimationFrame(animateFilter);
     currentFilterColor = allColors.get(this.texture.baseTexture.imageUrl)
     calculateColor();
@@ -323,7 +332,8 @@ $(function() {
   }
 
   function animateFilter() {
-    console.log("animate filter");
+    if(!stopFilterAnimation) {
+      console.log("animate!");
     requestAnimationFrame(animateFilter);
     if (currentFilter.position.x <= FILTER_X + 25) {
       currentFilter.position.x += 5;
@@ -332,12 +342,17 @@ $(function() {
       currentFilter.position.y -= 2;
     }
     renderer.render(stage);
+    }
   }
 
   function returnFilter() {
-    console.log("test")
-    currentFilter.position.x = originalFilter.x;
-    currentFilter.position.y = originalFilter.y;
+    stopFilterAnimation = true;
+    console.log("return");
+    currentFilter.position.x = return_x;
+    currentFilter.position.y = return_y;
+    return_x = null;
+    return_y = null;
+    currentFilter = null;
     button.on('pointerdown', addFilter);
   }
 
