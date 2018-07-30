@@ -266,7 +266,7 @@ $(function() {
       currentPaint.position.y -= 0.8;
     }
     if (currentPaint.position.x >= (SURFACE_X + 50 - 1) && currentPaint.position.y >= (SURFACE_Y - 25 - 1) && toRotatePaint) {
-      currentPaint.rotation -= .2
+      currentPaint.rotation -= .2;
       if(currentPaint.rotation <= -2.2) {
         toRotatePaint = false;
       }
@@ -532,15 +532,25 @@ var coloredSurface = new PIXI.Graphics();
 colorSurfaceRectangle(0xFFFFFF);
 
 function colorEyeRectangle() {
-  if(currentLight != null && currentPaint != null) {
     var rec_x = EYE_X + 75;
     var rec_y = EYE_Y;
+  if(currentLight != null && currentPaint != null) {
     colorEye.beginFill(currentColor);
     colorEye.lineStyle(4, currentColor, 1);
-    colorEye.moveTo(rec_x,rec_y);
-    colorEye.lineTo(rec_x + 100,rec_y);
-    colorEye.lineTo(rec_x + 100,rec_y + 50);
-    colorEye.lineTo(rec_x,rec_y + 50);
+    colorEye.moveTo(rec_x,rec_y + 1);
+    colorEye.lineTo(rec_x + 65,rec_y + 1);
+    colorEye.lineTo(rec_x + 65,rec_y + 40);
+    colorEye.lineTo(rec_x,rec_y + 40);
+    colorEye.lineTo(rec_x,rec_y);
+    colorEye.endFill();
+    app.stage.addChild(colorEye);
+  } else {
+    colorEye.beginFill(0xFFFFFF);
+    colorEye.lineStyle(4, 0xFFFFFF, 1);
+    colorEye.moveTo(rec_x,rec_y + 1);
+    colorEye.lineTo(rec_x + 65,rec_y + 1);
+    colorEye.lineTo(rec_x + 65,rec_y + 40);
+    colorEye.lineTo(rec_x,rec_y + 40);
     colorEye.lineTo(rec_x,rec_y);
     colorEye.endFill();
     app.stage.addChild(colorEye);
