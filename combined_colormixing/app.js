@@ -513,9 +513,9 @@ colorSurfaceRectangle(0xFFFFFF);
 
 function colorSurfaceRectangle(color) {
     var sur_x = SURFACE_X + 15;
-    var sur_y = SURFACE_Y + 12;
+    var sur_y = SURFACE_Y + 10;
     coloredSurface.beginFill(color);
-    coloredSurface.lineStyle(4, color, 1);
+    coloredSurface.lineStyle(2, 0x000000, 1);
     coloredSurface.moveTo(sur_x,sur_y);
     coloredSurface.lineTo(sur_x + 40, sur_y);
     coloredSurface.lineTo(sur_x + 75, sur_y + 80);
@@ -536,7 +536,7 @@ function colorEyeRectangle() {
     var rec_y = EYE_Y;
   if(currentLight != null && currentPaint != null) {
     colorEye.beginFill(currentColor);
-    colorEye.lineStyle(4, currentColor, 1);
+    colorEye.lineStyle(2, 0x000000, 1);
     colorEye.moveTo(rec_x,rec_y + 1);
     colorEye.lineTo(rec_x + 65,rec_y + 1);
     colorEye.lineTo(rec_x + 65,rec_y + 40);
@@ -546,7 +546,7 @@ function colorEyeRectangle() {
     app.stage.addChild(colorEye);
   } else {
     colorEye.beginFill(0xFFFFFF);
-    colorEye.lineStyle(4, 0xFFFFFF, 1);
+    colorEye.lineStyle(2, 0x000000, 1);
     colorEye.moveTo(rec_x,rec_y + 1);
     colorEye.lineTo(rec_x + 65,rec_y + 1);
     colorEye.lineTo(rec_x + 65,rec_y + 40);
