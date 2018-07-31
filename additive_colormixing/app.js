@@ -2,6 +2,7 @@ $(function() {
   PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   var app = new PIXI.Application(1600, 750, {backgroundColor : 0x000000});
   document.body.appendChild(app.view);
+  var renderer = PIXI.autoDetectRenderer(1600, 750, {backgroundColor : 0x000000});
 
   var stage = new PIXI.Container();
 
@@ -43,5 +44,8 @@ $(function() {
     function setColor() {
       currentColor = "0x00ff00";
     }
+
+    var pixels = renderer.extract.pixels(stage)
+    //var pixels = PIXI.extract.webGL.pixels(renderTex);
 
 });
