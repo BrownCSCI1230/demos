@@ -142,7 +142,6 @@ $(function() {
 
     currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
     calculateColor();
-    colorEyeRectangle();
   }
 
   function addBackLight() {
@@ -159,7 +158,6 @@ $(function() {
 
     currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
     calculateColor();
-    colorEyeRectangle();
   }
 
   function animateLight() {
@@ -262,10 +260,8 @@ $(function() {
   var paint_y;
   var stopPaintAnimation = true;
   function addSurfaceColor() {
-    if(paint_x == null || paint_y == null) {
-      paint_x = this.position.x;
-      paint_y = this.position.y;
-    }
+    paint_x = this.position.x;
+    paint_y = this.position.y;
     currentPaint = this
     toRotatePaint = true;
     stopPaintAnimation = false;
@@ -277,9 +273,6 @@ $(function() {
 
   function returnPaint() {
     stopFilterAnimation = true;
-    currentPaint.rotation = 0;
-    currentPaint.position.x = paint_x;
-    currentPaint.position.y = paint_y;
     paint_x = null;
     paint_y = null;
     currentPaint = null;
@@ -303,12 +296,18 @@ $(function() {
     }
     if(!toRotatePaint) {
       currentPaint.rotation = -2.2;
-      colorSurfaceRectangle(currentPaintColor);
       window.setInterval(function() {
-        returnPaint()
+        colorSurfaceRectangle(currentPaintColor);
+        currentPaint.rotation = 0;
+      }, 500);
+      window.setInterval(function() {
+        currentPaint.position.x = paint_x;
+        currentPaint.position.y = paint_y;
       }, 500);
     }
     renderer.render(stage);
+  } else {
+    returnPaint();
   }
   }
 
@@ -368,7 +367,6 @@ $(function() {
     requestAnimationFrame(animateFilter);
     currentFilterColor = allColors.get(this.texture.baseTexture.imageUrl)
     calculateColor();
-    colorEyeRectangle();
   }
 
   function animateFilter() {
@@ -536,6 +534,9 @@ function selectBackLight() {
           beam.lineTo(x, y);
           app.stage.addChild(beam);
           if(x >= EYE_X + 25) {
+            calculateColor();
+            colorEyeRectangle();
+            console.log(currentColor + " " + currentLightColor + " " + currentPaintColor);
             beamDrawn = true;
           }
       }
@@ -566,7 +567,6 @@ function colorSurfaceRectangle(color) {
 }
 
 var colorEye = new PIXI.Graphics();
-colorEyeRectangle();
 
 var coloredSurface = new PIXI.Graphics();
 colorSurfaceRectangle(0xFFFFFF);
@@ -601,8 +601,7 @@ function calculateMiddleColor() {
     var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
     var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
     var total = [clamp(rgbLight[0] + rgbPaint[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2],0.0,1.0)];
-    console.log(total);
-    currentMiddleColor = PIXI.utils.rgb2hex(total); 
+    currentMiddleColor = PIXI.utils.rgb2hex(total); //  TODO: to hex string
 }
 
 function calculateColor() {
