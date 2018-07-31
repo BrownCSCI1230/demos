@@ -100,11 +100,7 @@ $(function() {
     button.y = Lights[i].y;
     button.interactive = true;
     button.buttonMode = true;
-    if(frontLightSelected) {
-      button.on('pointerdown', addFrontLight);
-    } else {
-      button.on('pointerdown', addBackLight);
-    }
+    button.on('pointerdown', addLight);
     button.rotate = 0;
     app.stage.addChild(button);
     allColors.set(button.texture.baseTexture.imageUrl, Lights[i].color)
@@ -127,40 +123,45 @@ $(function() {
 
 // Light animation:
 
-  var toRotateLight = true;
-  function addFrontLight() {
-    this.buttonMode = false;
-    frontLightSelected = true;
+  function addLight() {
     if(currentLight != null) {
       returnLight();
-    }
+    } 
     originalLight.x = this.position.x
     originalLight.y = this.position.y
     currentLight = this
+    this.buttonMode = false;
+    if(frontLightSelected) {
+      addFrontLight(this);
+    } else {
+      addBackLight(this);
+    }
+  }
+
+  var toRotateLight = true;
+  var runLightAnimation = false;
+  function addFrontLight(light) {
+    frontLightSelected = true;
     toRotateLight = true;
+    runLightAnimation = true;
     requestAnimationFrame(animateLight);
 
-    currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
+    currentLightColor = allColors.get(light.texture.baseTexture.imageUrl)
     calculateColor();
   }
 
-  function addBackLight() {
-    this.buttonMode = false;
+  function addBackLight(light) {
     frontLightSelected = false;
-    if(currentLight != null) {
-      returnLight();
-    }
-    originalLight.x = this.position.x
-    originalLight.y = this.position.y
-    currentLight = this
     toRotateLight = true;
+    runLightAnimation = true;
     requestAnimationFrame(animateLightBack);
 
-    currentLightColor = allColors.get(this.texture.baseTexture.imageUrl)
+    currentLightColor = allColors.get(light.texture.baseTexture.imageUrl)
     calculateColor();
   }
 
   function animateLight() {
+    if(runLightAnimation) {
     requestAnimationFrame(animateLight);
     if (currentLight.position.x <= FRONT_LIGHT_X - 20) {
       currentLight.position.x += 5;
@@ -180,15 +181,17 @@ $(function() {
       frontLightObj.texture = lightOn;
     }
     renderer.render(stage);
+    }
   }
 
     function animateLightBack() {
+    if(runLightAnimation) {
     requestAnimationFrame(animateLightBack);
     if (currentLight.position.x <= BACK_LIGHT_X) {
-      currentLight.position.x += 5;
+      currentLight.position.x = 5 + currentLight.position.x ;
     }
     if (currentLight.position.y >= BACK_LIGHT_Y) {
-      currentLight.position.y -= 0.8;
+      currentLight.position.y = currentLight.position.y  - 0.8;
     }
     if (currentLight.position.x >= (BACK_LIGHT_X - 1) && currentLight.position.y >= (BACK_LIGHT_Y - 1) && toRotateLight) {
       console.log("woo!");
@@ -203,12 +206,15 @@ $(function() {
     }
     renderer.render(stage);
   }
+  }
 
   function returnLight() {
     currentLight.rotation = 0;
     currentLight.position.x = originalLight.x;
     currentLight.position.y = originalLight.y;
     currentLight.buttonMode = true;
+    currentLight = null;
+    runLightAnimation = false;
     frontLightObj.texture = light;
     backLightObj.texture = light;
   }
