@@ -1,5 +1,6 @@
 $(function() {
   PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
+<<<<<<< HEAD
   var app = new PIXI.Application(1600, 750, {backgroundColor : 0x000000});
   document.body.appendChild(app.view);
   var renderer = PIXI.autoDetectRenderer(1600, 750, {backgroundColor : 0x000000});
@@ -47,23 +48,62 @@ $(function() {
     blueBulbOnSprite.anchor.set(0.5);
     blueBulbOnSprite.x = 200;
     blueBulbOnSprite.y = 50;
+=======
+  var offset = 100;
+  var width = window.innerWidth - 4 * offset;
+  var height = window.innerHeight - offset;
+  var app = new PIXI.Application(width, height, {backgroundColor : 0x000000});
+  document.getElementById("app").appendChild(app.view);
+
+  var stage = new PIXI.Container();
+
+var textSize = width/50;
+if(textSize < 16) {
+  textSize = 16
+}
+
+  var canvasY = textSize + textSize/2;
+  var canvas = new PIXI.Graphics();
+  canvas.lineStyle(4, 0xFFFFFF, 1);
+  canvas.moveTo(0,0);
+  canvas.lineTo(width,0);
+  canvas.lineTo(width,height);
+  canvas.lineTo(0,height);
+  canvas.lineTo(0,0);
+  canvas.endFill();
+  app.stage.addChild(canvas);
+
+  var currentColor = "0xff0000";
+>>>>>>> eeed7dc7d2aab6878655ace7774c8d4e92949311
 
   var triangleTexture = PIXI.Texture.fromImage('images/rgbColorfieldCanvas.jpg');
   var triangleSprite = new PIXI.Sprite(triangleTexture);
     triangleSprite.anchor.set(0.5);
-    triangleSprite.x = 100;
-    triangleSprite.y = 100;
+    triangleSprite.x = width / 3;
+    triangleSprite.y = height / 3;
     triangleSprite.interactive = true;
     triangleSprite.buttonMode = true;
+    if(window.innerHeight < window.innerWidth) {
+       triangleSprite.width = window.innerWidth/4;
+       triangleSprite.height = window.innerWidth/5;
+    } else {
+      triangleSprite.width = window.innerWidth/4;
+      triangleSprite.height = window.innerWidth/5;
+    }
+
       triangleSprite.on('pointerdown', setColor);
     // add it to the stage
     app.stage.addChild(triangleSprite);
+
 
     function setColor() {
       currentColor = "0x00ff00";
     }
 
+<<<<<<< HEAD
     var pixels = renderer.extract.pixels(stage)
     //var pixels = PIXI.extract.webGL.pixels(renderTex);
+=======
+>>>>>>> eeed7dc7d2aab6878655ace7774c8d4e92949311
 
 });

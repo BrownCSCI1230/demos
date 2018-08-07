@@ -1,11 +1,95 @@
 <!DOCTYPE html>
-<html>
-  <head>
-        <link rel="stylesheet" href="index.css">
-    <link rel="stylesheet" href="res/jquery-ui.css">
+<html lang="en">
+<head>
+  <title>Additive Colormixing</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<!--  <script src="res/pixi.min.js"></script>
+  <script type="text/javascript" src="app.js"></script> -->
+</head>
+<body>
+  
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9" id="app">
+    <button type="button" class="btn btn-primary">Canvases</button>
+    <canvas id="canvas"></canvas>
+    </div>
+    <div class="col-sm-3">
+      <p>Color Components</p>
+      <p>Color Selector</p>
+     <button onclick="changeRed()" id="red">
+     	<img src="images/redBulbOff.gif">
+     </button>
+     <button onclick="changeGreen()" id="green">
+     	<img src="images/greenBulbOff.gif">
+     </button>
+     <button onclick="changeBlue()" id="blue">
+     	<img src="images/blueBulbOff.gif">
+     </button>
+      <p>Alpha</p>
+      <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+    </div>
+  </div>
+</div>
+</body>
+<script>
+ 	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext('2d');
+ 	var painting = document.getElementById('paint');
+ 	var offset = 100;
+  	var width = window.innerWidth - 4 * offset;
+  	var height = window.innerHeight - offset;
 
-    <script src="res/jquery.min.js"></script>
-    <script src="res/jquery-ui.min.js"></script>
-    <script src="res/pixi.min.js"></script>
-    <script type="text/javascript" src="app.js"></script>
-  </body>
+	canvas.width = width;
+	canvas.height = height;
+
+	var mouse = {x: 0, y: 0};
+	 
+	canvas.addEventListener('mousemove', function(e){
+		mouse.x = e.pageX - this.offsetLeft;
+		mouse.y = e.pageY - this.offsetTop;
+	}, false);
+
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	
+	ctx.lineWidth = 3;
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
+	ctx.strokeStyle = '#ff0000';
+ 
+	canvas.addEventListener('mousedown', function(e) {
+    	ctx.beginPath();
+    	ctx.moveTo(mouse.x, mouse.y);
+ 
+    canvas.addEventListener('mousemove', onPaint, false);
+}, false);
+ 
+canvas.addEventListener('mouseup', function() {
+    canvas.removeEventListener('mousemove', onPaint, false);
+}, false);
+ 
+var onPaint = function() {
+    ctx.lineTo(mouse.x, mouse.y);
+    ctx.stroke();
+};	
+	
+	function changeRed(e) {
+		ctx.strokeStyle = '#00ff00';
+	}
+
+	function changeGreen(e) {
+		ctx.strokeStyle = '#00ff00';
+	}
+
+		function changeBlue(e) {
+		ctx.strokeStyle = '#0000ff';
+	}
+	
+ </script>
+</html>
