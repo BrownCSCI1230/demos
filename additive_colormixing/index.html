@@ -1,11 +1,41 @@
 <!DOCTYPE html>
-<html>
-  <head>
-        <link rel="stylesheet" href="index.css">
-    <link rel="stylesheet" href="res/jquery-ui.css">
+<html lang="en">
+<head>
+  <title>Additive Colormixing</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ <script src="res/pixi.min.js"></script>
+  <script type="text/javascript" src="app.js"></script>
 
-    <script src="res/jquery.min.js"></script>
-    <script src="res/jquery-ui.min.js"></script>
-    <script src="res/pixi.min.js"></script>
-    <script type="text/javascript" src="app.js"></script>
-  </body>
+</head>
+<body>
+  
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9" id="app">
+    <button type="button" class="btn btn-primary">Canvases</button>
+    </div>
+    <div class="col-sm-3">
+      <p>Color Components</p>
+      <p>Color Selector</p>
+     <button id="red">
+     	<img src="images/redBulbOff.gif">
+     </button>
+     <button id="green">
+     	<img src="images/greenBulbOff.gif">
+     </button>
+     <button id="blue">
+     	<img src="images/blueBulbOff.gif">
+     </button>
+      <p>Alpha</p>
+      <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
