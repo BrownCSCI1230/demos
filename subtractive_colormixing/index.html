@@ -12,24 +12,37 @@
   <script type="text/javascript" src="app.js"></script> -->
 </head>
 <body>
-  
 <div class="container">
   <div class="row">
     <div class="col-sm-9" id="app">
-    <button type="button" class="btn btn-primary">Canvases</button>
+    <button type="button" class="btn btn-primary" onclick="changeCanvas()">Canvases</button>
     <canvas id="canvas"></canvas>
     </div>
     <div class="col-sm-3">
       <p>Color Components</p>
+      <div class="container" id="bars">
+      <div class="col-sm-3" id="redBar">
+        <div id="redColored"></div>
+      </div>
+      <div class="col-sm-3" id="greenBar">
+        <div id="greenColored"></div>
+      </div>
+      <div class="col-sm-3" id="blueBar">
+        <div id="blueColored"></div>
+      </div>
+      </div>
       <p>Color Selector</p>
-     <button onclick="changeRed()" id="red">
-     	<img src="images/redBulbOff.gif">
+     <button onclick="changeBlack()" id="black">
+      <img src="images/blackBottleClosed.gif">
      </button>
-     <button onclick="changeGreen()" id="green">
-     	<img src="images/greenBulbOff.gif">
+     <button onclick="changeCyan()" id="cyan">
+      <img src="images/cyanBottleClosed.gif">
      </button>
-     <button onclick="changeBlue()" id="blue">
-     	<img src="images/blueBulbOff.gif">
+     <button onclick="changeYellow()" id="yellow">
+      <img src="images/yellowBottleClosed.gif">
+     </button>
+     <button onclick="changeMagenta()" id="magenta">
+      <img src="images/magentaBottleClosed.gif">
      </button>
       <p>Alpha</p>
       <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
@@ -38,34 +51,65 @@
 </div>
 </body>
 <script>
- 	var canvas = document.getElementById('canvas');
-	var ctx = canvas.getContext('2d');
- 	var painting = document.getElementById('paint');
- 	var offset = 100;
-  	var width = window.innerWidth - 4 * offset;
-  	var height = window.innerHeight - offset;
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  var painting = document.getElementById('paint');
+  var offset = 120;
+    var width = window.innerWidth - 4 * offset;
+    var height = window.innerHeight - offset;
+  canvas.width = width;
+  canvas.height = height;
 
-	canvas.width = width;
-	canvas.height = height;
+  var mouse = {x: 0, y: 0};
+     
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	var mouse = {x: 0, y: 0};
-	 
-	canvas.addEventListener('mousemove', function(e){
-		mouse.x = e.pageX - this.offsetLeft;
-		mouse.y = e.pageY - this.offsetTop;
-	}, false);
+  // Show additive color:
+  var temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  console.log(temp);
+  var showColor = function(e) {
+    var x = e.pageX - 70;
+    var y = e.pageY - 30;
+    //console.log(x + " " + y);
+    var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+    //console.log(index);
+    var red = temp.data[index];
+    var green = temp.data[index + 1];
+    var blue = temp.data[index + 2];
+    var blue = temp.data[index + 2];
+    //console.log(red);
+      if(red == 1 && blue == 1 && green == 1) {
+        console.log("woo!")
+      }
+  }
 
-	ctx.fillStyle = "black";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	
-	ctx.lineWidth = 3;
-	ctx.lineJoin = 'round';
-	ctx.lineCap = 'round';
-	ctx.strokeStyle = '#ff0000';
+  canvas.addEventListener('mousemove', showColor, false);
+
+  var img = new Image();
+  img.src = "images/cymkColorfieldBackground.jpg";
+  img.onload = function () {
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+      ctx.drawImage(img,width / 4,height / 4);
+  };
+   
+  canvas.addEventListener('mousemove', function(e){
+    mouse.x = e.pageX - this.offsetLeft;
+    mouse.y = e.pageY - this.offsetTop;
+  }, false);
+
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.lineWidth = 3;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#ff0000';
  
-	canvas.addEventListener('mousedown', function(e) {
-    	ctx.beginPath();
-    	ctx.moveTo(mouse.x, mouse.y);
+  canvas.addEventListener('mousedown', function(e) {
+      ctx.beginPath();
+      ctx.moveTo(mouse.x, mouse.y);
  
     canvas.addEventListener('mousemove', onPaint, false);
 }, false);
@@ -77,19 +121,75 @@ canvas.addEventListener('mouseup', function() {
 var onPaint = function() {
     ctx.lineTo(mouse.x, mouse.y);
     ctx.stroke();
-};	
-	
-	function changeRed(e) {
-		ctx.strokeStyle = '#00ff00';
-	}
+};
 
-	function changeGreen(e) {
-		ctx.strokeStyle = '#00ff00';
-	}
+var drawPaint = function(e) {
+        ctx.beginPath();
+        ctx.moveTo(mouse.x, mouse.y);
+        canvas.addEventListener('mousemove', onPaint, false);
+} 
 
-		function changeBlue(e) {
-		ctx.strokeStyle = '#0000ff';
-	}
-	
+var stopPaint = function() {
+        canvas.removeEventListener('mousemove', onPaint, false);  
+};  
+
+  function changeBlack(e) {
+    ctx.strokeStyle = '#000000';
+  }
+  
+  function changeCyan(e) {
+    ctx.strokeStyle = '#00ff00';
+  }
+
+  function changeYellow(e) {
+    ctx.strokeStyle = '#00ff00';
+  }
+
+  function changeMagenta(e) {
+    ctx.strokeStyle = '#0000ff';
+  }
+
+var colorField = true;  
+var changeCanvas = function() {
+  if(!colorField) {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  var img = new Image();
+  img.src = "images/cymkColorfieldBackground.jpg";
+  img.onload = function () {
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+      ctx.drawImage(img,width / 4,height / 4);
+  };
+
+  // Disable drawing
+  canvas.removeEventListener('mousedown', drawPaint);
+  canvas.removeEventListener('mouseup', stopPaint);
+
+  colorField = true;
+  } else {
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    canvas.addEventListener('mousemove', function(e){
+      mouse.x = e.pageX - this.offsetLeft;
+      mouse.y = e.pageY - this.offsetTop;
+    }, false);
+    
+  ctx.lineWidth = 3;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#ff0000';
+   
+  canvas.addEventListener('mousedown', drawPaint, false);
+   
+  canvas.addEventListener('mouseup', stopPaint, false);
+
+  colorField = false;
+  }
+};
+
  </script>
 </html>
