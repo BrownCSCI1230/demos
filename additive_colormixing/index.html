@@ -90,6 +90,30 @@
 		var ctx = canvas.getContext('2d');
     	ctx.drawImage(img,width / 4,height / 4);
 	};
+	 
+	canvas.addEventListener('mousemove', function(e){
+		mouse.x = e.pageX - this.offsetLeft;
+		mouse.y = e.pageY - this.offsetTop;
+	}, false);
+
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	
+	ctx.lineWidth = 3;
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
+	ctx.strokeStyle = '#ff0000';
+ 
+	canvas.addEventListener('mousedown', function(e) {
+    	ctx.beginPath();
+    	ctx.moveTo(mouse.x, mouse.y);
+ 
+    canvas.addEventListener('mousemove', onPaint, false);
+}, false);
+ 
+canvas.addEventListener('mouseup', function() {
+    canvas.removeEventListener('mousemove', onPaint, false);
+}, false);
  
 var onPaint = function() {
     ctx.lineTo(mouse.x, mouse.y);
@@ -103,9 +127,9 @@ var drawPaint = function(e) {
 }	
 
 var stopPaint = function() {
-		    canvas.removeEventListener('mousemove', onPaint, false);
-}	
-
+		    canvas.removeEventListener('mousemove', onPaint, false);	
+};	
+	
 	function changeRed(e) {
 		ctx.strokeStyle = '#00ff00';
 	}
