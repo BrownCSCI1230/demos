@@ -8,27 +8,26 @@
     <link rel="stylesheet" href="index.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
- <script src="res/pixi.min.js"></script>
-  <script type="text/javascript" src="app.js"></script>
-
+<!--  <script src="res/pixi.min.js"></script>
+  <script type="text/javascript" src="app.js"></script> -->
 </head>
 <body>
-  
 <div class="container">
   <div class="row">
     <div class="col-sm-9" id="app">
-    <button type="button" class="btn btn-primary">Canvases</button>
+    <button type="button" class="btn btn-primary" onclick="changeCanvas()">Canvases</button>
+    <canvas id="canvas"></canvas>
     </div>
     <div class="col-sm-3">
       <p>Color Components</p>
       <p>Color Selector</p>
-     <button id="red">
+     <button onclick="changeRed()" id="red">
      	<img src="images/redBulbOff.gif">
      </button>
-     <button id="green">
+     <button onclick="changeGreen()" id="green">
      	<img src="images/greenBulbOff.gif">
      </button>
-     <button id="blue">
+     <button onclick="changeBlue()" id="blue">
      	<img src="images/blueBulbOff.gif">
      </button>
       <p>Alpha</p>
@@ -36,6 +35,119 @@
     </div>
   </div>
 </div>
-
 </body>
+<script>
+ 	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext('2d');
+ 	var painting = document.getElementById('paint');
+ 	var offset = 120;
+  	var width = window.innerWidth - 4 * offset;
+  	var height = window.innerHeight - offset;
+	canvas.width = width;
+	canvas.height = height;
+
+	var mouse = {x: 0, y: 0};
+		 
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	// Show additive color:
+	var temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	console.log(temp);
+	var showColor = function(e) {
+		var x = e.pageX - 70;
+		var y = e.pageY - 30;
+		//console.log(x + " " + y);
+		var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+		//console.log(index);
+		var red = temp.data[index];
+		var green = temp.data[index + 1];
+		var blue = temp.data[index + 2];
+		var blue = temp.data[index + 2];
+		//console.log(red);
+	    if(red == 1 && blue == 1 && green == 1) {
+	    	console.log("woo!")
+	    }
+	}
+
+	canvas.addEventListener('mousemove', showColor, false);
+
+	var img = new Image();
+	img.src = "images/rgbColorfieldCanvas.jpg";
+	img.onload = function () {
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+    	ctx.drawImage(img,width / 4,height / 4);
+	};
+ 
+var onPaint = function() {
+    ctx.lineTo(mouse.x, mouse.y);
+    ctx.stroke();
+};
+
+var drawPaint = function(e) {
+	    	ctx.beginPath();
+	    	ctx.moveTo(mouse.x, mouse.y);
+	    	canvas.addEventListener('mousemove', onPaint, false);
+}	
+
+var stopPaint = function() {
+		    canvas.removeEventListener('mousemove', onPaint, false);
+}	
+
+	function changeRed(e) {
+		ctx.strokeStyle = '#00ff00';
+	}
+
+	function changeGreen(e) {
+		ctx.strokeStyle = '#00ff00';
+	}
+
+	function changeBlue(e) {
+		ctx.strokeStyle = '#0000ff';
+	}
+
+var colorField = true;	
+var changeCanvas = function() {
+	if(!colorField) {
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	var img = new Image();
+	img.src = "images/rgbColorfieldCanvas.jpg";
+	img.onload = function () {
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+    	ctx.drawImage(img,width / 4,height / 4);
+	};
+
+	// Disable drawing
+	canvas.removeEventListener('mousedown', drawPaint);
+	canvas.removeEventListener('mouseup', stopPaint);
+
+	colorField = true;
+	} else {
+
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		canvas.addEventListener('mousemove', function(e){
+			mouse.x = e.pageX - this.offsetLeft;
+			mouse.y = e.pageY - this.offsetTop;
+		}, false);
+		
+	ctx.lineWidth = 3;
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
+	ctx.strokeStyle = '#ff0000';
+	 
+	canvas.addEventListener('mousedown', drawPaint, false);
+	 
+	canvas.addEventListener('mouseup', stopPaint, false);
+
+	colorField = false;
+	}
+};
+
+ </script>
 </html>
