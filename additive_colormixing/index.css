@@ -6,6 +6,47 @@ h2 {
   color: white !important;
 }*/
 
+#bars{
+  margin-bottom: 100px;
+  margin-top: 100px;
+}
+
+#redBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+}
+
+#redColored {
+  width: 50px;
+  height: 10px;
+  background-color: #FF0000;
+}
+
+#greenBar {
+  width: 50px;
+  height: 100px;
+  background-color: #d3d3d3;
+}
+
+#greenColored {
+  width: 50px;
+  height: 50px;
+  background-color: #00FF00;
+}
+
+#blueBar {
+  width: 50px;
+  height: 100px;
+  background-color: #d3d3d3;
+}
+
+#blueColored {
+  width: 50px;
+  height: 30px;
+  background-color: #0000FF;
+}
+
 .lightbtn {
   background-color: rgba(255,0,0,0.2);
   width: 30px;
