@@ -42,12 +42,17 @@
      	<img src="images/blueBulbOff.gif">
      </button>
       <p>Alpha</p>
-      <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+      <input type="number" id="alphaNumber">
+      <input type="range" min="0" max="100" value="50" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
     </div>
   </div>
 </div>
 </body>
 <script>
+	function updateAlpha(val) {
+          document.getElementById('alphaNumber').value=val; 
+    }
+
  	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
  	var painting = document.getElementById('paint');
@@ -62,62 +67,65 @@
 	ctx.fillStyle = "black";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	// Show additive color:
-	var temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
-	console.log(temp);
-	var showColor = function(e) {
+	canvas.addEventListener('mousemove', function(e) {
 		var x = e.pageX - 70;
 		var y = e.pageY - 30;
-		//console.log(x + " " + y);
 		var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
-		//console.log(index);
-		var red = temp.data[index];
-		var green = temp.data[index + 1];
-		var blue = temp.data[index + 2];
-		var blue = temp.data[index + 2];
-		//console.log(red);
-	    if(red == 1 && blue == 1 && green == 1) {
-	    	console.log("woo!")
+		var red = imageData.data[index];
+		var green = imageData.data[index + 1];
+		var blue = imageData.data[index + 2];
+		var blue = imageData.data[index + 2];
+	    
+	    var redBar = document.getElementById('redColored');
+		var greenBar = document.getElementById('greenColored');
+	    var blueBar = document.getElementById('blueColored');
+	    // RED
+	    if(red == 0) {
+	    	redBar.style.height = "0%";
+	    } else if(red > 0 && red < 125) {
+			redBar.style.height = "50%";
+	    } else {
+			redBar.style.height = "100%";
 	    }
-	}
+	    // GREEN
+	    if(green == 0) {
+			greenBar.style.height = "0%";
+	    } else if(green > 0 && green < 125) {
+			greenBar.style.height = "50%";
+	    } else {
+			greenBar.style.height = "100%";
+	    }
+	    // BLUE
+	    if(blue == 0) {
+			blueBar.style.height = "0%";
+	    } else if(blue > 0 && blue < 125) {
+			blueBar.style.height = "50%";
+	    } else {
+			blueBar.style.height = "100%";
+	    }
 
-	canvas.addEventListener('mousemove', showColor, false);
+
+	} , false);
 
 	var img = new Image();
 	img.src = "images/rgbColorfieldCanvas.jpg";
+	var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	img.onload = function () {
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext('2d');
-    	ctx.drawImage(img,width / 4,height / 4);
+    	ctx.drawImage(img,canvas.width / 4,canvas.height / 4);
+		imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	};
 	 
 	canvas.addEventListener('mousemove', function(e){
 		mouse.x = e.pageX - this.offsetLeft;
 		mouse.y = e.pageY - this.offsetTop;
-	}, false);
+	}, false); 
 
-	ctx.fillStyle = "black";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	
-	ctx.lineWidth = 3;
-	ctx.lineJoin = 'round';
-	ctx.lineCap = 'round';
-	ctx.strokeStyle = '#ff0000';
- 
-	canvas.addEventListener('mousedown', function(e) {
-    	ctx.beginPath();
-    	ctx.moveTo(mouse.x, mouse.y);
- 
-    canvas.addEventListener('mousemove', onPaint, false);
-}, false);
- 
-canvas.addEventListener('mouseup', function() {
-    canvas.removeEventListener('mousemove', onPaint, false);
-}, false);
- 
 var onPaint = function() {
     ctx.lineTo(mouse.x, mouse.y);
     ctx.stroke();
+    imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 };
 
 var drawPaint = function(e) {
@@ -145,42 +153,29 @@ var stopPaint = function() {
 var colorField = true;	
 var changeCanvas = function() {
 	if(!colorField) {
-	ctx.fillStyle = "black";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-	var img = new Image();
-	img.src = "images/rgbColorfieldCanvas.jpg";
-	img.onload = function () {
-		var canvas = document.getElementById('canvas');
-		var ctx = canvas.getContext('2d');
-    	ctx.drawImage(img,width / 4,height / 4);
-	};
-
-	// Disable drawing
-	canvas.removeEventListener('mousedown', drawPaint);
-	canvas.removeEventListener('mouseup', stopPaint);
-
-	colorField = true;
-	} else {
-
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		var img = new Image();
+		img.src = "images/rgbColorfieldCanvas.jpg";
+		img.onload = function () {
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext('2d');
+	    	ctx.drawImage(img,width / 4,height / 4);
 
-		canvas.addEventListener('mousemove', function(e){
-			mouse.x = e.pageX - this.offsetLeft;
-			mouse.y = e.pageY - this.offsetTop;
-		}, false);
-		
-	ctx.lineWidth = 3;
-	ctx.lineJoin = 'round';
-	ctx.lineCap = 'round';
-	ctx.strokeStyle = '#ff0000';
-	 
-	canvas.addEventListener('mousedown', drawPaint, false);
-	 
-	canvas.addEventListener('mouseup', stopPaint, false);
-
-	colorField = false;
+		};
+		canvas.removeEventListener('mousedown', drawPaint);
+		canvas.removeEventListener('mouseup', stopPaint);
+		colorField = true;
+	} else {
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.lineWidth = 3;
+		ctx.lineJoin = 'round';
+		ctx.lineCap = 'round';
+		ctx.strokeStyle = '#ff0000';
+		canvas.addEventListener('mousedown', drawPaint, false);
+		canvas.addEventListener('mouseup', stopPaint, false);
+		colorField = false;
 	}
 };
 

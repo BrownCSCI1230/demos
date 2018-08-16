@@ -14,37 +14,40 @@ h2 {
 #redBar {
   width: 50px;
   height: 200px;
+  margin-right: 10px;
   background-color: #d3d3d3;
 }
 
 #redColored {
-  width: 50px;
-  height: 10px;
+  width: 30px;
   background-color: #FF0000;
+  margin-right: 5px;
 }
 
 #greenBar {
   width: 50px;
-  height: 100px;
+  height: 200px;
   background-color: #d3d3d3;
+  margin-right: 10px;
 }
 
 #greenColored {
-  width: 50px;
-  height: 50px;
+  width: 30px;
   background-color: #00FF00;
+  margin-right: 5px;
 }
 
 #blueBar {
   width: 50px;
-  height: 100px;
+  height: 200px;
   background-color: #d3d3d3;
+  margin-right: 10px;
 }
 
 #blueColored {
-  width: 50px;
-  height: 30px;
+  width: 30px;
   background-color: #0000FF;
+  margin-right: 5px;
 }
 
 .lightbtn {
