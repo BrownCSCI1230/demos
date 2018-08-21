@@ -6,6 +6,64 @@ h2 {
   color: white !important;
 }*/
 
+#bars{
+  margin-bottom: 100px;
+  margin-top: 100px;
+}
+
+#cyanBar {
+  width: 50px;
+  height: 200px;
+  margin-right: 10px;
+  background-color: #d3d3d3;
+}
+
+#cyanColored {
+  width: 30px;
+  background-color: #FFFF00;
+  margin-right: 5px;
+}
+
+#magentaBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+  margin-right: 10px;
+}
+
+#magentaColored {
+  width: 30px;
+  background-color: #FF00FF;
+  margin-right: 5px;
+}
+
+#yellowBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+  margin-right: 10px;
+}
+
+#yellowColored {
+  width: 30px;
+  background-color: #00FFFF;
+  margin-right: 5px;
+}
+
+#blackBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+  margin-right: 10px;
+}
+
+#blackColored {
+  width: 30px;
+  background-color: #000000;
+  margin-right: 5px;
+}
+
+
 .lightbtn {
   background-color: rgba(255,0,0,0.2);
   width: 30px;

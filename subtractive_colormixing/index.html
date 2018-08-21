@@ -12,187 +12,332 @@
   <script type="text/javascript" src="app.js"></script> -->
 </head>
 <body>
+
+    <div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Canvases</button>
+  	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item" href="#" onclick="changeCanvas()">Colorfield</a>
+    <a class="dropdown-item" href="#" onclick="changePaintCanvas()">Paint Canvas</a>
+    <a class="dropdown-item" href="#" onclick="enterURL()">URL Image</a>
+    <a class="dropdown-item" href="#" onclick="enterFileUpload()">Upload File</a>
+  </div>
+  </div>
+
+  <div id="urlForm">
+  Enter an image URL:
+	<input id="url" placeholder="http://250.browndailyherald.com/wp-content/uploads/2014/05/Van-dam_-Alana-Tisdale-700x465.jpg" type="text">
+	<button class="btn btn-primary" type="button" href="" id="submitUrl" onclick="changeCanvasURL()">Submit</button>
+  </div>
+
+  <div id="fileUpload">
+  Upload an image file:
+  	<input type="file" id="uploadFile">
+  	<button class="btn btn-primary" type="button" href="" id="submitFile"  onclick="uploadFile()">Submit</button>
+  </div>
+
 <div class="container">
   <div class="row">
     <div class="col-sm-9" id="app">
-    <button type="button" class="btn btn-primary" onclick="changeCanvas()">Canvases</button>
     <canvas id="canvas"></canvas>
     </div>
     <div class="col-sm-3">
       <p>Color Components</p>
       <div class="container" id="bars">
-      <div class="col-sm-3" id="blackBar">
-        <div id="blackColored"></div>
-      </div>
       <div class="col-sm-3" id="cyanBar">
-        <div id="cyanolored"></div>
-      </div>
-      <div class="col-sm-3" id="yellowBar">
-        <div id="yellowColored"></div>
+      	<div id="cyanColored"></div>
       </div>
       <div class="col-sm-3" id="magentaBar">
-        <div id="magentaColored"></div>
+      	<div id="magentaColored"></div>
+      </div>
+      <div class="col-sm-3" id="yellowBar">
+      	<div id="yellowColored"></div>
+      </div>
+      <div class="col-sm-3" id="blackBar">
+      	<div id="blackColored"></div>
       </div>
       </div>
       <p>Color Selector</p>
-     <button onclick="changeBlack()" id="black">
-      <img src="images/blackBottleClosed.gif">
-     </button>
      <button onclick="changeCyan()" id="cyan">
-      <img src="images/cyanBottleClosed.gif">
-     </button>
-     <button onclick="changeYellow()" id="yellow">
-      <img src="images/yellowBottleClosed.gif">
+     	<img src="images/cyanBottleClosed.gif">
      </button>
      <button onclick="changeMagenta()" id="magenta">
-      <img src="images/magentaBottleClosed.gif">
+     	<img src="images/magentaBottleClosed.gif">
+     </button>
+     <button onclick="changeYellow()" id="yellow">
+     	<img src="images/yellowBottleClosed.gif">
+     </button>
+      <button onclick="changeBlack()" id="black">
+     	<img src="images/blackBottleClosed.gif">
      </button>
       <p>Alpha</p>
-      <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+      <input type="number" id="alphaNumber">
+      <input type="range" min="0" max="100" value="50" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
     </div>
   </div>
 </div>
 </body>
 <script>
-  var canvas = document.getElementById('canvas');
-  var ctx = canvas.getContext('2d');
-  var painting = document.getElementById('paint');
-  var offset = 120;
-    var width = window.innerWidth - 4 * offset;
-    var height = window.innerHeight - offset;
-  canvas.width = width;
-  canvas.height = height;
+	function updateAlpha(val) {
+          document.getElementById('alphaNumber').value=val; 
+    }
 
-  var mouse = {x: 0, y: 0};
-     
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+ 	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext('2d');
+ 	var painting = document.getElementById('paint');
+ 	var offset = 120;
+  	var width = window.innerWidth - 4 * offset;
+  	var height = window.innerHeight - offset;
+	canvas.width = width;
+	canvas.height = height;
 
-  // Show additive color:
-  var temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  console.log(temp);
-  var showColor = function(e) {
-    var x = e.pageX - 70;
-    var y = e.pageY - 30;
-    //console.log(x + " " + y);
-    var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
-    //console.log(index);
-    var red = temp.data[index];
-    var green = temp.data[index + 1];
-    var blue = temp.data[index + 2];
-    var blue = temp.data[index + 2];
-    //console.log(red);
-      if(red == 1 && blue == 1 && green == 1) {
-        console.log("woo!")
-      }
-  }
+	var mouse = {x: 0, y: 0};
+		 
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  canvas.addEventListener('mousemove', showColor, false);
+	canvas.addEventListener('mousemove', function(e) {
+		var x = e.pageX - 70;
+		var y = e.pageY - 30;
+		var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+		var red = imageData.data[index];
+		var green = imageData.data[index + 1];
+		var blue = imageData.data[index + 2];
+		var alpha = imageData.data[index + 2];
+	    
+		var cmyk = rgb2cmyk(red, green, blue);
 
-  var img = new Image();
-  img.src = "images/cymkColorfieldBackground.jpg";
-  img.onload = function () {
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-      ctx.drawImage(img,width / 4,height / 4);
-  };
-   
-  canvas.addEventListener('mousemove', function(e){
-    mouse.x = e.pageX - this.offsetLeft;
-    mouse.y = e.pageY - this.offsetTop;
-  }, false);
+	    var cyanBar = document.getElementById('cyanColored');
+		var magentaBar = document.getElementById('magentaColored');
+	    var yellowBar = document.getElementById('yellowColored');
+	    var blackBar = document.getElementById('blackColored');
+	    // CYAN
+	    if(cmyk[0] == 0) {
+	    	cyanBar.style.height = "0%";
+	    } else if(cmyk[0] > 0 && cmyk[0] < 125) {
+			cyanBar.style.height = "50%";
+	    } else {
+			cyanBar.style.height = "100%";
+	    }
+	    // MAGENTA
+	    if(cmyk[1] == 0) {
+	    	magentaBar.style.height = "0%";
+	    } else if(cmyk[1] > 0 && cmyk[1] < 125) {
+			magentaBar.style.height = "50%";
+	    } else {
+			magentaBar.style.height = "100%";
+	    }
+	    // YELLOW
+	    if(cmyk[2] == 0) {
+	    	yellowBar.style.height = "0%";
+	    } else if(cmyk[2] > 0 && cmyk[2] < 125) {
+			yellowBar.style.height = "50%";
+	    } else {
+			yellowBar.style.height = "100%";
+	    }
+		if(cmyk[3] == 0) {
+	    	blackBar.style.height = "0%";
+	    } else if(cmyk[3] > 0 && cmyk[3] < 125) {
+			blackBar.style.height = "50%";
+	    } else {
+			blackBar.style.height = "100%";
+	    }
 
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.lineWidth = 3;
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#ff0000';
- 
-  canvas.addEventListener('mousedown', function(e) {
-      ctx.beginPath();
-      ctx.moveTo(mouse.x, mouse.y);
- 
-    canvas.addEventListener('mousemove', onPaint, false);
-}, false);
- 
-canvas.addEventListener('mouseup', function() {
-    canvas.removeEventListener('mousemove', onPaint, false);
-}, false);
- 
+	} , false);
+
+	var img = new Image();
+	img.src = "images/cymkColorfieldBackground.jpg";
+	var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	img.onload = function () {
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+    	ctx.drawImage(img,canvas.width / 4,canvas.height / 4);
+		imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	};
+	 
+	canvas.addEventListener('mousemove', function(e){
+		mouse.x = e.pageX - this.offsetLeft;
+		mouse.y = e.pageY - this.offsetTop;
+	}, false); 
+
 var onPaint = function() {
     ctx.lineTo(mouse.x, mouse.y);
     ctx.stroke();
+    imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 };
 
 var drawPaint = function(e) {
-        ctx.beginPath();
-        ctx.moveTo(mouse.x, mouse.y);
-        canvas.addEventListener('mousemove', onPaint, false);
-} 
+	    	ctx.beginPath();
+	    	ctx.moveTo(mouse.x, mouse.y);
+	    	canvas.addEventListener('mousemove', onPaint, false);
+}	
 
 var stopPaint = function() {
-        canvas.removeEventListener('mousemove', onPaint, false);  
-};  
+		    canvas.removeEventListener('mousemove', onPaint, false);	
+};	
+	
+	function changeCyan(e) {
+		ctx.strokeStyle = '#00ffff';
+	}
 
-  function changeBlack(e) {
-    ctx.strokeStyle = '#000000';
-  }
-  
-  function changeCyan(e) {
-    ctx.strokeStyle = '#00ff00';
-  }
+	function changeMagenta(e) {
+		ctx.strokeStyle = '#ff00ff';
+	}
 
-  function changeYellow(e) {
-    ctx.strokeStyle = '#00ff00';
-  }
+	function changeYellow(e) {
+		ctx.strokeStyle = '#ffff00';
+	}
 
-  function changeMagenta(e) {
-    ctx.strokeStyle = '#0000ff';
-  }
+	function changeBlack(e) {
+		ctx.strokeStyle = '#000000';
+	}
 
-var colorField = true;  
+var colorField = true;	
 var changeCanvas = function() {
-  if(!colorField) {
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+	if(!colorField) {
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		var img = new Image();
+		img.src = "images/cymkColorfieldBackground.jpg";
+		img.onload = function () {
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext('2d');
+	    	ctx.drawImage(img,width / 4,height / 4);
 
-  var img = new Image();
-  img.src = "images/cymkColorfieldBackground.jpg";
-  img.onload = function () {
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-      ctx.drawImage(img,width / 4,height / 4);
-  };
-
-  // Disable drawing
-  canvas.removeEventListener('mousedown', drawPaint);
-  canvas.removeEventListener('mouseup', stopPaint);
-
-  colorField = true;
-  } else {
-
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    canvas.addEventListener('mousemove', function(e){
-      mouse.x = e.pageX - this.offsetLeft;
-      mouse.y = e.pageY - this.offsetTop;
-    }, false);
-    
-  ctx.lineWidth = 3;
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#ff0000';
-   
-  canvas.addEventListener('mousedown', drawPaint, false);
-   
-  canvas.addEventListener('mouseup', stopPaint, false);
-
-  colorField = false;
-  }
+		};
+		canvas.removeEventListener('mousedown', drawPaint);
+		canvas.removeEventListener('mouseup', stopPaint);
+		colorField = true;
+	} else {
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.lineWidth = 3;
+		ctx.lineJoin = 'round';
+		ctx.lineCap = 'round';
+		ctx.strokeStyle = '#00ffff';
+		canvas.addEventListener('mousedown', drawPaint, false);
+		canvas.addEventListener('mouseup', stopPaint, false);
+		colorField = false;
+	}
 };
 
+var changeColorfield = function() {
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		var img = new Image();
+		img.src = "images/rgbColorfieldCanvas.jpg";
+		img.onload = function () {
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext('2d');
+	    	ctx.drawImage(img,width / 4,height / 4);
+
+		};
+		canvas.removeEventListener('mousedown', drawPaint);
+		canvas.removeEventListener('mouseup', stopPaint);
+		colorField = true;
+};
+
+var changePaintCanvas = function() {
+	urlForm.style.display = "none";
+	fileUpload.style.display = "none";
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.lineWidth = 3;
+		ctx.lineJoin = 'round';
+		ctx.lineCap = 'round';
+		ctx.strokeStyle = '#ff0000';
+		canvas.addEventListener('mousedown', drawPaint, false);
+		canvas.addEventListener('mouseup', stopPaint, false);
+		colorField = false;
+};
+
+var uploadFile = function() {
+	var submitFile = document.getElementById('submitFile');
+	urlForm.style.display = "none";
+	fileUpload.style.display = "none";
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		var reader = new FileReader();
+    	reader.onload = function(event){
+		var img = new Image();
+		img.src = event.target.result;
+		img.onload = function () {
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext('2d');
+	    	ctx.drawImage(img,width / 4,height / 4);
+
+		};
+		reader.readAsDataURL(submitFile.value);
+	};
+		canvas.removeEventListener('mousedown', drawPaint);
+		canvas.removeEventListener('mouseup', stopPaint);
+		colorField = true;
+};
+
+var changeCanvasURL = function() {
+		var urlStr = document.getElementById('url');
+		console.log(urlStr.value);
+		ctx.fillStyle = "black";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		var img = new Image();
+		img.src = urlStr.value;
+		img.onload = function () {
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext('2d');
+	    	ctx.drawImage(img,width / 4,height / 4);
+
+		};
+		canvas.removeEventListener('mousedown', drawPaint);
+		canvas.removeEventListener('mouseup', stopPaint);
+		colorField = true;
+};
+
+var enterFileUpload = function() {
+	var fileUpload = document.getElementById('fileUpload');
+	if (fileUpload.style.display === "none") {
+        fileUpload.style.display = "block";
+    } else {
+        fileUpload.style.display = "none";
+    }
+}
+
+var enterURL = function() {
+	var urlForm = document.getElementById('urlForm');
+	if (urlForm.style.display === "none") {
+        urlForm.style.display = "block";
+    } else {
+        urlForm.style.display = "none";
+    }
+}
+
+function rgb2cmyk (r,g,b) {
+ var computedC = 0;
+ var computedM = 0;
+ var computedY = 0;
+ var computedK = 0;
+
+ // BLACK
+ if (r==0 && g==0 && b==0) {
+  computedK = 1;
+  return [0,0,0,1];
+ }
+
+ computedC = 1 - (r/255);
+ computedM = 1 - (g/255);
+ computedY = 1 - (b/255);
+
+ var minCMY = Math.min(computedC,
+              Math.min(computedM,computedY));
+ computedC = (computedC - minCMY) / (1 - minCMY) ;
+ computedM = (computedM - minCMY) / (1 - minCMY) ;
+ computedY = (computedY - minCMY) / (1 - minCMY) ;
+ computedK = minCMY;
+
+ return [computedC,computedM,computedY,computedK];
+}
+
+var urlForm = document.getElementById('urlForm');
+var fileUpload = document.getElementById('fileUpload');
+urlForm.style.display = "none";
+fileUpload.style.display = "none";
  </script>
 </html>
