@@ -1,0 +1,29 @@
+.ui-slider {
+    width: 600px;
+    text-align: center;
+    display: block;
+    margin: auto;
+}
+.ui-slider {
+  height: 256px;
+}
+
+.centered {
+  text-align: center;
+  display: block;
+  margin: auto;
+}
+
+.graph {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.container {
+  display: inline-block;
+}
+
+.slider-label {
+  font-family: Arial;
+  margin-bottom: 10px;
+}
