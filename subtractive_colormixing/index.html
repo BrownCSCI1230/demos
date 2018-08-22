@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Additive Colormixing</title>
+  <title>Subtractive Colormixing</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -84,11 +84,12 @@
  	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
  	var painting = document.getElementById('paint');
- 	var offset = 120;
+ 	var offset = 220;
   	var width = window.innerWidth - 4 * offset;
   	var height = window.innerHeight - offset;
 	canvas.width = width;
 	canvas.height = height;
+	canvas.style.border = '1px solid #000';
 
 	var mouse = {x: 0, y: 0};
 		 
@@ -113,7 +114,7 @@
 	    // CYAN
 	    if(cmyk[0] == 0) {
 	    	cyanBar.style.height = "0%";
-	    } else if(cmyk[0] > 0 && cmyk[0] < 125) {
+	    } else if(cmyk[0] > 0 && cmyk[0] < 0.5) {
 			cyanBar.style.height = "50%";
 	    } else {
 			cyanBar.style.height = "100%";
@@ -121,7 +122,7 @@
 	    // MAGENTA
 	    if(cmyk[1] == 0) {
 	    	magentaBar.style.height = "0%";
-	    } else if(cmyk[1] > 0 && cmyk[1] < 125) {
+	    } else if(cmyk[1] > 0 && cmyk[1] < 0.5) {
 			magentaBar.style.height = "50%";
 	    } else {
 			magentaBar.style.height = "100%";
@@ -129,14 +130,14 @@
 	    // YELLOW
 	    if(cmyk[2] == 0) {
 	    	yellowBar.style.height = "0%";
-	    } else if(cmyk[2] > 0 && cmyk[2] < 125) {
+	    } else if(cmyk[2] > 0 && cmyk[2] < 0.5) {
 			yellowBar.style.height = "50%";
 	    } else {
 			yellowBar.style.height = "100%";
 	    }
 		if(cmyk[3] == 0) {
 	    	blackBar.style.height = "0%";
-	    } else if(cmyk[3] > 0 && cmyk[3] < 125) {
+	    } else if(cmyk[3] > 0 && cmyk[3] < 0.5) {
 			blackBar.style.height = "50%";
 	    } else {
 			blackBar.style.height = "100%";
@@ -150,13 +151,15 @@
 	img.onload = function () {
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext('2d');
-    	ctx.drawImage(img,canvas.width / 4,canvas.height / 4);
+		var imgWidth = canvas.width / 2;
+		var imgHeight = canvas.height / 2;
+    	ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 		imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	};
 	 
 	canvas.addEventListener('mousemove', function(e){
-		mouse.x = e.pageX - this.offsetLeft;
-		mouse.y = e.pageY - this.offsetTop;
+		mouse.x = e.pageX - this.offsetLeft - 130;
+		mouse.y = e.pageY - this.offsetTop - 30;
 	}, false); 
 
 var onPaint = function() {
@@ -201,14 +204,16 @@ var changeCanvas = function() {
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
-	    	ctx.drawImage(img,width / 4,height / 4);
+	    	var imgWidth = canvas.width / 2;
+			var imgHeight = canvas.height / 2;
+    		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 
 		};
 		canvas.removeEventListener('mousedown', drawPaint);
 		canvas.removeEventListener('mouseup', stopPaint);
 		colorField = true;
 	} else {
-		ctx.fillStyle = "black";
+		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 3;
 		ctx.lineJoin = 'round';
@@ -228,7 +233,9 @@ var changeColorfield = function() {
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
-	    	ctx.drawImage(img,width / 4,height / 4);
+	    	var imgWidth = canvas.width / 2;
+			var imgHeight = canvas.height / 2;
+    		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 
 		};
 		canvas.removeEventListener('mousedown', drawPaint);
@@ -239,12 +246,12 @@ var changeColorfield = function() {
 var changePaintCanvas = function() {
 	urlForm.style.display = "none";
 	fileUpload.style.display = "none";
-		ctx.fillStyle = "black";
+		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 3;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
-		ctx.strokeStyle = '#ff0000';
+		ctx.strokeStyle = '#00ffff';
 		canvas.addEventListener('mousedown', drawPaint, false);
 		canvas.addEventListener('mouseup', stopPaint, false);
 		colorField = false;
@@ -254,7 +261,7 @@ var uploadFile = function() {
 	var submitFile = document.getElementById('submitFile');
 	urlForm.style.display = "none";
 	fileUpload.style.display = "none";
-		ctx.fillStyle = "black";
+		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		var reader = new FileReader();
     	reader.onload = function(event){
@@ -263,7 +270,9 @@ var uploadFile = function() {
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
-	    	ctx.drawImage(img,width / 4,height / 4);
+	    	var imgWidth = canvas.width / 2;
+			var imgHeight = canvas.height / 2;
+    		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 
 		};
 		reader.readAsDataURL(submitFile.value);
@@ -276,14 +285,16 @@ var uploadFile = function() {
 var changeCanvasURL = function() {
 		var urlStr = document.getElementById('url');
 		console.log(urlStr.value);
-		ctx.fillStyle = "black";
+		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		var img = new Image();
 		img.src = urlStr.value;
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
-	    	ctx.drawImage(img,width / 4,height / 4);
+	    	var imgWidth = canvas.width / 2;
+			var imgHeight = canvas.height / 2;
+    		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 
 		};
 		canvas.removeEventListener('mousedown', drawPaint);
