@@ -1,0 +1,123 @@
+/*body {
+  background-color: black !important;
+}
+
+h2 {
+  color: white !important;
+}*/
+
+#bars{
+  margin-bottom: 100px;
+  margin-top: 100px;
+}
+
+#cyanBar {
+  width: 50px;
+  height: 200px;
+  margin-right: 10px;
+  background-color: #d3d3d3;
+}
+
+#cyanColored {
+  width: 30px;
+  background-color: #FFFF00;
+  margin-right: 5px;
+}
+
+#magentaBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+  margin-right: 10px;
+}
+
+#magentaColored {
+  width: 30px;
+  background-color: #FF00FF;
+  margin-right: 5px;
+}
+
+#yellowBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+  margin-right: 10px;
+}
+
+#yellowColored {
+  width: 30px;
+  background-color: #00FFFF;
+  margin-right: 5px;
+}
+
+#blackBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+  margin-right: 10px;
+}
+
+#blackColored {
+  width: 30px;
+  background-color: #000000;
+  margin-right: 5px;
+}
+
+
+.lightbtn {
+  background-color: rgba(255,0,0,0.2);
+  width: 30px;
+  height: 30px;
+}
+
+.paintbtn {
+  background-color: rgba(255,0,0,0.2);
+  width: 40px;
+  height: 40px;
+}
+
+.filterbtn {
+  background-color: rgba(255,0,0,0.2);
+  width: 22px;
+  height: 35px;
+}
+
+.inline {
+  width: auto;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.graphContainer {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.centered {
+  text-align: center;
+  display: block;
+  margin: auto;
+}
+
+.vertical-centered {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  font-family: Sans-serif;
+}
+
+.bottom-margin {
+  margin-bottom: 10px;
+}
+
+.top-margin {
+  margin-top: 150px;
+}
+
+.top-small-margin {
+  margin-top: 10px;
+}
