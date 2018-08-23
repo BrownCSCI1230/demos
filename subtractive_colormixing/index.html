@@ -76,8 +76,8 @@
      	<img src="images/blackBottleClosed.gif">
      </button>
       <p>Alpha</p>
-      <input type="number" id="alphaNumber">
-      <input type="range" min="0" max="100" value="50" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
+      <input type="number" min="0" max="1.0" step="0.01" value="0.5" id="alphaNumber">
+      <input type="range" min="0" max="1.0" step="0.01" value="0.5" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
     </div>
   </div>
 </div>
@@ -87,6 +87,7 @@
 	function updateAlpha(val) {
           document.getElementById('alphaNumber').value=val; 
           alpha = val;
+          ctx.globalAlpha = alpha;
     }
 
     var cmy = true;
@@ -121,7 +122,7 @@
 		var red = imageData.data[index];
 		var green = imageData.data[index + 1];
 		var blue = imageData.data[index + 2];
-		var alpha = imageData.data[index + 2];
+		var alpha = imageData.data[index + 3];
 	    
 
 	    var cyanBar = document.getElementById('cyanColored');
