@@ -54,8 +54,14 @@
       </div>
       <div class="col-sm-3" id="blackBar">
       	<div id="blackColored"></div>
+ 
       </div>
       </div>
+      <div id="radio">
+      	<input type="radio" name="colormode" value="cmy" onchange="updateCMYMode()"/>cmy
+      	<input type="radio" name="colormode" value="cmyk" onchange="updateCMYMode()"/>cmyk
+      </div>
+      <br>
       <p>Color Selector</p>
      <button onclick="changeCyan()" id="cyan">
      	<img src="images/cyanBottleClosed.gif">
@@ -77,8 +83,20 @@
 </div>
 </body>
 <script>
+	var alpha = 0.5;
 	function updateAlpha(val) {
           document.getElementById('alphaNumber').value=val; 
+          alpha = val;
+    }
+
+    var cmy = true;
+    function updateCMYMode() {
+    	var modes = document.getElementsByName('colormode');
+    	if(modes[0].checked) {
+    		cmy = true;
+    	} else {
+    		cmy = false;
+    	}
     }
 
  	var canvas = document.getElementById('canvas');
@@ -105,43 +123,52 @@
 		var blue = imageData.data[index + 2];
 		var alpha = imageData.data[index + 2];
 	    
-		var cmyk = rgb2cmyk(red, green, blue);
 
 	    var cyanBar = document.getElementById('cyanColored');
 		var magentaBar = document.getElementById('magentaColored');
 	    var yellowBar = document.getElementById('yellowColored');
 	    var blackBar = document.getElementById('blackColored');
+
+	    var colors = null;
+	    if(!cmy) {
+			colors = rgb2cmyk(red, green, blue);
+			// BLACK
+			if(colors[3] == 0) {
+		    	blackBar.style.height = "0%";
+		    } else if(colors[3] > 0 && colors[3] < 0.5) {
+				blackBar.style.height = "50%";
+		    } else {
+				blackBar.style.height = "100%";
+		    }
+	    } else {
+	    	colors = rgb2cmy(red, green. blue);
+	    }
+		
 	    // CYAN
-	    if(cmyk[0] == 0) {
+	    if(colors[0] == 0) {
 	    	cyanBar.style.height = "0%";
-	    } else if(cmyk[0] > 0 && cmyk[0] < 0.5) {
+	    } else if(colors[0] > 0 && colors[0] < 0.5) {
 			cyanBar.style.height = "50%";
 	    } else {
 			cyanBar.style.height = "100%";
 	    }
 	    // MAGENTA
-	    if(cmyk[1] == 0) {
+	    if(colors[1] == 0) {
 	    	magentaBar.style.height = "0%";
-	    } else if(cmyk[1] > 0 && cmyk[1] < 0.5) {
+	    } else if(colors[1] > 0 && colors[1] < 0.5) {
 			magentaBar.style.height = "50%";
 	    } else {
 			magentaBar.style.height = "100%";
 	    }
 	    // YELLOW
-	    if(cmyk[2] == 0) {
+	    if(colors[2] == 0) {
 	    	yellowBar.style.height = "0%";
-	    } else if(cmyk[2] > 0 && cmyk[2] < 0.5) {
+	    } else if(colors[2] > 0 && colors[2] < 0.5) {
 			yellowBar.style.height = "50%";
 	    } else {
 			yellowBar.style.height = "100%";
 	    }
-		if(cmyk[3] == 0) {
-	    	blackBar.style.height = "0%";
-	    } else if(cmyk[3] > 0 && cmyk[3] < 0.5) {
-			blackBar.style.height = "50%";
-	    } else {
-			blackBar.style.height = "100%";
-	    }
+
 
 	} , false);
 
@@ -219,6 +246,7 @@ var changeCanvas = function() {
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
 		ctx.strokeStyle = '#00ffff';
+		ctx.globalAlpha = alpha;
 		canvas.addEventListener('mousedown', drawPaint, false);
 		canvas.addEventListener('mouseup', stopPaint, false);
 		colorField = false;
@@ -252,6 +280,7 @@ var changePaintCanvas = function() {
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
 		ctx.strokeStyle = '#00ffff';
+		ctx.globalAlpha = alpha;
 		canvas.addEventListener('mousedown', drawPaint, false);
 		canvas.addEventListener('mouseup', stopPaint, false);
 		colorField = false;
@@ -318,6 +347,18 @@ var enterURL = function() {
     } else {
         urlForm.style.display = "none";
     }
+}
+
+function rgb2cmy(r,g,b) {
+	var c = 0;
+	var m = 0;
+	var k = 0;
+
+ c = 1 - (r/255);
+ m = 1 - (g/255);
+ y = 1 - (b/255);
+
+ return [c, m, y];
 }
 
 function rgb2cmyk (r,g,b) {
