@@ -14,7 +14,6 @@ function lerp(x1, x2, y1, y2, x) {
 
 class Graph {
   constructor(element, width, height, xmin, xmax, xinc, ymin, ymax, yinc, title) {
-    //TODO: Change these
     this.x = 0;
     this.y = 0;
     this.width = width;
@@ -199,6 +198,7 @@ class Graph {
     });
 
     this.currentMouseX = mousePos.x;
+    this.currentMouseY = mousePos.y;
     this.isClicking = true;
     this.renderer.render(this.stage);
   }

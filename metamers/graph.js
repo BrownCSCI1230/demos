@@ -14,7 +14,6 @@ function lerp(x1, x2, y1, y2, x) {
 
 class Graph {
   constructor(element, width, height, xmin, xmax, xinc, ymin, ymax, yinc, title) {
-    //TODO: Change these
     this.x = 0;
     this.y = 0;
     this.width = width;
@@ -29,7 +28,6 @@ class Graph {
     this.xtitle = title;
     this.ytitle = title;
 
-    this.plot;
     this.currentMouseX = 0;
     this.currentMouseY = 0;
     this.plotDrawingZero = 0;
@@ -55,32 +53,14 @@ class Graph {
     return this.graphData[i + this.drawingIndices.length];
   }
 
-  setGraphData(graphData) {
-    this.graphData = graphData;
+  getGraphDataRange(start, end, step) {
+    var data = [];
 
-    for (var i = 0; i < this.graphData.length; i ++) {
-      var y = graphData[i];
-      var canvasY = this.convertToPixel(y, false);
-
-      // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, canvasY);
+    for(var i = start; i != end + step; i += step) {
+      data.push(this.getGraphData(i));
     }
 
-    this.renderer.render(this.stage);
-  }
-
-  setGraphDataAtIndices(graphData, start, end) {
-    this.graphData = graphData;
-
-    for (var i = start; i < end; i ++) {
-      var y = graphData[i];
-      var canvasY = this.convertToPixel(y, false);
-
-      // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, canvasY);
-    }
-
-    this.renderer.render(this.stage);
+    return data;
   }
 
   draw() {
@@ -247,20 +227,6 @@ class Graph {
     this.plot.off('pointermove');
   }
 
-  shiftEntireLine(shift) {
-    this.totalShift += shift;
-    var newData = [];
-    for (var i = 0; i < this.graphData.length; i++) {
-      if (this.graphData[i + shift] !== undefined) {
-        newData[i] = this.graphData[i + shift];
-      } else {
-        newData[i] = 0;
-      }
-    }
-
-    this.setGraphData(newData);
-  }
-
   makeBackground() {
     var background = new PIXI.Graphics;
     background.lineStyle(3, 0x000000, 1); //black
@@ -343,7 +309,7 @@ class Graph {
       }
     }
 
-    this.plotDrawingZero = (this.ymax / this.yinc) * stepLength;
+    this.plotDrawingZero = (this.ymax / this.yinc) * stepLength - 1;
   }
 
   makeLabels(plot, labelTextStyle) {
