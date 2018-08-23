@@ -7,9 +7,17 @@ function rgbToHex(r, g, b) {
     return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
+function lerp(x1, x2, y1, y2, x) {
+  if(x1 == x2) {
+    return y1;
+  }
+
+  var m = (y2 - y1) / (x2 - x1);
+  return (m * (x - x1) + y1);
+}
+
 class Graph {
   constructor(element, width, height, xmin, xmax, xinc, ymin, ymax, yinc, title, isBlank) {
-    //TODO: Change these
     this.x = 0;
     this.y = 0;
     this.width = width;
@@ -53,49 +61,6 @@ class Graph {
     // var i = Math.round(((x - this.xmin) / xdiff) * this.graphData.length);
     // i = Math.max(0, Math.min(this.graphData.length - 1, i));
     return this.graphData[x];
-  }
-
-  setGraphData(graphData) {
-    this.graphData = graphData;
-
-    for (var i = 0; i < graphData.length; i ++) {
-      var y = graphData[i];
-      var ydiff = this.ymax - this.ymin;
-      var canvasY = Math.round(((y - this.ymin) / ydiff) * this.plot.height);
-      canvasY = Math.max(0, Math.min(this.plot.height, canvasY))
-      canvasY = this.convertToPlotPixel(y, false);
-
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(this.plot.x + i, this.plotDrawingZero);
-      clickDraw.lineTo(this.plot.x + i, canvasY);
-
-      // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, canvasY, clickDraw);
-    }
-
-    this.renderer.render(this.stage);
-  }
-
-  setGraphDataAtIndices(start, end) {
-
-    for (var i = start; i < end; i ++) {
-      var y = this.graphData[i];
-      var ydiff = this.ymax - this.ymin;
-      var canvasY = Math.round(((y - this.ymin) / ydiff) * this.plot.height);
-      canvasY = Math.max(0, Math.min(this.plot.height, canvasY))
-      canvasY = this.convertToPlotPixel(y, false);
-
-      var clickDraw = new PIXI.Graphics;
-      clickDraw.lineStyle(1, 0x0000ff, 1);
-      clickDraw.moveTo(this.plot.x + i, this.plotDrawingZero);
-      clickDraw.lineTo(this.plot.x + i, canvasY);
-
-      // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, canvasY, clickDraw);
-    }
-
-    this.renderer.render(this.stage);
   }
 
   draw(isBlank) {
@@ -142,6 +107,40 @@ class Graph {
       }
     }
 
+    // Callbacks
+    var self = this;
+
+    this.plot.interactive = true;
+
+    this.plot.on('pointerdown', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onClick(mousePos);
+    });
+
+    this.plot.on('pointermove', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onMove(mousePos);
+    });
+
+    this.plot.on('pointerup', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onUp(mousePos);
+    });
+
+    this.plot.on('pointerupoutside', function(eventData){
+      var data = eventData.data;
+      var mousePos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, mousePos, data.global);
+      self.onUp(mousePos);
+    });
+
+    // Render
     this.renderer.render(this.stage);
   }
 
@@ -166,6 +165,7 @@ class Graph {
   }
 
   onClick(mousePos) {
+    /*
     var clientX = Math.max(this.plot.x, Math.min(this.plot.x + this.plot.width, mousePos.x));
     var clientY = Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y));
     var thisIndex = Math.round(this.convertToPlotCoordinate(clientX, true)) - this.xmin;
@@ -181,9 +181,23 @@ class Graph {
 
     // hacky way to give index in order to update result
     return thisIndex;
+    */
+
+    this.plot.on('pointermove', function(eventData){
+      var data = eventData.data;
+      var pos = new PIXI.Point(0, 0);
+      data.getLocalPosition(self.stage, pos, data.global);
+      self.onMove(pos);
+    });
+
+    this.currentMouseX = mousePos.x;
+    this.currentMouseY = mousePos.y;
+    this.isClicking = true;
+    this.renderer.render(this.stage);
   }
 
   onMove(mousePos) {
+    /*
     if (this.isClicking) {
       var clientY = Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y));
       this.clickedPoint.y = clientY - this.clickedPoint.height / 2;
@@ -194,21 +208,67 @@ class Graph {
       return graphDataIndex;
     }
     return;
+    */
+
+    if (this.isClicking) {
+      // This is intended to remove spaces between blue lines caused by
+      // mouse moves that are faster than the browser can send events.
+      // It's a rough solution...
+      var clientX = Math.max(this.plot.x, Math.min(this.plot.x + this.plot.width, mousePos.x));
+      var clientY = Math.max(this.plot.y, Math.min(this.plot.y + this.plot.height, mousePos.y));
+
+      var start;
+      var stop;
+
+      if (clientX > this.currentMouseX) {
+        start = this.convertToPlotCoordinate(this.currentMouseX, true) - this.xmin;
+        stop = this.convertToPlotCoordinate(clientX, true) - this.xmin;
+      } else {
+        start = this.convertToPlotCoordinate(clientX, true) - this.xmin;
+        stop = this.convertToPlotCoordinate(this.currentMouseX, true) - this.xmin;
+      }
+
+      start = Math.round(start);
+      stop = Math.round(stop);
+
+      for (var i = start; i <= stop; i += 1) {
+      	// make sure we don't go off of either of the sides of the plot
+      	var canStillDraw = (i >= 0 && i < this.graphData.length);
+
+      	if (canStillDraw) {
+      	  // store the bar we're drawing so we can remove it later if we need to
+          var lerpy = lerp(stop, start, clientY, this.currentMouseY, i);
+	  this.movePoint(this.dataPoints[i], clientY);
+	  this.graphData[i] = this.convertToPlotCoordinate(lerpy);
+      	}
+      }
+
+      this.currentMouseX = clientX;
+      this.currentMouseY = clientY;
+      this.renderer.render(this.stage);
+    }
+  }
+
+  movePoint(point, y) {
+    point.y = y;
+
+    var width = point.width;
+    var height = point.height;
+
+    point.clear();
+    point.beginFill(0x000000);
+    point.drawRect(0, 0, width, height);
+    point.endFill();
+
+    this.renderer.render(this.stage);
   }
 
   onUp(mousePos) {
-    this.onMove(mousePos);
     if (this.isClicking) {
-      var width = this.clickedPoint.width;
-      var height = this.clickedPoint.height;
-      this.clickedPoint.clear();
-      this.clickedPoint.beginFill(0x000000);
-      this.clickedPoint.drawRect(0, 0, width, height);
-      this.clickedPoint.endFill();
       this.isClicking = false;
-
-      this.renderer.render(this.stage);
     }
+
+    this.plot.off('pointermove');
   }
 
   moveDataPoint(index, yCoord) {
