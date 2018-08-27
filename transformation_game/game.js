@@ -120,7 +120,7 @@ globalData = {
 }
 
 class SpriteTransformBlock extends PIXI.Container {
-  constructor(type = TRANSLATE_TYPE, subtype = SUBTYPE_1) {
+  constructor(type = TRANSLATE_TYPE, subtype = SUBTYPE_1, width = 75, height = 75) {
     super();
 
     // Set as interactive
@@ -139,6 +139,8 @@ class SpriteTransformBlock extends PIXI.Container {
 
     // Make UI
     // TODO: have image / animation to go with title for block
+    this._width = width;
+    this._height = height;
     this._color = 0xFF0000;
     this._makeBackground();
     this._makeTitle();
@@ -212,14 +214,17 @@ class SpriteTransformBlock extends PIXI.Container {
   _makeBackground() {
     this.background = new PIXI.Graphics();
     this.background.beginFill(this.color)
-    this.background.drawRect(0, 0, 75, 75);
+    this.background.drawRect(0, 0, this._width, this._height);
     this.background.endFill();
   }
 
   makeContent() {
     this._makeBackground();
     this._makeTitle();
-    this._makeSubtitle();
+
+    if(this._subtitle) {
+      this._makeSubtitle();
+    }
   }
 
   resetValue() {
@@ -232,20 +237,24 @@ class SpriteTransformBlock extends PIXI.Container {
   }
 
   get width() {
-    return this._background.width;
+    return this._width;
   }
 
   set width(width) {
+    this._width = width;
+
     if(this._background != undefined) {
       this._background.width = width;
     }
   }
 
   get height() {
-    return this._background.height;
+    return this._height;
   }
 
   set height(height) {
+    this._height = height;
+
     if(this._background != undefined) {
       this._background.height = height;
     }
@@ -258,13 +267,7 @@ class SpriteTransformBlock extends PIXI.Container {
   set color(c) {
     this._color = c;
 
-    if(this._subtitle) {
-      this.makeContent();
-    }
-    else {
-      this._makeBackground();
-      this._makeTitle();
-    }
+    this.makeContent();
   }
 
   get title() {
@@ -507,7 +510,7 @@ class SpriteTransformBlock extends PIXI.Container {
 }
 
 class SpriteTransformBag extends PIXI.Container {
-  constructor(append = true) {
+  constructor(append = true, width = 75, height = 600) {
     super();
 
     // Set as interactive
@@ -517,9 +520,11 @@ class SpriteTransformBag extends PIXI.Container {
     this.blocks = [];
 
     // UI
+    this._width = width;
+    this._height = height;
     this._makeBackground();
-    this.blockWidth = this.width;
-    this.blockHeight = this.blockWidth;
+    this.blockOffsetWidth = this.width;
+    this.blockOffsetHeight = this.blockOffsetWidth;
 
     // Global data
     if(append) {
@@ -531,7 +536,7 @@ class SpriteTransformBag extends PIXI.Container {
   _makeBackground() {
     this.background = new PIXI.Graphics();
     this.background.beginFill(0xFFFFFF)
-    this.background.drawRect(0, 0, 75, 525);
+    this.background.drawRect(0, 0, this._width, this._height);
     this.background.endFill();
   }
 
@@ -566,25 +571,29 @@ class SpriteTransformBag extends PIXI.Container {
       var currBlock = this.blocks[j];
       currBlock.color = 0xFF0000;
       currBlock.x = 0;
-      currBlock.y = this.blockHeight * j;
+      currBlock.y = this.blockOffsetHeight * j;
     }
   }
 
   get width() {
-    return this._background.width;
+    return this._width;
   }
 
   set width(width) {
+    this._width = width;
+
     if(this._background != undefined) {
       this._background.width = width;
     }
   }
 
   get height() {
-    return this._background.height;
+    return this._height;
   }
 
   set height(height) {
+    this._height = height;
+
     if(this._background != undefined) {
       this._background.height = height;
     }
@@ -610,7 +619,7 @@ class SpriteTransformBag extends PIXI.Container {
 
   getBlockIndexGlobal(pos) {
     var offset = Math.max(Math.min(pos.y - this.y, this.height), 0);
-    return Math.min(this.blocks.length, Math.floor(offset / this.blockHeight));
+    return Math.min(this.blocks.length, Math.floor(offset / this.blockOffsetHeight));
   }
 
   getBlockPosition(i) {
@@ -625,7 +634,7 @@ class SpriteTransformBag extends PIXI.Container {
 }
 
 class SpriteTransformQueue extends SpriteTransformBag {
-  constructor() {
+  constructor(width = 600, height = 75) {
     super(false);
 
     // Set as interactive
@@ -635,20 +644,16 @@ class SpriteTransformQueue extends SpriteTransformBag {
     this.activeBlockIndex = -1;
 
     // UI
+    // TODO: way to specify if queue / bag is vertical or horizontal
+    this._width = width;
+    this._height = height;
     this._makeBackground();
-    this.blockWidth = this.height;
-    this.blockHeight = this.blockWidth;
+    this.blockOffsetWidth = this.height;
+    this.blockOffsetHeight = this.blockOffsetWidth;
 
     // Global data
     globalData.blockContainers.push(this);
     globalData.blockQueue = this;
-  }
-
-  _makeBackground() {
-    this.background = new PIXI.Graphics();
-    this.background.beginFill(0xFFFFFF)
-    this.background.drawRect(0, 0, 600, 75);
-    this.background.endFill();
   }
 
   addBlock(i, block) {
@@ -666,7 +671,7 @@ class SpriteTransformQueue extends SpriteTransformBag {
     for(var j = 0; j < this.blocks.length; j++) {
       var currBlock = this.blocks[j];
       currBlock.color = 0xFF0000;
-      currBlock.x = this.width - this.blockWidth * (j + 1);
+      currBlock.x = this.width - this.blockOffsetWidth * (j + 1);
       currBlock.y = 0;
     }
 
@@ -710,11 +715,11 @@ class SpriteTransformQueue extends SpriteTransformBag {
 
   getBlockIndexGlobal(pos) {
     var offset = Math.max(Math.min(pos.x - this.x, this.width), 0);
-    return Math.min(this.blocks.length, Math.floor((this.width - offset) / this.blockWidth));
+    return Math.min(this.blocks.length, Math.floor((this.width - offset) / this.blockOffsetWidth));
   }
 
   getBlockPosition(i) {
-    return new PIXI.Point(this.width - (i + 1) * this.blockWidth, 0);
+    return new PIXI.Point(this.width - (i + 1) * this.blockOffsetWidth, 0);
   }
 
   onSpriteDragStart(mousePos) {
