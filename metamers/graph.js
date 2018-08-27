@@ -28,7 +28,6 @@ class Graph {
     this.xtitle = title;
     this.ytitle = title;
 
-    this.plot;
     this.currentMouseX = 0;
     this.currentMouseY = 0;
     this.plotDrawingZero = 0;
@@ -54,32 +53,14 @@ class Graph {
     return this.graphData[i + this.drawingIndices.length];
   }
 
-  setGraphData(graphData) {
-    this.graphData = graphData;
+  getGraphDataRange(start, end, step) {
+    var data = [];
 
-    for (var i = 0; i < this.graphData.length; i ++) {
-      var y = graphData[i];
-      var canvasY = this.convertToPixel(y, false);
-
-      // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, canvasY);
+    for(var i = start; i != end + step; i += step) {
+      data.push(this.getGraphData(i));
     }
 
-    this.renderer.render(this.stage);
-  }
-
-  setGraphDataAtIndices(graphData, start, end) {
-    this.graphData = graphData;
-
-    for (var i = start; i < end; i ++) {
-      var y = graphData[i];
-      var canvasY = this.convertToPixel(y, false);
-
-      // store the bar we're drawing so we can remove it later if we need to
-      this.addBarAt(i, canvasY);
-    }
-
-    this.renderer.render(this.stage);
+    return data;
   }
 
   draw() {
@@ -95,7 +76,7 @@ class Graph {
     // probably want to factor all of this plot making code out
     var bottomPadding = 30;
     var topPadding = 10;
-    var rightPadding = 20;
+    var rightPadding = 30;
     var leftPadding = 30;
     var plotX = background.x + leftPadding;
     var plotY = title.y + title.height + topPadding;
@@ -157,7 +138,7 @@ class Graph {
       // Add new bar
       var bar = new PIXI.Graphics;
 
-      bar.lineStyle(1, 0x0000ff, 1);
+      bar.lineStyle(1, wavelengthToColor(this.convertToPlot(drawingIndex, true)), 1);
       bar.moveTo(this.plot.x + drawingIndex, this.plotDrawingZero);
       bar.lineTo(this.plot.x + drawingIndex, this.plot.y + j);
 
@@ -246,20 +227,6 @@ class Graph {
     this.plot.off('pointermove');
   }
 
-  shiftEntireLine(shift) {
-    this.totalShift += shift;
-    var newData = [];
-    for (var i = 0; i < this.graphData.length; i++) {
-      if (this.graphData[i + shift] !== undefined) {
-        newData[i] = this.graphData[i + shift];
-      } else {
-        newData[i] = 0;
-      }
-    }
-
-    this.setGraphData(newData);
-  }
-
   makeBackground() {
     var background = new PIXI.Graphics;
     background.lineStyle(3, 0x000000, 1); //black
@@ -329,8 +296,7 @@ class Graph {
         var yaxis = new PIXI.Graphics;
         var axisColor = 0xd3d3d3; //grey
 
-        if (this.ymin + i * this.yinc == 0) {
-          this.plotDrawingZero = ypos;
+        if (this.ymax - i * this.yinc == 0) {
           axisColor = 0x000000; //black
         }
 
@@ -342,6 +308,8 @@ class Graph {
         plot.addChild(yaxis);
       }
     }
+
+    this.plotDrawingZero = (this.ymax / this.yinc) * stepLength - 1;
   }
 
   makeLabels(plot, labelTextStyle) {
@@ -352,7 +320,7 @@ class Graph {
 
     for (var i = 0; i <= numSteps; i++) {
       var xpos = plot.x + labelPadding + i * stepLength - 1;
-      var formattedNumber = (this.xmin + i * this.xinc).toFixed(1);
+      var formattedNumber = (this.xmin + i * this.xinc).toFixed(0);
       var xtitle = new PIXI.Text(formattedNumber, labelTextStyle);
       // subtracting textWidth / 2 centers the text around the correct point
       xtitle.x = xpos - xtitle.width / 2;
@@ -374,91 +342,6 @@ class Graph {
       ytitle.y = ypos - ytitle.height / 2;
       this.stage.addChild(ytitle);
     }
-  }
-
-  drawBox(start, end, height) {
-    var startPix = this.convertToPixel(start, true);
-    var endPix = this.convertToPixel(end, true);
-    var heightPix = this.convertToPixel(height, false);
-
-    for (var i = startPix; i <= endPix; i++) {
-      this.addBarAt(i + this.drawingIndices.length, heightPix);
-    }
-
-    this.renderer.render(this.stage);
-  }
-
-  drawTriangle(start, end, height) {
-    var startPix = this.convertToPixel(start, true);
-    var endPix = this.convertToPixel(end, true);
-    var slope = 2 * height / (end - start);
-    var mid = (end + start) / 2;
-
-    for (var i = startPix; i <= endPix; i++) {
-      var sampleX = this.convertToPlot(i, true) - mid;
-      var triangleHeight = (-slope * Math.abs(sampleX - mid) + height);
-      var triangleHeightPixel = this.convertToPixel(triangleHeight, false);
-
-      this.addBarAt(i + this.drawingIndices.length, triangleHeightPixel);
-    }
-
-    this.renderer.render(this.stage);
-  }
-
-  drawGaussian(start, end) {
-    var startPix = this.convertToPlotPixel(start, true);
-    var endPix = this.convertToPlotPixel(end, true);
-
-    for (var i = startPix; i <= endPix; i++) {
-      var sampleX = this.convertToPlotCoordinate(i, true);
-      var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI));
-      var gaussianExp = - (1 / 2) * Math.pow(sampleX, 2);
-      var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
-      var pixGaussianVal = this.convertToPlotPixel(gaussianVal, false);
-
-      this.addBarAt(i + this.drawingIndices.length, pixGaussianVal);
-    }
-
-    this.renderer.render(this.stage);
-  }
-
-  drawGaussian(start, end) {
-    var startPix = this.convertToPixel(start, true);
-    var endPix = this.convertToPixel(end, true);
-
-    for (var i = startPix; i < endPix; i++) {
-      var sampleX = this.convertToPlot(i, true);
-      var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI));
-      var gaussianExp = - (1 / 2) * Math.pow(sampleX, 2);
-      var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
-      var pixGaussianVal = this.convertToPixel(gaussianVal, false);
-
-      this.addBarAt(i + this.drawingIndices.length, pixGaussianVal);
-    }
-
-    this.renderer.render(this.stage);
-  }
-
-  drawSinc(start, end) {
-    var startPix = this.convertToPixel(start, true);
-    var endPix = this.convertToPixel(end, true);
-
-    for (var i = startPix; i < endPix; i++) {
-      var sampleX = this.convertToPlot(i, true);
-
-      if (sampleX == 0) {
-        continue;
-      }
-
-      var sincNumerator = Math.sin(Math.PI * sampleX);
-      var sincDenominator = Math.PI * sampleX;
-      var sincVal = sincNumerator / sincDenominator;
-      var pixSincVal = this.convertToPixel(sincVal, false);
-
-      this.addBarAt(i + this.drawingIndices.length, pixSincVal);
-    }
-
-    this.renderer.render(this.stage);
   }
 
   convertToPixel(unit, isX) {

@@ -1,66 +1,43 @@
-body {
-  background-color: black !important;
+#bars{
+  margin-bottom: 100px;
+  margin-top: 100px;
 }
 
-h2 {
-  color: white !important;
-}
-
-
-.lightbtn {
-  background-color: rgba(255,0,0,0.2);
-  width: 30px;
-  height: 30px;
-}
-
-.paintbtn {
-  background-color: rgba(255,0,0,0.2);
-  width: 40px;
-  height: 40px;
-}
-
-.filterbtn {
-  background-color: rgba(255,0,0,0.2);
-  width: 22px;
-  height: 35px;
-}
-
-.inline {
-  width: auto;
-  display: inline-block;
-  vertical-align: top;
-}
-
-.graphContainer {
+#redBar {
+  width: 50px;
+  height: 200px;
   margin-right: 10px;
-  margin-left: 10px;
+  background-color: #d3d3d3;
 }
 
-.centered {
-  text-align: center;
-  display: block;
-  margin: auto;
+#redColored {
+  width: 30px;
+  background-color: #FF0000;
+  margin-right: 5px;
 }
 
-.vertical-centered {
-  display: table-cell;
-  vertical-align: middle;
+#greenBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+  margin-right: 10px;
 }
 
-.title {
-  font-size: 20px;
-  font-weight: bold;
-  font-family: Sans-serif;
+#greenColored {
+  width: 30px;
+  background-color: #00FF00;
+  margin-right: 5px;
 }
 
-.bottom-margin {
-  margin-bottom: 10px;
+#blueBar {
+  width: 50px;
+  height: 200px;
+  background-color: #d3d3d3;
+  margin-right: 10px;
 }
 
-.top-margin {
-  margin-top: 150px;
-}
-
-.top-small-margin {
-  margin-top: 10px;
+#blueColored {
+  width: 30px;
+  background-color: #0000FF;
+  margin-right: 5px;
 }
