@@ -250,7 +250,7 @@ class Graph {
   }
 
   movePoint(point, y) {
-    point.y = y;
+    point.y = y - point.height / 2;
 
     var width = point.width;
     var height = point.height;
