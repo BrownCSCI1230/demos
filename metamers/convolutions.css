@@ -1,0 +1,19 @@
+body {
+	margin: 1em auto;
+	text-align: center;
+}
+
+.modules {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.module {
+	width: 600px;
+	margin: 1em;
+}
+
+.ui-widget {
+	margin-top: 0.5em;
+}

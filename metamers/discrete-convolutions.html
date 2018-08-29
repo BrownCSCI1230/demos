@@ -1,0 +1,34 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="convolutions.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://pixijs.download/release/pixi.min.js"></script>
+    <script type="text/javascript" src="discrete-graph.js"></script>
+    <script type="text/javascript" src="discrete-app.js"></script>
+    <title>Convolutions</title>
+  </head>
+  <body>
+    <h1>Discrete Convolutions Demo</h1>
+    <div class="modules"> 
+        <div id="signalModule" class="module">
+            <div id="signalGraph"></div>
+            <button class="ui-button ui-widget ui-corner-all" id="clearFunctionButton">Clear Function</button>
+        </div>
+        <div id="filterModule" class="module">
+            <div id="filterGraph"></div>
+            <div id="filterSlider"></div>
+            <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton">Clear Filter</button>
+            <button class="ui-button ui-widget ui-corner-all" id="normalizeButton">Normalize</button>
+        </div>
+        <div id="productModule" class="module">
+            <div id="productGraph"></div>
+        </div>
+        <div id="resultModule" class="module">
+            <div id="resultGraph"></div>
+        </div>
+    </div>
+    <button class="ui-button ui-widget ui-corner-all"><a href="convolutions.html"> Go To Continuous convolutions</a></button>
+  </body>
+</html>
