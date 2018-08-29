@@ -97,29 +97,14 @@
 		var greenBar = document.getElementById('greenColored');
 	    var blueBar = document.getElementById('blueColored');
 	    // RED
-	    if(red == 0) {
-	    	redBar.style.height = "0%";
-	    } else if(red > 0 && red < 125) {
-			redBar.style.height = "50%";
-	    } else {
-			redBar.style.height = "100%";
-	    }
+	    var redPercent = red / 255 * 100;
+	    redBar.style.height = redPercent + "%";
 	    // GREEN
-	    if(green == 0) {
-			greenBar.style.height = "0%";
-	    } else if(green > 0 && green < 125) {
-			greenBar.style.height = "50%";
-	    } else {
-			greenBar.style.height = "100%";
-	    }
+	    var greenPercent = green / 255 * 100;
+	    greenBar.style.height = greenPercent + "%";
 	    // BLUE
-	    if(blue == 0) {
-			blueBar.style.height = "0%";
-	    } else if(blue > 0 && blue < 125) {
-			blueBar.style.height = "50%";
-	    } else {
-			blueBar.style.height = "100%";
-	    }
+	    var bluePercent = blue / 255 * 100;
+	    blueBar.style.height = bluePercent + "%";
 
 
 	} , false);

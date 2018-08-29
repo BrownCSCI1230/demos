@@ -97,7 +97,13 @@
  	var painting = document.getElementById('paint');
  	var offset = window.innerWidth / 8;
   	var width = window.innerWidth - 4 * offset;
+  	if(width < 800) {
+  		width = 800;
+  	}
   	var height = window.innerHeight - offset;
+  	if(height < 600) {
+  		height = 600;
+  	}
 	canvas.width = width;
 	canvas.height = height;
 	canvas.style.border = '1px solid #000';
@@ -134,42 +140,23 @@
 	    if(!cmy) {
 			colors = rgb2cmyk(red, green, blue);
 			// BLACK
-			if(colors[3] == 0) {
-		    	blackBar.style.height = "0%";
-		    } else if(colors[3] > 0 && colors[3] < 0.5) {
-				blackBar.style.height = "50%";
-		    } else {
-				blackBar.style.height = "100%";
-		    }
+			var blackPercent = colors[3] * 100;
+			blackBar.style.height = blackPercent + "%";
 	    } else {
 	    	colors = rgb2cmy(red, green. blue);
 	    }
 		
 	    // CYAN
-	    if(colors[0] == 0) {
-	    	cyanBar.style.height = "0%";
-	    } else if(colors[0] > 0 && colors[0] < 0.5) {
-			cyanBar.style.height = "50%";
-	    } else {
-			cyanBar.style.height = "100%";
-	    }
-	    // MAGENTA
-	    if(colors[1] == 0) {
-	    	magentaBar.style.height = "0%";
-	    } else if(colors[1] > 0 && colors[1] < 0.5) {
-			magentaBar.style.height = "50%";
-	    } else {
-			magentaBar.style.height = "100%";
-	    }
-	    // YELLOW
-	    if(colors[2] == 0) {
-	    	yellowBar.style.height = "0%";
-	    } else if(colors[2] > 0 && colors[2] < 0.5) {
-			yellowBar.style.height = "50%";
-	    } else {
-			yellowBar.style.height = "100%";
-	    }
+	    var cyanPercent = colors[0] * 100;
+		cyanBar.style.height = cyanPercent + "%";
 
+	    // MAGENTA
+	    var magentaPercent = colors[1] * 100;
+		magentaBar.style.height = magentaPercent + "%";
+	    
+	    // YELLOW
+	    var yellowPercent = colors[2] * 100;
+		yellowBar.style.height = yellowPercent + "%";
 
 	} , false);
 

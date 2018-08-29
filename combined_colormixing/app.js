@@ -138,7 +138,7 @@ $(function() {
     app.stage.addChild(lLabel);
 
     var lightOutline = new PIXI.Graphics();
-    lightOutline.lineStyle(2, 0xFFFFFF, 1);
+    lightOutline.lineStyle(2, 0x000000, 1);
     lightOutline.moveTo(0,0);
     lightOutline.lineTo(x200,0);
     lightOutline.lineTo(x200,y150);
@@ -245,18 +245,11 @@ $(function() {
     runLightAnimation = false;
     frontLightObj.texture = light;
     backLightObj.texture = light;
+    currentLight = 0xFFFFFF;
     }
   }
 
   // PAINT BUTTONS:
-  // var redPaint = {button: redPaintButton, color:"0xff0000", x:50, y:200}
-  // var greenPaint = {button: greenPaintButton, color:"0x00ff00", x:125, y:200}
-  // var bluePaint = {button: bluePaintButton, color:"0x0000ff", x:50, y:250}
-  // var cyanPaint = {button: cyanPaintButton, color:"0x00ffff", x:125, y:250}
-  // var magentaPaint = {button: magentaPaintButton, color:"0xff00ff", x:50, y:300}
-  // var yellowPaint = {button: yellowPaintButton, color:"0xffff00", x:125, y:300}
-  // var blackPaint = {button: blackPaintButton, color:"0x000000", x:50, y:350}
-  // var whitePaint = {button: whitePaintButton, color:"0xFFFFFF", x:125, y:350}
   var redPaint = {button: redPaintButton, color:"0xff0000", x:x50, y:y200}
   var greenPaint = {button: greenPaintButton, color:"0x00ff00", x:x125, y:y200}
   var bluePaint = {button: bluePaintButton, color:"0x0000ff", x:x50, y:y250}
@@ -290,7 +283,7 @@ $(function() {
     app.stage.addChild(pLabel);
 
     var paintOutline = new PIXI.Graphics();
-    paintOutline.lineStyle(2, 0xFFFFFF, 1);
+    paintOutline.lineStyle(2, 0x000000, 1);
     paintOutline.moveTo(0,y150);
     paintOutline.lineTo(x200,y150);
     paintOutline.lineTo(x200,y400);
@@ -319,7 +312,7 @@ $(function() {
   }
 
   function returnPaint() {
-    stopFilterAnimation = true;
+    stopPaintAnimation = true;
     if(currentPaint != null) {
     currentPaint.position.x = paint_x;
     currentPaint.position.y = paint_y;
@@ -328,6 +321,7 @@ $(function() {
     paint_x = null;
     paint_y = null;
     currentPaint = null;
+    currentPaintColor = 0xFFFFFF;
     renderer.render(stage);
   }
 
@@ -380,7 +374,7 @@ $(function() {
   var yellowFilter = {button: yellowFilterButton, color:"0xffff00", x:x150, y:y500}
   var Filters = [redFilter, greenFilter, blueFilter, cyanFilter, magentaFilter, yellowFilter]
   var originalFilter = {button: yellowFilter, color:"0xff0000", x:50, y:50}
-  var currentFilter = null
+  var currentFilter = null;
   
   for (var i = 0; i < Filters.length; i++) {
     var button = new PIXI.Sprite(Filters[i].button);
@@ -402,7 +396,7 @@ $(function() {
     app.stage.addChild(fLabel);
 
     var filterOutline = new PIXI.Graphics();
-    filterOutline.lineStyle(2, 0xFFFFFF, 1);
+    filterOutline.lineStyle(2, 0x000000, 1);
     filterOutline.moveTo(0,y150);
     filterOutline.lineTo(x200,y150);
     filterOutline.lineTo(x200,y550);
@@ -423,15 +417,17 @@ $(function() {
       return_x = this.position.x;
       return_y = this.position.y;
     }
-    currentFilter = this
-    this.on('pointerdown', returnFilter);
+    currentFilter = this;
+    //this.on('pointerdown', returnFilter);
     requestAnimationFrame(animateFilter);
     currentFilterColor = allColors.get(this.texture.baseTexture.imageUrl)
+    console.log(currentFilterColor);
     calculateColor();
   }
 
   function animateFilter() {
     if(!stopFilterAnimation) {
+      console.log("animate filter");
     requestAnimationFrame(animateFilter);
     if (currentFilter.position.x <= FILTER_X + WIDTH * 0.03) {
       currentFilter.position.x += 5;
@@ -447,13 +443,15 @@ $(function() {
   }
 
   function returnFilter() {
-    stopFilterAnimation = true;
-    currentFilter.position.x = return_x;
-    currentFilter.position.y = return_y;
+    if(currentFilter != null) {
+      currentFilter.position.x = return_x;
+      currentFilter.position.y = return_y;
+    }
     return_x = null;
     return_y = null;
     currentFilter = null;
-    button.on('pointerdown', addFilter);
+    currentFilterColor = 0xFFFFFF;
+    //button.on('pointerdown', addFilter);
   }
 
   // RENDER SCENE:
@@ -555,6 +553,9 @@ function selectBackLight() {
       if(!frontLightSelected) {
         x = BACK_LIGHT_X - 15;
         y = BACK_LIGHT_Y + 15;
+      } else {
+        x = FRONT_LIGHT_X - 15;
+        y = FRONT_LIGHT_Y + 15;
       }
       requestAnimationFrame(animateBeam);;
     }
@@ -562,7 +563,6 @@ function selectBackLight() {
     function animateBeam() {
       if(!beamDrawn) {
       if(hasLight && hasPaint) {
-      console.log("animate beam!");
       requestAnimationFrame(animateBeam);
       if(first) {
         beam.lineStyle(5, currentLightColor);
@@ -605,10 +605,13 @@ function selectBackLight() {
           beam.lineTo(x, y);
           app.stage.addChild(beam);
           if(x >= EYE_X + 25) {
-            calculateColor();
             colorEyeRectangle();
-            console.log(currentColor + " " + currentLightColor + " " + currentPaintColor);
             beamDrawn = true;
+            third = false;
+            first = true;
+            window.setInterval(function() {
+              clearBeam();
+      }, 1000);
           }
       }
       renderer.render(stage);
@@ -618,6 +621,7 @@ function selectBackLight() {
 
     function clearBeam() {
       beam.clear();
+      beamDrawn = false;
     }
 
   // Color Surfaces
@@ -661,22 +665,57 @@ function colorEyeRectangle() {
 function calculateMiddleColor() {
     var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
     var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
-    var total = [clamp(rgbLight[0] + rgbPaint[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2],0.0,1.0)];
-    currentMiddleColor = PIXI.utils.rgb2hex(total); //  TODO: to hex string
+    //red
+    var r = rgbLight[0];
+    if(r == 1) {
+      r = rgbPaint[0];
+    }
+    // green
+    var g = rgbLight[1];
+    if(g == 1) {
+      g = rgbPaint[1];
+    }
+    // blue
+    var b = rgbLight[2];
+    if(b == 1) {
+      b = rgbPaint[2];
+    }
+    //var total = [clamp(rgbLight[0] + rgbPaint[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2],0.0,1.0)];
+    var total = [r,g,b];
+    currentMiddleColor = PIXI.utils.rgb2hex(total); 
 }
 
 function calculateColor() {
-    if(currentFilter == null) {
       calculateMiddleColor();
-      currentColor = currentMiddleColor;
-    } else {
       var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
       var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
-      var rgbFilter = PIXI.utils.hex2rgb(currentPaintColor);
-      var total = [clamp(rgbLight[0] + rgbPaint[0] + rgbFilter[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1] + rgbFilter[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2] + rgbFilter[2],0.0,1.0)];
-      console.log(total);
+      var rgbFilter = PIXI.utils.hex2rgb(currentFilterColor);
+      console.log(rgbFilter);
+      var r = rgbLight[0];
+      if(r == 1) {
+        r = rgbPaint[0];
+        if(r == 1) {
+          r = rgbFilter[0];
+        }
+      }
+      // green
+      var g = rgbLight[1];
+      if(g == 1) {
+        g = rgbPaint[1];
+        if(g == 1) {
+          g = rgbFilter[1];
+        }
+      }
+      // blue
+      var b = rgbLight[2];
+      if(b == 1) {
+        b = rgbPaint[2];
+        if(b == 1) {
+          b = rgbFilter[2];
+        }
+      }
+      var total = [r,g,b];
       currentColor = PIXI.utils.rgb2hex(total); 
-  }
 }
 
 function clamp(num, min, max) {
