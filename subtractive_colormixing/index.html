@@ -19,7 +19,6 @@
     <a class="dropdown-item" href="#" onclick="changeCanvas()">Colorfield</a>
     <a class="dropdown-item" href="#" onclick="changePaintCanvas()">Paint Canvas</a>
     <a class="dropdown-item" href="#" onclick="enterURL()">URL Image</a>
-    <a class="dropdown-item" href="#" onclick="enterFileUpload()">Upload File</a>
   </div>
   </div>
 
@@ -27,12 +26,6 @@
   Enter an image URL:
 	<input id="url" placeholder="http://250.browndailyherald.com/wp-content/uploads/2014/05/Van-dam_-Alana-Tisdale-700x465.jpg" type="text">
 	<button class="btn btn-primary" type="button" href="" id="submitUrl" onclick="changeCanvasURL()">Submit</button>
-  </div>
-
-  <div id="fileUpload">
-  Upload an image file:
-  	<input type="file" id="uploadFile">
-  	<button class="btn btn-primary" type="button" href="" id="submitFile"  onclick="uploadFile()">Submit</button>
   </div>
 
 <div class="container">
@@ -76,8 +69,8 @@
      	<img src="images/blackBottleClosed.gif">
      </button>
       <p>Alpha</p>
-      <input type="number" min="0" max="1.0" step="0.01" value="0.5" id="alphaNumber">
-      <input type="range" min="0" max="1.0" step="0.01" value="0.5" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
+      <input type="number" min="0" max="1.0" step="0.01" value="0.1" id="alphaNumber">
+      <input type="range" min="0" max="1.0" step="0.01" value="0.1" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
     </div>
   </div>
 </div>
@@ -87,7 +80,6 @@
 	function updateAlpha(val) {
           document.getElementById('alphaNumber').value=val; 
           alpha = val;
-          ctx.globalAlpha = alpha;
     }
 
     var cmy = true;
@@ -103,7 +95,7 @@
  	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
  	var painting = document.getElementById('paint');
- 	var offset = 220;
+ 	var offset = window.innerWidth / 8;
   	var width = window.innerWidth - 4 * offset;
   	var height = window.innerHeight - offset;
 	canvas.width = width;
@@ -116,14 +108,22 @@
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	canvas.addEventListener('mousemove', function(e) {
-		var x = e.pageX - 70;
-		var y = e.pageY - 30;
+		var x = e.pageX - this.offsetLeft - width / 20; // 30
+		var y = e.pageY - this.offsetTop - height / 20; // 10
 		var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
 		var red = imageData.data[index];
 		var green = imageData.data[index + 1];
 		var blue = imageData.data[index + 2];
 		var alpha = imageData.data[index + 3];
-	    
+	    if(red == null) {
+	    	red = 0;
+	    } 
+	    if(green == null) {
+	    	green = 0;
+	    }
+	    if(blue == null) {
+	    	blue = 0;
+	    }
 
 	    var cyanBar = document.getElementById('cyanColored');
 		var magentaBar = document.getElementById('magentaColored');
@@ -186,8 +186,9 @@
 	};
 	 
 	canvas.addEventListener('mousemove', function(e){
-		mouse.x = e.pageX - this.offsetLeft - 130;
-		mouse.y = e.pageY - this.offsetTop - 30;
+		var offset = (canvas.width / 50);
+		mouse.x = e.pageX - this.offsetLeft - offset;
+		mouse.y = e.pageY - this.offsetTop;
 	}, false); 
 
 var onPaint = function() {
@@ -207,19 +208,19 @@ var stopPaint = function() {
 };	
 	
 	function changeCyan(e) {
-		ctx.strokeStyle = '#00ffff';
+		ctx.strokeStyle = 'rgba(0,255,255,' + alpha +')';
 	}
 
 	function changeMagenta(e) {
-		ctx.strokeStyle = '#ff00ff';
+		ctx.strokeStyle = 'rgba(255,0,255,' + alpha +')';
 	}
 
 	function changeYellow(e) {
-		ctx.strokeStyle = '#ffff00';
+		ctx.strokeStyle = 'rgba(255,255,0,' + alpha + ')';
 	}
 
 	function changeBlack(e) {
-		ctx.strokeStyle = '#000000';
+		ctx.strokeStyle = 'rgba(0,0,0,' + alpha + ')';
 	}
 
 var colorField = true;	
@@ -246,8 +247,7 @@ var changeCanvas = function() {
 		ctx.lineWidth = 3;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
-		ctx.strokeStyle = '#00ffff';
-		ctx.globalAlpha = alpha;
+		ctx.strokeStyle = 'rgba(0,255,255,' + alpha + ')';
 		canvas.addEventListener('mousedown', drawPaint, false);
 		canvas.addEventListener('mouseup', stopPaint, false);
 		colorField = false;
@@ -274,42 +274,15 @@ var changeColorfield = function() {
 
 var changePaintCanvas = function() {
 	urlForm.style.display = "none";
-	fileUpload.style.display = "none";
 		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 3;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
-		ctx.strokeStyle = '#00ffff';
-		ctx.globalAlpha = alpha;
+		ctx.strokeStyle = 'rgba(0,255,255,' + alpha + ')';
 		canvas.addEventListener('mousedown', drawPaint, false);
 		canvas.addEventListener('mouseup', stopPaint, false);
 		colorField = false;
-};
-
-var uploadFile = function() {
-	var submitFile = document.getElementById('submitFile');
-	urlForm.style.display = "none";
-	fileUpload.style.display = "none";
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		var reader = new FileReader();
-    	reader.onload = function(event){
-		var img = new Image();
-		img.src = event.target.result;
-		img.onload = function () {
-			var canvas = document.getElementById('canvas');
-			var ctx = canvas.getContext('2d');
-	    	var imgWidth = canvas.width / 2;
-			var imgHeight = canvas.height / 2;
-    		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
-
-		};
-		reader.readAsDataURL(submitFile.value);
-	};
-		canvas.removeEventListener('mousedown', drawPaint);
-		canvas.removeEventListener('mouseup', stopPaint);
-		colorField = true;
 };
 
 var changeCanvasURL = function() {
@@ -331,15 +304,6 @@ var changeCanvasURL = function() {
 		canvas.removeEventListener('mouseup', stopPaint);
 		colorField = true;
 };
-
-var enterFileUpload = function() {
-	var fileUpload = document.getElementById('fileUpload');
-	if (fileUpload.style.display === "none") {
-        fileUpload.style.display = "block";
-    } else {
-        fileUpload.style.display = "none";
-    }
-}
 
 var enterURL = function() {
 	var urlForm = document.getElementById('urlForm');
@@ -389,8 +353,6 @@ function rgb2cmyk (r,g,b) {
 }
 
 var urlForm = document.getElementById('urlForm');
-var fileUpload = document.getElementById('fileUpload');
 urlForm.style.display = "none";
-fileUpload.style.display = "none";
  </script>
 </html>

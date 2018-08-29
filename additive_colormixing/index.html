@@ -19,7 +19,6 @@
     <a class="dropdown-item" href="#" onclick="changeCanvas()">Colorfield</a>
     <a class="dropdown-item" href="#" onclick="changePaintCanvas()">Paint Canvas</a>
     <a class="dropdown-item" href="#" onclick="enterURL()">URL Image</a>
-    <a class="dropdown-item" href="#" onclick="enterFileUpload()">Upload File</a>
   </div>
   </div>
 
@@ -27,12 +26,6 @@
   Enter an image URL:
 	<input id="url" placeholder="http://250.browndailyherald.com/wp-content/uploads/2014/05/Van-dam_-Alana-Tisdale-700x465.jpg" type="text">
 	<button class="btn btn-primary" type="button" href="" id="submitUrl" onclick="changeCanvasURL()">Submit</button>
-  </div>
-
-  <div id="fileUpload">
-  Upload an image file:
-  	<input type="file" id="uploadFile">
-  	<button class="btn btn-primary" type="button" href="" id="submitFile"  onclick="uploadFile()">Submit</button>
   </div>
 
 <div class="container">
@@ -63,22 +56,24 @@
      <button onclick="changeBlue()" id="blue">
      	<img src="images/blueBulbOff.gif">
      </button>
-      <p>Alpha</p>
-      <input type="number" id="alphaNumber">
-      <input type="range" min="0" max="100" value="50" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
-    </div>
+  <p>Alpha</p>
+      <input type="number" min="0" max="1.0" step="0.01" value="0.1" id="alphaNumber">
+      <input type="range" min="0" max="1.0" step="0.01" value="0.1" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
+       </div>
   </div>
 </div>
 </body>
 <script>
+	var alpha = 0.1;
 	function updateAlpha(val) {
           document.getElementById('alphaNumber').value=val; 
+          alpha = val;
     }
 
  	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
  	var painting = document.getElementById('paint');
- 	var offset = 120;
+ 	var offset = window.innerWidth / 8;
   	var width = window.innerWidth - 4 * offset;
   	var height = window.innerHeight - offset;
 	canvas.width = width;
@@ -90,13 +85,13 @@
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	canvas.addEventListener('mousemove', function(e) {
-		var x = e.pageX - 70;
-		var y = e.pageY - 30;
+		var x = e.pageX - this.offsetLeft - width / 20; // 30
+		var y = e.pageY - this.offsetTop - height / 20; // 10
 		var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
 		var red = imageData.data[index];
 		var green = imageData.data[index + 1];
 		var blue = imageData.data[index + 2];
-		var blue = imageData.data[index + 2];
+		var alpha = imageData.data[index + 2];
 	    
 	    var redBar = document.getElementById('redColored');
 		var greenBar = document.getElementById('greenColored');
@@ -140,7 +135,8 @@
 	};
 	 
 	canvas.addEventListener('mousemove', function(e){
-		mouse.x = e.pageX - this.offsetLeft;
+		var offset = (canvas.width / 50);
+		mouse.x = e.pageX - this.offsetLeft - offset;
 		mouse.y = e.pageY - this.offsetTop;
 	}, false); 
 
@@ -161,15 +157,15 @@ var stopPaint = function() {
 };	
 	
 	function changeRed(e) {
-		ctx.strokeStyle = '#00ff00';
+		ctx.strokeStyle = 'rgba(255,0,0,' + alpha +')';
 	}
 
 	function changeGreen(e) {
-		ctx.strokeStyle = '#00ff00';
+		ctx.strokeStyle = 'rgba(0,255,0,' + alpha +')';
 	}
 
 	function changeBlue(e) {
-		ctx.strokeStyle = '#0000ff';
+		ctx.strokeStyle = 'rgba(0,0,255,' + alpha +')';
 	}
 
 var colorField = true;	
@@ -194,7 +190,7 @@ var changeCanvas = function() {
 		ctx.lineWidth = 3;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
-		ctx.strokeStyle = '#ff0000';
+		ctx.strokeStyle = 'rgba(255,0,0,' + alpha +')';
 		canvas.addEventListener('mousedown', drawPaint, false);
 		canvas.addEventListener('mouseup', stopPaint, false);
 		colorField = false;
@@ -219,13 +215,12 @@ var changeColorfield = function() {
 
 var changePaintCanvas = function() {
 	urlForm.style.display = "none";
-	fileUpload.style.display = "none";
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 3;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
-		ctx.strokeStyle = '#ff0000';
+		ctx.strokeStyle = 'rgba(255,0,0,' + alpha +')';
 		canvas.addEventListener('mousedown', drawPaint, false);
 		canvas.addEventListener('mouseup', stopPaint, false);
 		colorField = false;
@@ -272,15 +267,6 @@ var changeCanvasURL = function() {
 		colorField = true;
 };
 
-var enterFileUpload = function() {
-	var fileUpload = document.getElementById('fileUpload');
-	if (fileUpload.style.display === "none") {
-        fileUpload.style.display = "block";
-    } else {
-        fileUpload.style.display = "none";
-    }
-}
-
 var enterURL = function() {
 	var urlForm = document.getElementById('urlForm');
 	if (urlForm.style.display === "none") {
@@ -291,8 +277,6 @@ var enterURL = function() {
 }
 
 var urlForm = document.getElementById('urlForm');
-var fileUpload = document.getElementById('fileUpload');
 urlForm.style.display = "none";
-fileUpload.style.display = "none";
  </script>
 </html>

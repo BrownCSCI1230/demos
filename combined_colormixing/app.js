@@ -43,11 +43,15 @@ $(function() {
 
   // Stage:
   PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
-  var app = new PIXI.Application(1600, 750, {backgroundColor : 0x000000});
-  var renderer = PIXI.autoDetectRenderer(1600, 750, {backgroundColor : 0x000000});
+  var WIDTH =  window.innerWidth;
+  var HEIGHT = window.innerHeight;
+  var app = new PIXI.Application(WIDTH, HEIGHT, {backgroundColor : 0x000000});
+  var renderer = PIXI.autoDetectRenderer(WIDTH, HEIGHT, {backgroundColor : 0x000000});
   document.body.appendChild(app.view);
-
+  
   var stage = new PIXI.Container();
+
+  var SCALE_VALUE = 0.6 * (WIDTH / HEIGHT); //TODO
 
   // CANVAS VALUES:
   var currentColor = 0xFFFFFF;
@@ -55,18 +59,18 @@ $(function() {
   var currentLightColor = 0xFFFFFF;
   var currentPaintColor = 0xFFFFFF;
   var currentFilterColor = 0xFFFFFF;
-  var BEAM_BUTTON_X = 1000;
-  var BEAM_BUTTON_Y = 25;
-  var FRONT_LIGHT_X = 750;
-  var FRONT_LIGHT_Y = 25;
-  var BACK_LIGHT_X = 800;
-  var BACK_LIGHT_Y = 25;
-  var SURFACE_X = 400;
-  var SURFACE_Y = 200;
-  var FILTER_X = SURFACE_X + 250;
-  var FILTER_Y = SURFACE_Y + 20;
-  var EYE_X = SURFACE_X + 450;
-  var EYE_Y = SURFACE_Y + 20;
+  var BEAM_BUTTON_X = WIDTH * 0.9; 
+  var BEAM_BUTTON_Y = HEIGHT * 0.05;
+  var FRONT_LIGHT_X = WIDTH * 0.8;
+  var FRONT_LIGHT_Y = HEIGHT * 0.05;
+  var BACK_LIGHT_X = WIDTH * 0.85;
+  var BACK_LIGHT_Y = HEIGHT * 0.05;
+  var SURFACE_X = WIDTH * 0.3;
+  var SURFACE_Y = HEIGHT * 0.4;
+  var FILTER_X = WIDTH * 0.5;
+  var FILTER_Y = HEIGHT * 0.4;
+  var EYE_X = WIDTH * 0.7;
+  var EYE_Y = HEIGHT * 0.4;
 
   var OFFSET_X = 30;
   var OFFSET_Y = 25;
@@ -75,6 +79,7 @@ $(function() {
 
   // LIGHT HALO
   var selectedLightHalo = new PIXI.Sprite(lightHalo);
+  selectedLightHalo.scale.set(SCALE_VALUE);
     selectedLightHalo.position.x = FRONT_LIGHT_X - 25;
     selectedLightHalo.position.y = FRONT_LIGHT_Y - 25;
   app.stage.addChild(selectedLightHalo);
@@ -95,6 +100,7 @@ $(function() {
   var frontLightSelected = true;
   for (var i = 0; i < Lights.length; i++) {
     var button = new PIXI.Sprite(Lights[i].button);
+    button.scale.set(SCALE_VALUE);
     button.anchor.set(0.5);
     button.x = Lights[i].x;
     button.y = Lights[i].y;
@@ -107,10 +113,11 @@ $(function() {
 }
 
 // Light label:
-    var label = new PIXI.Sprite(lightsLabel);
-    label.position.x = Lights[0].x - 50;
-    label.position.y = Lights[0].y - 50;
-    app.stage.addChild(label);
+    var lLabel = new PIXI.Sprite(lightsLabel);
+    lLabel.scale.set(SCALE_VALUE);
+    lLabel.position.x = Lights[0].x - 50;
+    lLabel.position.y = Lights[0].y - 50;
+    app.stage.addChild(lLabel);
 
     var lightOutline = new PIXI.Graphics();
     lightOutline.lineStyle(2, 0xFFFFFF, 1);
@@ -170,7 +177,6 @@ $(function() {
       currentLight.position.y -= 0.8;
     }
     if (currentLight.position.x >= (FRONT_LIGHT_X - 20 - 1) && currentLight.position.y >= (FRONT_LIGHT_Y + 15 - 1) && toRotateLight) {
-      console.log("woo!");
       currentLight.rotation -= .2
       if(currentLight.rotation <= -2.2) {
         toRotateLight = false;
@@ -235,6 +241,7 @@ $(function() {
 
   for (var i = 0; i < Paints.length; i++) {
     var button = new PIXI.Sprite(Paints[i].button);
+    button.scale.set(SCALE_VALUE);
     button.buttonMode = true;
     button.anchor.set(0.5);
     button.x = Paints[i].x;
@@ -245,10 +252,11 @@ $(function() {
     allColors.set(button.texture.baseTexture.imageUrl, Paints[i].color)
   }
 
-    var label = new PIXI.Sprite(paintsLabel);
-    label.position.x = Paints[0].x - 50;
-    label.position.y = Paints[0].y - 50;
-    app.stage.addChild(label);
+    var pLabel = new PIXI.Sprite(paintsLabel);
+    pLabel.scale.set(SCALE_VALUE);
+    pLabel.position.x = Paints[0].x - 50;
+    pLabel.position.y = Paints[0].y - 50;
+    app.stage.addChild(pLabel);
 
     var paintOutline = new PIXI.Graphics();
     paintOutline.lineStyle(2, 0xFFFFFF, 1);
@@ -319,18 +327,19 @@ $(function() {
 
   // FILTER BUTTONS:
 
-  var redFilter = {button: redFilterButton, color:"0xff0000", x:50, y:450}
-  var greenFilter = {button: greenFilterButton, color:"0x00ff00", x:100, y:450}
-  var blueFilter = {button: blueFilterButton, color:"0x0000ff", x:150, y:450}
-  var cyanFilter = {button: cyanFilterButton, color:"0x00ffff", x:50, y:500}
-  var magentaFilter = {button: magentaFilterButton, color:"0xff00ff", x:100, y:500}
-  var yellowFilter = {button: yellowFilterButton, color:"0xffff00", x:150, y:500}
+  var redFilter = {button: redFilterButton, color:"0xff0000", x:WIDTH * 0.04, y:HEIGHT * 0.74}
+  var greenFilter = {button: greenFilterButton, color:"0x00ff00", x:WIDTH * 0.08, y:HEIGHT * 0.74}
+  var blueFilter = {button: blueFilterButton, color:"0x0000ff", x:WIDTH * 0.12, y:HEIGHT * 0.74}
+  var cyanFilter = {button: cyanFilterButton, color:"0x00ffff", x:WIDTH * 0.04, y:HEIGHT * 0.82}
+  var magentaFilter = {button: magentaFilterButton, color:"0xff00ff", x:WIDTH * 0.08, y:HEIGHT * 0.82}
+  var yellowFilter = {button: yellowFilterButton, color:"0xffff00", x:WIDTH * 0.12, y:HEIGHT * 0.82}
   var Filters = [redFilter, greenFilter, blueFilter, cyanFilter, magentaFilter, yellowFilter]
-  var originalFilter = {button: yellowFilter, color:"0xff0000", x:50, y:50}
+  var originalFilter = {button: yellowFilter, color:"0xff0000", x:WIDTH * 0.04, y:HEIGHT * 0.74}
   var currentFilter = null
   
   for (var i = 0; i < Filters.length; i++) {
     var button = new PIXI.Sprite(Filters[i].button);
+    button.scale.set(SCALE_VALUE);
     button.buttonMode = true;
     button.anchor.set(0.5);
     button.x = Filters[i].x;
@@ -344,11 +353,11 @@ $(function() {
   var label = new PIXI.Sprite(filtersLabel);
   label.position.x = Filters[0].x - 50;
   label.position.y = Filters[0].y - 50;
+  label.scale.set(SCALE_VALUE);
   app.stage.addChild(label);
-
     var filterOutline = new PIXI.Graphics();
     filterOutline.lineStyle(2, 0xFFFFFF, 1);
-    filterOutline.moveTo(1,150);
+    filterOutline.moveTo(0,150);
     filterOutline.lineTo(200,150);
     filterOutline.lineTo(200,550);
     filterOutline.lineTo(0,550);
@@ -415,16 +424,19 @@ $(function() {
   var surfaceObj = new PIXI.Sprite(surface);
     surfaceObj.position.x = SURFACE_X;
     surfaceObj.position.y = SURFACE_Y;
+    surfaceObj.scale.set(SCALE_VALUE);
 
 app.stage.addChild(surfaceObj);
 
 var filterStandObj = new PIXI.Sprite(filterStand);
     filterStandObj.position.x = FILTER_X;
     filterStandObj.position.y = FILTER_Y;
+    filterStandObj.scale.set(SCALE_VALUE);
 
 app.stage.addChild(filterStandObj);
 
 var eyeObj = new PIXI.Sprite(gradientEye);
+  eyeObj.scale.set(SCALE_VALUE);
     eyeObj.position.x = EYE_X;
     eyeObj.position.y = EYE_Y;
 
@@ -432,6 +444,7 @@ app.stage.addChild(eyeObj);
 
 
 var frontLightObj = new PIXI.Sprite(light);
+  frontLightObj.scale.set(SCALE_VALUE);
     frontLightObj.position.x = FRONT_LIGHT_X;
     frontLightObj.position.y = FRONT_LIGHT_Y;
     frontLightObj.buttonMode = true;
@@ -443,6 +456,7 @@ var frontLightObj = new PIXI.Sprite(light);
 app.stage.addChild(frontLightObj);
 
 var backLightObj = new PIXI.Sprite(light);
+backLightObj.scale.set(SCALE_VALUE);
     backLightObj.position.x = BACK_LIGHT_X;
     backLightObj.position.y = BACK_LIGHT_Y;
     backLightObj.buttonMode = true;
@@ -469,6 +483,7 @@ function selectBackLight() {
   // BEAM
 
   var beamButtonObj = new PIXI.Sprite(beamButton);
+  beamButtonObj.scale.set(SCALE_VALUE);
   beamButtonObj.position.x = BEAM_BUTTON_X;
   beamButtonObj.position.y = BEAM_BUTTON_Y;
   beamButtonObj.anchor.set(0.5);
@@ -559,16 +574,27 @@ var coloredSurface = new PIXI.Graphics();
 colorSurfaceRectangle(0xFFFFFF);
 
 function colorSurfaceRectangle(color) {
-    var sur_x = SURFACE_X + 15;
-    var sur_y = SURFACE_Y + 10;
+    var sur_x = SURFACE_X + WIDTH * 0.02;
+    var sur_y = SURFACE_Y + HEIGHT * 0.05;
+    var x_1 = sur_x + WIDTH * 0.03; // 40
+    var y_1 = sur_y + HEIGHT * 0.2; 
+    var x_2 = sur_x + WIDTH * 0.06; // 75, 80
+    var y_2 = sur_y + HEIGHT * 0.28; 
+    var x_3 = sur_x + WIDTH * .032; // 45, 100
+    console.log(HEIGHT * 0.28);
     coloredSurface.beginFill(color);
     coloredSurface.lineStyle(2, 0x000000, 1);
+    // coloredSurface.moveTo(sur_x,sur_y);
+    // coloredSurface.lineTo(sur_x + 40, sur_y);
+    // coloredSurface.lineTo(sur_x + 75, sur_y + 80);
+    // coloredSurface.lineTo(sur_x + 45, sur_y + 100);
+    // coloredSurface.lineTo(sur_x, sur_y);
     coloredSurface.moveTo(sur_x,sur_y);
-    coloredSurface.lineTo(sur_x + 40, sur_y);
-    coloredSurface.lineTo(sur_x + 75, sur_y + 80);
-    coloredSurface.lineTo(sur_x + 45, sur_y + 100);
+    coloredSurface.lineTo(x_1, sur_y);
+    coloredSurface.lineTo(x_2,  y_1);
+    coloredSurface.lineTo(x_3, y_2);
     coloredSurface.lineTo(sur_x, sur_y);
-    coloredSurface.endFill();
+    coloredSurface.endFill()
     app.stage.addChild(coloredSurface);
 }
 
