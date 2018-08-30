@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="index.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<!--  <script src="res/pixi.min.js"></script>
-  <script type="text/javascript" src="app.js"></script> -->
 </head>
 <body>
 
@@ -95,12 +93,12 @@
  	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
  	var painting = document.getElementById('paint');
- 	var offset = window.innerWidth / 8;
-  	var width = window.innerWidth - 4 * offset;
+ 	var windowoffset = window.innerWidth / 8;
+  	var width = window.innerWidth - 4 * windowoffset;
   	if(width < 800) {
   		width = 800;
   	}
-  	var height = window.innerHeight - offset;
+  	var height = window.innerHeight - windowoffset;
   	if(height < 600) {
   		height = 600;
   	}
