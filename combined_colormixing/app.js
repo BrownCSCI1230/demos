@@ -192,7 +192,7 @@ app.stage.addChild(eyeObj);
     this.buttonMode = false;
     if(frontLightSelected) {
       if(currentFrontLight != null) {
-      returnFrontLight();
+        returnFrontLight();
       } 
       originalFrontLight.x = this.position.x
       originalFrontLight.y = this.position.y
@@ -287,17 +287,17 @@ app.stage.addChild(eyeObj);
   }
 
   function returnFrontLight() {
-    if(!runBackLightAnimation) {
-    hasFrontLight = false;
-    currentFrontLight.rotation = 0;
-    currentFrontLight.position.x = originalFrontLight.x;
-    currentFrontLight.position.y = originalFrontLight.y;
-    currentFrontLight.buttonMode = true;
-    currentFrontLight = null;
-    runFrontLightAnimation = true;
-    frontLightObj.texture = light;
-    backLightObj.texture = light;
-    currentFrontLight = 0xFFFFFF;
+    if(!runFrontLightAnimation) {
+      hasFrontLight = false;
+      currentFrontLight.rotation = 0;
+      currentFrontLight.position.x = originalFrontLight.x;
+      currentFrontLight.position.y = originalFrontLight.y;
+      currentFrontLight.buttonMode = true;
+      currentFrontLight = null;
+      runFrontLightAnimation = true;
+      frontLightObj.texture = light;
+      backLightObj.texture = light;
+      currentFrontLight = 0xFFFFFF;
     }
   }
 
@@ -309,7 +309,6 @@ app.stage.addChild(eyeObj);
     currentBackLight.position.y = originalBackLight.y;
     currentBackLight.buttonMode = true;
     currentBackLight = null;
-    runBackLightAnimation = true;
     frontLightObj.texture = light;
     backLightObj.texture = light;
     currentBackLight = 0xFFFFFF;
@@ -557,15 +556,24 @@ backLightObj.scale.set(SCALE_VALUE);
 app.stage.addChild(backLightObj);
 
 function selectFrontLight() {
-    frontLightSelected = true;
-    selectedLightHalo.position.x = FRONT_LIGHT_X - x25;
-    selectedLightHalo.position.y = FRONT_LIGHT_Y - y30;
+    if(frontLightSelected) {
+      // return light
+      returnFrontLight();
+    } else {
+      frontLightSelected = true;
+      selectedLightHalo.position.x = FRONT_LIGHT_X - x25;
+      selectedLightHalo.position.y = FRONT_LIGHT_Y - y30;
+  }
 }
 
 function selectBackLight() {
-    frontLightSelected = false;
-    selectedLightHalo.position.x = BACK_LIGHT_X - WIDTH * 0.022;
-    selectedLightHalo.position.y = 0;
+    if(!frontLightSelected) {
+      returnBackLight();
+    } else {
+      frontLightSelected = false;
+      selectedLightHalo.position.x = BACK_LIGHT_X - WIDTH * 0.022;
+      selectedLightHalo.position.y = 0;
+  }
 }
 
   // BEAM
@@ -602,7 +610,12 @@ function selectBackLight() {
     }
 
     var x = SURFACE_X + WIDTH * 0.05;
-    var y = SURFACE_Y + HEIGHT * 0.05;
+    var y = SURFACE_Y + HEIGHT * 0.08;
+    // HEIGHT fix
+    if(WIDTH <= 800) {
+      y = SURFACE_Y + HEIGHT * 0.04;
+    }
+
     function animateBeam() {
       if(!beamDrawn) {
       if(hasLight) {
