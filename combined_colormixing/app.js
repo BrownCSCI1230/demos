@@ -45,6 +45,12 @@ $(function() {
   PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   var WIDTH =  window.innerWidth;
   var HEIGHT = window.innerHeight;
+  if(WIDTH < 500) {
+    WIDTH = 500;
+  }
+  if(HEIGHT < 550) {
+    HEIGHT = 550;
+  }
   var app = new PIXI.Application(WIDTH, HEIGHT, {backgroundColor : 0x000000});
   var renderer = PIXI.autoDetectRenderer(WIDTH, HEIGHT, {backgroundColor : 0x000000});
   document.body.appendChild(app.view);
@@ -56,7 +62,8 @@ $(function() {
   // CANVAS VALUES:
   var currentColor = 0xFFFFFF;
   var currentMiddleColor = 0xFFFFFF;
-  var currentLightColor = 0xFFFFFF;
+  var currentFrontLightColor = 0xFFFFFF;
+  var currentBackLightColor = 0xFFFFFF;
   var currentPaintColor = 0xFFFFFF;
   var currentFilterColor = 0xFFFFFF;
   var BEAM_BUTTON_X = WIDTH * 0.9; 
@@ -95,17 +102,22 @@ $(function() {
   var y500 = HEIGHT * 0.90;
   var y550 = HEIGHT * 0.99;
 
+  var x25 = WIDTH * 0.025;
+  var y30 = HEIGHT * 0.05;
+
   // LIGHT HALO
   var selectedLightHalo = new PIXI.Sprite(lightHalo);
   selectedLightHalo.scale.set(SCALE_VALUE);
-    selectedLightHalo.position.x = FRONT_LIGHT_X - 25;
-    selectedLightHalo.position.y = FRONT_LIGHT_Y - 25;
+    selectedLightHalo.position.x = FRONT_LIGHT_X - x25;
+    selectedLightHalo.position.y = FRONT_LIGHT_Y - y30;
   app.stage.addChild(selectedLightHalo);
 
   // LIGHT BUTTONS:
 
-  var originalLight = {button: redLightButton, color:"0xff0000", x:50, y:50}
-  var currentLight = null
+  var originalFrontLight = {button: redLightButton, color:"0xff0000", x:50, y:50};
+  var originalBackLight = {button: redLightButton, color:"0xff0000", x:50, y:50};
+  var currentFrontLight = null;
+  var currentBackLight = null;
   
   var redLight = {button: redLightButton, color:"0xff0000", x:x50, y:y50}
   var greenLight = {button: greenLightButton, color:"0x00ff00", x:x100, y:y50}
@@ -133,119 +145,150 @@ $(function() {
 // Light label:
     var lLabel = new PIXI.Sprite(lightsLabel);
     lLabel.scale.set(SCALE_VALUE);
-    lLabel.position.x = Lights[0].x - 50;
-    lLabel.position.y = Lights[0].y - 50;
+    lLabel.position.x = Lights[0].x - WIDTH * 0.05;
+    lLabel.position.y = Lights[0].y - HEIGHT * 0.08;
     app.stage.addChild(lLabel);
 
     var lightOutline = new PIXI.Graphics();
-    lightOutline.lineStyle(2, 0x000000, 1);
-    lightOutline.moveTo(0,0);
-    lightOutline.lineTo(x200,0);
-    lightOutline.lineTo(x200,y150);
-    lightOutline.lineTo(0,y150);
-    lightOutline.lineTo(0,0);
+    lightOutline.lineStyle(2, 0xFFFFFF, 1);
+    lightOutline.moveTo(1,1);
+    lightOutline.lineTo(x200,1);
+    lightOutline.lineTo(x200,y150 - 1);
+    lightOutline.lineTo(1,y150 - 1);
+    lightOutline.lineTo(1,1);
     app.stage.addChild(lightOutline);
 
 // Light animation:
 
   var hasLight = false;
+  var hasFrontLight = false;
+  var hasBackLight = false;
   function addLight() {
     hasLight = true;
-    if(currentLight != null) {
-      returnLight();
-    } 
-    originalLight.x = this.position.x
-    originalLight.y = this.position.y
-    currentLight = this
     this.buttonMode = false;
     if(frontLightSelected) {
+      hasFrontLight = true;
+      if(currentFrontLight != null) {
+      returnFrontLight();
+      } 
+      originalFrontLight.x = this.position.x
+      originalFrontLight.y = this.position.y
+      currentFrontLight = this
       addFrontLight(this);
     } else {
+      hasBackLight = true;
+      if(currentBackLight != null) {
+      returnBackLight();
+      } 
+      originalBackLight.x = this.position.x
+      originalBackLight.y = this.position.y
+      currentBackLight = this
       addBackLight(this);
     }
   }
 
-  var toRotateLight = true;
-  var runLightAnimation = false;
+  var toRotateFrontLight = true;
+  var toRotateBackLight = true;
+  var runFrontLightAnimation = false;
+  var runBackLightAnimation = false;
   function addFrontLight(light) {
     frontLightSelected = true;
-    toRotateLight = true;
-    runLightAnimation = true;
-    requestAnimationFrame(animateLight);
+    toRotateFrontLight = true;
+    runFrontLightAnimation = true;
+    requestAnimationFrame(animateFrontLight);
 
-    currentLightColor = allColors.get(light.texture.baseTexture.imageUrl)
+    currentFrontLightColor = allColors.get(light.texture.baseTexture.imageUrl)
     calculateColor();
   }
 
   function addBackLight(light) {
     frontLightSelected = false;
-    toRotateLight = true;
-    runLightAnimation = true;
-    requestAnimationFrame(animateLightBack);
+    toRotateBackLight = true;
+    runBackLightAnimation = true;
+    requestAnimationFrame(animateBackLight);
 
-    currentLightColor = allColors.get(light.texture.baseTexture.imageUrl)
+    currentBackLightColor = allColors.get(light.texture.baseTexture.imageUrl)
     calculateColor();
   }
 
-  function animateLight() {
-    if(runLightAnimation) {
-    requestAnimationFrame(animateLight);
-    if (currentLight.position.x <= FRONT_LIGHT_X - 20) {
-      currentLight.position.x += 5;
+  var x20 = (WIDTH * 0.015);
+  var y15 = (HEIGHT * 0.025);
+
+  function animateFrontLight() {
+    if(runFrontLightAnimation) {
+    requestAnimationFrame(animateFrontLight);
+    if (currentFrontLight.position.x <= FRONT_LIGHT_X - x20) { 
+      currentFrontLight.position.x += 5;
     }
-    if (currentLight.position.y >= FRONT_LIGHT_Y + 15) {
-      currentLight.position.y -= 0.8;
+    if (currentFrontLight.position.y >= FRONT_LIGHT_Y + y15) { 
+      currentFrontLight.position.y -= 0.8;
     }
-    if (currentLight.position.x >= (FRONT_LIGHT_X - 20 - 1) && currentLight.position.y >= (FRONT_LIGHT_Y + 15 - 1) && toRotateLight) {
-      currentLight.rotation -= .2
-      if(currentLight.rotation <= -2.2) {
-        toRotateLight = false;
+    if (currentFrontLight.position.x >= (FRONT_LIGHT_X - x20 - 1) && currentFrontLight.position.y >= (FRONT_LIGHT_Y + y15 - 1) && toRotateFrontLight) {
+      currentFrontLight.rotation -= .2
+      if(currentFrontLight.rotation <= -2.2) {
+        toRotateFrontLight = false;
       }
     }
-    if(!toRotateLight) {
-      currentLight.rotation = -2.2;
+    if(!toRotateFrontLight) {
+      currentFrontLight.rotation = -2.2;
       frontLightObj.texture = lightOn;
-      runLightAnimation = false;
+      runFrontLightAnimation = false;
     }
     renderer.render(stage);
     }
   }
 
-    function animateLightBack() {
-    if(runLightAnimation) {
-    requestAnimationFrame(animateLightBack);
-    if (currentLight.position.x <= BACK_LIGHT_X) {
-      currentLight.position.x = 5 + currentLight.position.x ;
+    function animateBackLight() {
+    if(runBackLightAnimation) {
+    requestAnimationFrame(animateBackLight);
+    if (currentBackLight.position.x <= BACK_LIGHT_X - x20) {
+      currentBackLight.position.x = 5 + currentBackLight.position.x ;
     }
-    if (currentLight.position.y >= BACK_LIGHT_Y) {
-      currentLight.position.y = currentLight.position.y  - 0.8;
+    if (currentBackLight.position.y >= BACK_LIGHT_Y + y15) {
+      currentBackLight.position.y = currentBackLight.position.y  - 0.8;
     }
-    if (currentLight.position.x >= (BACK_LIGHT_X - 1) && currentLight.position.y >= (BACK_LIGHT_Y - 1) && toRotateLight) {
-      currentLight.rotation -= .2
-      if(currentLight.rotation <= -2.2) {
-        toRotateLight = false;
+    if (currentBackLight.position.x >= (BACK_LIGHT_X - x20 - 1) && currentBackLight.position.y >= (BACK_LIGHT_Y + y15 - 1) && toRotateBackLight) {
+      currentBackLight.rotation -= .2
+      if(currentBackLight.rotation <= -2.2) {
+        toRotateBackLight = false;
       }
     }
-    if(!toRotateLight) {
-      currentLight.rotation = -2.2;
+    if(!toRotateBackLight) {
+      currentBackLight.rotation = -2.2;
       backLightObj.texture = lightOn;
-      runLightAnimation = false;
+      runBackLightAnimation = false;
     }
     renderer.render(stage);
   }
   }
 
-  function returnLight() {
-    if(!runLightAnimation) {
-    currentLight.rotation = 0;
-    currentLight.position.x = originalLight.x;
-    currentLight.position.y = originalLight.y;
-    currentLight.buttonMode = true;
-    currentLight = null;
-    runLightAnimation = false;
+  function returnFrontLight() {
+    if(!runBackLightAnimation) {
+    hasFrontLight = false;
+    currentFrontLight.rotation = 0;
+    currentFrontLight.position.x = originalFrontLight.x;
+    currentFrontLight.position.y = originalFrontLight.y;
+    currentFrontLight.buttonMode = true;
+    currentFrontLight = null;
+    runFrontLightAnimation = true;
     frontLightObj.texture = light;
     backLightObj.texture = light;
-    currentLight = 0xFFFFFF;
+    currentFrontLight = 0xFFFFFF;
+    }
+  }
+
+    function returnBackLight() {
+    if(!runBackLightAnimation) {
+      hasBackLight = false;
+    currentBackLight.rotation = 0;
+    currentBackLight.position.x = originalBackLight.x;
+    currentBackLight.position.y = originalBackLight.y;
+    currentBackLight.buttonMode = true;
+    currentBackLight = null;
+    runBackLightAnimation = true;
+    frontLightObj.texture = light;
+    backLightObj.texture = light;
+    currentBackLight = 0xFFFFFF;
     }
   }
 
@@ -283,12 +326,12 @@ $(function() {
     app.stage.addChild(pLabel);
 
     var paintOutline = new PIXI.Graphics();
-    paintOutline.lineStyle(2, 0x000000, 1);
-    paintOutline.moveTo(0,y150);
+    paintOutline.lineStyle(2, 0xFFFFFF, 1);
+    paintOutline.moveTo(1,y150);
     paintOutline.lineTo(x200,y150);
     paintOutline.lineTo(x200,y400);
-    paintOutline.lineTo(0,y400);
-    paintOutline.lineTo(0,0);
+    paintOutline.lineTo(1,y400);
+    paintOutline.lineTo(1,1);
     app.stage.addChild(paintOutline);
 
   // Paint Animation
@@ -302,6 +345,7 @@ $(function() {
     hasPaint = true;
     paint_x = this.position.x;
     paint_y = this.position.y;
+    currentPaintColor = 0xFFFFFF; //reset paint color
     currentPaint = this
     toRotatePaint = true;
     stopPaintAnimation = false;
@@ -321,20 +365,19 @@ $(function() {
     paint_x = null;
     paint_y = null;
     currentPaint = null;
-    currentPaintColor = 0xFFFFFF;
     renderer.render(stage);
   }
 
   function animatePaint() {
     if(!stopPaintAnimation) {
     requestAnimationFrame(animatePaint);
-    if (currentPaint.position.x <= SURFACE_X + 50) {
+    if (currentPaint.position.x <= SURFACE_X + x25) {
       currentPaint.position.x += 5;
     }
-    if (currentPaint.position.y >= SURFACE_Y - 25) {
+    if (currentPaint.position.y >= SURFACE_Y - y30) {
       currentPaint.position.y -= 0.8;
     }
-    if (currentPaint.position.x >= (SURFACE_X + 50 - 1) && currentPaint.position.y >= (SURFACE_Y - 25 - 1) && toRotatePaint) {
+    if (currentPaint.position.x >= (SURFACE_X + (x25) - 1) && currentPaint.position.y >= (SURFACE_Y - y30 - 1) && toRotatePaint) {
       currentPaint.rotation -= .2;
       if(currentPaint.rotation <= -2.2) {
         toRotatePaint = false;
@@ -391,17 +434,17 @@ $(function() {
 
   var fLabel = new PIXI.Sprite(filtersLabel);
     fLabel.scale.set(SCALE_VALUE);
-    fLabel.position.x = Filters[0].x - 50;
-    fLabel.position.y = Filters[0].y - 50;
+    fLabel.position.x = Filters[0].x - WIDTH * 0.05;
+    fLabel.position.y = Filters[0].y - HEIGHT * 0.08;
     app.stage.addChild(fLabel);
 
     var filterOutline = new PIXI.Graphics();
-    filterOutline.lineStyle(2, 0x000000, 1);
-    filterOutline.moveTo(0,y150);
+    filterOutline.lineStyle(2, 0xFFFFFF, 1);
+    filterOutline.moveTo(1,y150);
     filterOutline.lineTo(x200,y150);
     filterOutline.lineTo(x200,y550);
-    filterOutline.lineTo(0,y550);
-    filterOutline.lineTo(0,0);
+    filterOutline.lineTo(1,y550);
+    filterOutline.lineTo(1,y150);
     app.stage.addChild(filterOutline);
 
   // Animate Filter:
@@ -418,24 +461,22 @@ $(function() {
       return_y = this.position.y;
     }
     currentFilter = this;
-    //this.on('pointerdown', returnFilter);
+    this.on('pointerdown', returnFilter);
     requestAnimationFrame(animateFilter);
     currentFilterColor = allColors.get(this.texture.baseTexture.imageUrl)
-    console.log(currentFilterColor);
     calculateColor();
   }
 
   function animateFilter() {
     if(!stopFilterAnimation) {
-      console.log("animate filter");
     requestAnimationFrame(animateFilter);
     if (currentFilter.position.x <= FILTER_X + WIDTH * 0.03) {
       currentFilter.position.x += 5;
     }
-    if (currentFilter.position.y >= FILTER_Y + HEIGHT * 0.05) {
+    if (currentFilter.position.y >= FILTER_Y + y30) {
       currentFilter.position.y -= 2;
     }
-    if(currentFilter.position.x >= FILTER_X + WIDTH * 0.03 && currentFilter.position.y <= FILTER_Y + HEIGHT * 0.05) {
+    if(currentFilter.position.x >= FILTER_X + WIDTH * 0.03 && currentFilter.position.y <= FILTER_Y + y30) {
       stopFilterAnimation = true;
     }
     renderer.render(stage);
@@ -446,12 +487,12 @@ $(function() {
     if(currentFilter != null) {
       currentFilter.position.x = return_x;
       currentFilter.position.y = return_y;
+      currentFilter.on('pointerdown', addFilter);
     }
     return_x = null;
     return_y = null;
     currentFilter = null;
     currentFilterColor = 0xFFFFFF;
-    //button.on('pointerdown', addFilter);
   }
 
   // RENDER SCENE:
@@ -494,7 +535,6 @@ var frontLightObj = new PIXI.Sprite(light);
     frontLightObj.position.y = FRONT_LIGHT_Y;
     frontLightObj.buttonMode = true;
     frontLightObj.anchor.set(0.5);
-    // make the button interactive...
     frontLightObj.interactive = true;
     frontLightObj.buttonMode = true;
     frontLightObj.on('pointerdown', selectFrontLight);
@@ -506,7 +546,6 @@ backLightObj.scale.set(SCALE_VALUE);
     backLightObj.position.y = BACK_LIGHT_Y;
     backLightObj.buttonMode = true;
     backLightObj.anchor.set(0.5);
-    // make the button interactive...
     backLightObj.interactive = true;
     backLightObj.buttonMode = true;
     backLightObj.on('pointerdown', selectBackLight);
@@ -515,14 +554,14 @@ app.stage.addChild(backLightObj);
 
 function selectFrontLight() {
     frontLightSelected = true;
-    selectedLightHalo.position.x = FRONT_LIGHT_X - 25;
-    selectedLightHalo.position.y = FRONT_LIGHT_Y - 25;
+    selectedLightHalo.position.x = FRONT_LIGHT_X - x25;
+    selectedLightHalo.position.y = FRONT_LIGHT_Y - y30;
 }
 
 function selectBackLight() {
     frontLightSelected = false;
-    selectedLightHalo.position.x = BACK_LIGHT_X - 25;
-    selectedLightHalo.position.y = BACK_LIGHT_Y - 25;
+    selectedLightHalo.position.x = BACK_LIGHT_X - WIDTH * 0.022;
+    selectedLightHalo.position.y = 0;
 }
 
   // BEAM
@@ -537,81 +576,92 @@ function selectBackLight() {
   beamButtonObj.on('pointerdown', drawBeam);
   app.stage.addChild(beamButtonObj);
 
-    var beam = new PIXI.Graphics();
+    var frontBeam = new PIXI.Graphics();
+    var backBeam = new PIXI.Graphics();
+    var mergedBeam = new PIXI.Graphics();
+
     // Animate Beam
 
     var first = true;
     var second = false;
     var third = false;
-    var x = FRONT_LIGHT_X - 15;
-    var y = FRONT_LIGHT_Y + 15;
+    var front_x = FRONT_LIGHT_X - 15;
+    var front_y = FRONT_LIGHT_Y + 15;
+    var back_x = BACK_LIGHT_X - 15;
+    var back_y = BACK_LIGHT_Y + 15
     var beamDrawn = false;
     function drawBeam() {
       if(beamDrawn) {
         clearBeam();
       }
-      if(!frontLightSelected) {
-        x = BACK_LIGHT_X - 15;
-        y = BACK_LIGHT_Y + 15;
-      } else {
-        x = FRONT_LIGHT_X - 15;
-        y = FRONT_LIGHT_Y + 15;
-      }
-      requestAnimationFrame(animateBeam);;
+      requestAnimationFrame(animateBeam);
     }
 
+    var x = SURFACE_X + 70;
+    var y = SURFACE_Y + 50;
     function animateBeam() {
       if(!beamDrawn) {
       if(hasLight && hasPaint) {
       requestAnimationFrame(animateBeam);
       if(first) {
-        beam.lineStyle(5, currentLightColor);
-        beam.moveTo(x,y);
-        if(x > SURFACE_X + 70) {
-          if(frontLightSelected) {
-            x = x - WIDTH * 0.005;
-          } else {
-            x = x - WIDTH * 0.006;
-          }
+      if(hasFrontLight) {
+        frontBeam.lineStyle(5, currentFrontLightColor);
+        frontBeam.moveTo(front_x,front_y);
+        if(front_x > SURFACE_X + 70) {
+          front_x = front_x - WIDTH * 0.005;
         }
-        if(y < SURFACE_Y + 50) {
-          //y = y + 2.2;
-          y = y + HEIGHT * 0.005;
+        if(front_y < SURFACE_Y + 50) {
+          front_y = front_y + HEIGHT * 0.005;
         }
-        beam.lineTo(x, y);
-        app.stage.addChild(beam);
-        if(x <= SURFACE_X + 70 && y >= SURFACE_Y + 50) {
+        frontBeam.lineTo(front_x, front_y);
+        app.stage.addChild(frontBeam);
+        if(front_x <= SURFACE_X + 70 && front_y >= SURFACE_Y + 50) {
           second = true;
           first = false;
         }
-      } else if(second) {
-          beam.lineStyle(5, currentMiddleColor);
-          beam.moveTo(x,y);
+      }
+      if(hasBackLight) {
+        backBeam.lineStyle(5, currentBackLightColor);
+        backBeam.moveTo(back_x,back_y);
+        if(back_x > SURFACE_X + 70) {
+          back_x = back_x - WIDTH * 0.006;
+        }
+        if(front_y < SURFACE_Y + 50) {
+          back_y = back_y + HEIGHT * 0.005;
+        }
+        backBeam.lineTo(back_x, back_y);
+        app.stage.addChild(backBeam);
+         if(back_x <= SURFACE_X + 70 && back_y >= SURFACE_Y + 50) {
+          second = true;
+          first = false;
+        }
+      }
+    } else if(second) {
+          mergedBeam.lineStyle(5, currentMiddleColor);
+          mergedBeam.moveTo(x,y);
           if(x < FILTER_X + 50) {
             x = x + 5;
           }
-          beam.lineTo(x, y);
-          app.stage.addChild(beam);
+          mergedBeam.lineTo(x, y);
+          app.stage.addChild(mergedBeam);
           if(x >= FILTER_X + 50) {
           second = false;
           third = true;
         }
       } else if(third) {
-          beam.lineStyle(5, currentColor);
-          beam.moveTo(x,y);
+          mergedBeam.lineStyle(5, currentColor);
+          mergedBeam.moveTo(x,y);
           if(x < EYE_X + 25) {
             x = x + 5;
           }
-          beam.lineTo(x, y);
-          app.stage.addChild(beam);
+          mergedBeam.lineTo(x, y);
+          app.stage.addChild(mergedBeam);
           if(x >= EYE_X + 25) {
             colorEyeRectangle();
             beamDrawn = true;
             third = false;
             first = true;
-            window.setInterval(function() {
-              clearBeam();
-      }, 1000);
+            setTimeout(function () { clearBeam();}, 2000);
           }
       }
       renderer.render(stage);
@@ -620,8 +670,19 @@ function selectBackLight() {
     }
 
     function clearBeam() {
-      beam.clear();
-      beamDrawn = false;
+      mergedBeam.clear();
+      frontBeam.clear();
+      backBeam.clear();
+       first = true;
+       second = false;
+       third = false;
+       front_x = FRONT_LIGHT_X - 15;
+       front_y = FRONT_LIGHT_Y + 15;
+       back_x = BACK_LIGHT_X - 15;
+       back_y = BACK_LIGHT_Y + 15;
+       x = SURFACE_X + 70;
+       y = SURFACE_Y + 50;
+       beamDrawn = false;
     }
 
   // Color Surfaces
@@ -629,14 +690,14 @@ var coloredSurface = new PIXI.Graphics();
 colorSurfaceRectangle(0xFFFFFF);
 
 function colorSurfaceRectangle(color) {
-    var sur_x = SURFACE_X + WIDTH * 0.01;
-    var sur_y = SURFACE_Y + HEIGHT * 0.02;
+    var sur_x = WIDTH * 0.31;
+    var sur_y = HEIGHT * 0.412;
     coloredSurface.beginFill(color);
     coloredSurface.lineStyle(2, 0x000000, 1);
     coloredSurface.moveTo(sur_x,sur_y);
-    coloredSurface.lineTo(sur_x + WIDTH * 0.04, sur_y);
-    coloredSurface.lineTo(sur_x + WIDTH * 0.08, sur_y + HEIGHT * 0.14);
-    coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y + HEIGHT * 0.21);
+    coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y);
+    coloredSurface.lineTo(sur_x + WIDTH * 0.09, sur_y + HEIGHT * 0.10);
+    coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y + HEIGHT * 0.15);
     coloredSurface.lineTo(sur_x, sur_y);
     coloredSurface.endFill()
     app.stage.addChild(coloredSurface);
@@ -663,57 +724,94 @@ function colorEyeRectangle() {
 }
 
 function calculateMiddleColor() {
-    var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
+    var rgbFrontLight = PIXI.utils.hex2rgb(currentFrontLightColor);
+    var rgbBackLight = PIXI.utils.hex2rgb(currentBackLightColor);
     var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
+    var r = 0;
+    var g = 0;
+    var b = 0;
+    if(hasBackLight && hasFrontLight) {
     //red
-    var r = rgbLight[0];
+    r = rgbFrontLight[0];
+    if(r == 0) {
+      r = rgbBackLight[0];
+    }
     if(r == 1) {
-      r = rgbPaint[0];
+        r = rgbPaint[0];
     }
     // green
-    var g = rgbLight[1];
-    if(g == 1) {
-      g = rgbPaint[1];
+    g = rgbFrontLight[1];
+    if(g == 0) {
+      g = rgbBackLight[1];
+    }
+      if(g == 1) { 
+        g = rgbPaint[1];
     }
     // blue
-    var b = rgbLight[2];
-    if(b == 1) {
-      b = rgbPaint[2];
+    b = rgbFrontLight[2];
+    if(b == 0) {
+      b = rgbBackLight[2];
     }
-    //var total = [clamp(rgbLight[0] + rgbPaint[0], 0.0, 1.0), clamp(rgbLight[1] + rgbPaint[1], 0.0, 1.0), clamp(rgbLight[2] + rgbPaint[2],0.0,1.0)];
+    if(b == 1) {
+        b = rgbPaint[2];
+    }
+    } else if(hasFrontLight) {
+      //red
+      console.log("Front light: " + rgbFrontLight);
+      console.log("Paint: " + rgbPaint);
+    r = rgbFrontLight[0];
+    if(r == 1) {
+        r = rgbPaint[0];
+    }
+    // green
+    g = rgbFrontLight[1];
+      if(g == 1) { 
+        g = rgbPaint[1];
+    }
+    // blue
+    b = rgbFrontLight[2];
+    if(b == 1) {
+        b = rgbPaint[2];
+    }
+    } else if(hasBackLight) {
+    //red
+        r = rgbBackLight[0];
+        if(r == 1) {
+            r = rgbPaint[0];
+        }
+        // green
+          g = rgbBackLight[1];
+          if(g == 1) { 
+            g = rgbPaint[1];
+        }
+        // blue
+          b = rgbBackLight[2];
+        if(b == 1) {
+            b = rgbPaint[2];
+        }
+    }
     var total = [r,g,b];
     currentMiddleColor = PIXI.utils.rgb2hex(total); 
 }
 
 function calculateColor() {
       calculateMiddleColor();
-      var rgbLight = PIXI.utils.hex2rgb(currentLightColor);
-      var rgbPaint = PIXI.utils.hex2rgb(currentPaintColor);
+      var middleColor = PIXI.utils.hex2rgb(currentMiddleColor);
       var rgbFilter = PIXI.utils.hex2rgb(currentFilterColor);
-      console.log(rgbFilter);
-      var r = rgbLight[0];
+      var r = middleColor[0];
       if(r == 1) {
-        r = rgbPaint[0];
-        if(r == 1) {
-          r = rgbFilter[0];
-        }
+            r = rgbFilter[0];
       }
       // green
-      var g = rgbLight[1];
-      if(g == 1) {
-        g = rgbPaint[1];
-        if(g == 1) {
-          g = rgbFilter[1];
-        }
-      }
+      var g = middleColor[1];
+          if(g == 1) {
+            g = rgbFilter[1];
+          }
       // blue
-      var b = rgbLight[2];
-      if(b == 1) {
-        b = rgbPaint[2];
-        if(b == 1) {
-          b = rgbFilter[2];
-        }
-      }
+      var b = middleColor[2];
+          if(b == 1) {
+            b = rgbFilter[2];
+          }
       var total = [r,g,b];
       currentColor = PIXI.utils.rgb2hex(total); 
 }
