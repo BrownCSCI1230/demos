@@ -1,35 +1,31 @@
 <html>
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF8">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="convolutions.css">
-    <link rel="stylesheet" href="spectrum.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://unpkg.com/mathjs@5.0.4/dist/math.min.js"></script>
-    <script src="https://pixijs.download/release/pixi.min.js"></script>
-    <script type="text/javascript" src="color_utils.js"></script>
-    <script type="text/javascript" src="graph.js"></script>
-    <script type="text/javascript" src="colorbar.js"></script>
-    <script type="text/javascript" src="app.js"></script>
     <title>Metamers</title>
   </head>
   <body>
     <h1>Metamers Demo</h1>
+    <body>
+        In this demo, we ask you to edit power spectra -- which may represent the power
+        spectra of light sources. The idea of a metamer is that although two spectra
+        might be totally different, they might produce the same response for an
+        RGB camera sensor, or in our visual system (another type of light sensor).
+
+        <br>
+        <br>
+
+        In order to use the Metamers Demo, follow these steps:
+
+        <ol>
+            <li>Sketch a power spectrum on the <b>left hand</b> graph by clicking and dragging</li>
+            <li>Sketch a power spectrum on the <b>right hand</b> graph by clicking and dragging</li>
+            <li>Try to match the RGB output of the second graph with the first</li>
+        </ol>
+    </body>
     <div class="modules">
-        <div id="powerSpectrumModule" class="module">
-            <div id="powerSpectrumGraph"></div>
-        </div>
-        <div id="metamerModule" class="module">
-            <div id="metamerGraph"></div>
-        </div>
-        <div id="colorbarPrimaryModule" class="module">
-            <div id="colorbarPrimary"></div>
-        </div>
-        <div id="colorbarSecondaryModule" class="module">
-            <div id="colorbarSecondary"></div>
-        </div>
+        <button class="ui-button ui-widget ui-corner-all"><a href="metamers.html">Go to Demo</a></button>
     </div>
   </body>
 </html>
