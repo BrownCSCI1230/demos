@@ -210,40 +210,10 @@ var stopPaint = function() {
 
 var colorField = true;	
 var changeCanvas = function() {
-	if(!colorField) {
 		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		var img = new Image();
 		img.src = "images/cymkColorfieldBackground.jpg";
-		img.onload = function () {
-			var canvas = document.getElementById('canvas');
-			var ctx = canvas.getContext('2d');
-	    	var imgWidth = canvas.width / 2;
-			var imgHeight = canvas.height / 2;
-    		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
-
-		};
-		canvas.removeEventListener('mousedown', drawPaint);
-		canvas.removeEventListener('mouseup', stopPaint);
-		colorField = true;
-	} else {
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.lineWidth = 3;
-		ctx.lineJoin = 'round';
-		ctx.lineCap = 'round';
-		ctx.strokeStyle = 'rgba(0,255,255,' + alpha + ')';
-		canvas.addEventListener('mousedown', drawPaint, false);
-		canvas.addEventListener('mouseup', stopPaint, false);
-		colorField = false;
-	}
-};
-
-var changeColorfield = function() {
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		var img = new Image();
-		img.src = "images/rgbColorfieldCanvas.jpg";
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
