@@ -67,28 +67,14 @@
      	<img src="images/blackBottleClosed.gif">
      </button>
       <p>Alpha</p>
-      <input type="number" min="0" max="1.0" step="0.01" value="0.1" id="alphaNumber">
-      <input type="range" min="0" max="1.0" step="0.01" value="0.1" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
+      <input type="number" min="0" max="1.0" step="0.01" value="0.5" id="alphaNumber">
+      <input type="range" min="0" max="1.0" step="0.01" value="0.5" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
     </div>
   </div>
 </div>
 </body>
 <script>
-	var alpha = 0.5;
-	function updateAlpha(val) {
-          document.getElementById('alphaNumber').value=val; 
-          alpha = val;
-    }
 
-    var cmy = true;
-    function updateCMYMode() {
-    	var modes = document.getElementsByName('colormode');
-    	if(modes[0].checked) {
-    		cmy = true;
-    	} else {
-    		cmy = false;
-    	}
-    }
 
  	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
@@ -112,13 +98,13 @@
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	canvas.addEventListener('mousemove', function(e) {
-		var x = e.pageX - this.offsetLeft - width / 20; // 30
-		var y = e.pageY - this.offsetTop - height / 20; // 10
-		var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
-		var red = imageData.data[index];
-		var green = imageData.data[index + 1];
-		var blue = imageData.data[index + 2];
-		var alpha = imageData.data[index + 3];
+		mouse = getMousePos(canvas, e);
+		var data = ctx.getImageData(mouse.x, mouse.y, 1, 1).data;
+		var red = data[0];
+		var green = data[1];
+		var blue = data[2];
+		var alpha = data[3];
+
 	    if(red == null) {
 	    	red = 0;
 	    } 
@@ -141,7 +127,7 @@
 			var blackPercent = colors[3] * 100;
 			blackBar.style.height = blackPercent + "%";
 	    } else {
-	    	colors = rgb2cmy(red, green. blue);
+	    	colors = rgb2cmy(red, green, blue);
 	    }
 		
 	    // CYAN
@@ -160,52 +146,134 @@
 
 	var img = new Image();
 	img.src = "images/cymkColorfieldBackground.jpg";
-	var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	img.onload = function () {
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext('2d');
 		var imgWidth = canvas.width / 2;
 		var imgHeight = canvas.height / 2;
     	ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
-		imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	};
+
+	function getMousePos(canvas, e) {
+		var rect = canvas.getBoundingClientRect();
+		return {
+			x: e.clientX - rect.left,
+			y: e.clientY - rect.top
+		}
+	}
 	 
 	canvas.addEventListener('mousemove', function(e){
-		var offset = (canvas.width / 50);
-		mouse.x = e.pageX - this.offsetLeft - offset;
-		mouse.y = e.pageY - this.offsetTop;
+		mouse = getMousePos(canvas, e);
 	}, false); 
 
-var onPaint = function() {
-    ctx.lineTo(mouse.x, mouse.y);
-    ctx.stroke();
-    imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	var alpha = 0.5;
+	var paintColor = 0;
+	function updateAlpha(val) {
+          document.getElementById('alphaNumber').value=val; 
+          alpha = val;
+
+          switch(paintColor) {
+          	case 0:
+          		changeCyan();
+          		break;
+
+          	case 1:
+          		changeMagenta();
+          		break;
+
+          	case 2:
+          		changeYellow();
+          		break;
+
+          	case 3:
+          		changeBlack();
+          		break;
+
+          	default:
+          		break;
+          }	
+    }
+
+    var cmy = true;
+    function updateCMYMode() {
+    	var modes = document.getElementsByName('colormode');
+    	if(modes[0].checked) {
+    		cmy = true;
+    	} else {
+    		cmy = false;
+    	}
+    }
+
+var lastMouse = mouse;
+var storedStrokes = [];
+var curStroke = [];
+var onPaint = function(e) {
+	mouse = getMousePos(canvas, e);
+
+	curStroke.push({x1:lastMouse.x, y1: lastMouse.y, x2: mouse.x, y2: mouse.y, style: ctx.strokeStyle});
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+	redrawStoredStrokes();
+    redrawStroke(curStroke);
+
+    lastMouse = mouse;
 };
 
+function redrawStoredStrokes(){
+	for(var i = 0; i < storedStrokes.length; i++) {
+		redrawStroke(storedStrokes[i]);
+	}
+}
+
+function redrawStroke(stroke){
+
+    if(stroke.length==0){ return; }
+
+
+    ctx.beginPath();
+    // redraw each stored line
+    for(var i=0;i<stroke.length;i++){
+    	ctx.strokeStyle = stroke[i].style;
+        ctx.moveTo(stroke[i].x1,stroke[i].y1);
+        ctx.lineTo(stroke[i].x2,stroke[i].y2);
+    }
+
+    ctx.stroke();
+}
+
 var drawPaint = function(e) {
+			mouse = getMousePos(canvas, e);
+	    	lastMouse = mouse;
 	    	ctx.beginPath();
-	    	ctx.moveTo(mouse.x, mouse.y);
+			ctx.moveTo(lastMouse.x, lastMouse.y);
 	    	canvas.addEventListener('mousemove', onPaint, false);
 }	
 
 var stopPaint = function() {
 		    canvas.removeEventListener('mousemove', onPaint, false);	
+		    storedStrokes.push(curStroke);
+		    curStroke = [];
 };	
+
+
 	
 	function changeCyan(e) {
 		ctx.strokeStyle = 'rgba(0,255,255,' + alpha +')';
+		paintColor = 0;
 	}
 
 	function changeMagenta(e) {
 		ctx.strokeStyle = 'rgba(255,0,255,' + alpha +')';
+		paintColor = 1;
 	}
 
 	function changeYellow(e) {
 		ctx.strokeStyle = 'rgba(255,255,0,' + alpha + ')';
+		paintColor = 2;
 	}
 
 	function changeBlack(e) {
 		ctx.strokeStyle = 'rgba(0,0,0,' + alpha + ')';
+		paintColor = 3;
 	}
 
 var colorField = true;	
@@ -231,7 +299,7 @@ var changePaintCanvas = function() {
 	urlForm.style.display = "none";
 		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.lineWidth = 3;
+		ctx.lineWidth = 10;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
 		ctx.strokeStyle = 'rgba(0,255,255,' + alpha + ')';
@@ -274,9 +342,9 @@ function rgb2cmy(r,g,b) {
 	var m = 0;
 	var k = 0;
 
- c = 1 - (r/255);
- m = 1 - (g/255);
- y = 1 - (b/255);
+ c = 1 - (r/255.0);
+ m = 1 - (g/255.0);
+ y = 1 - (b/255.0);
 
  return [c, m, y];
 }
