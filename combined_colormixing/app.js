@@ -495,7 +495,7 @@ app.stage.addChild(eyeObj);
   }
 
   function animateFilter() {
-    if(!stopFilterAnimation) {
+    if(!stopFilterAnimation && currentFilter != null) {
     requestAnimationFrame(animateFilter);
     if (currentFilter.position.x <= FILTER_X + WIDTH * 0.03) {
       currentFilter.position.x += 5;
@@ -520,6 +520,7 @@ app.stage.addChild(eyeObj);
     return_y = null;
     currentFilter = null;
     currentFilterColor = 0xFFFFFF;
+    calculateColor();
   }
 
   // RENDER SCENE:
@@ -826,6 +827,8 @@ function calculateColor() {
       var middleColor = PIXI.utils.hex2rgb(currentMiddleColor);
       var rgbFilter = PIXI.utils.hex2rgb(currentFilterColor);
       // red
+      console.log(rgbFilter);
+      console.log(middleColor);
       var r = middleColor[0] && rgbFilter[0];
       // green
       var g = middleColor[1] && rgbFilter[1];
