@@ -12,7 +12,7 @@ var graphCircleRadius = 2.5;
 
 var graphPaddingTop = 50;
 var graphPaddingBottom = 30;
-var graphPaddingLeft = 50;
+var graphPaddingLeft = 62;
 var graphPaddingRight = 30;
 
 var numSamples = 32;
