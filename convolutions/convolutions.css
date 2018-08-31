@@ -5,14 +5,27 @@ body {
 }
 
 .modules {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
+    width: 850px;
+    display: inline-block;
+}
+
+.row {
+    clear: both;
 }
 
 .module {
-	width: 600px;
+	width: 400px;
 	margin-bottom: 1em;
+    margin-top: 1em;
+    vertical-align:top;
+}
+
+.module.left {
+    float: left;
+}
+
+.module.right {
+    float: right;
 }
 
 .ui-widget {
@@ -20,21 +33,22 @@ body {
 }
 
 #convolutionLink {
-	width: 600px;
+	width: 400px;
 	margin-top: 1em;
 }
 
 #filterSlider {
-  width: 550px;
+  width: 350px;
   margin-left: 30px;
   margin-right: auto;
 }
 
-/*
 .ui-button {
-	margin-top: 5px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
 }
 
+/*
 .ui-slider {
     width: 600px;
     margin-top: 30px;
