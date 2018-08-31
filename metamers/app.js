@@ -1,10 +1,14 @@
 
 $(function() {
+  var graphWidth = Math.round(Math.max(window.innerWidth / 4, 500));
+  var graphHeight = Math.round(Math.max(window.innerHeight / 4, 300));
+  var barWidth = Math.round(Math.max(window.innerWidth / 6, 300));
+  var barHeight = Math.round(Math.max(window.innerHeight / 6, 200));
 
-  var powerSpectrum = new Graph(document.getElementById("powerSpectrumGraph"), 500, 300, 400, 700, 50, 0, 1, 0.25, "Power Spectrum P(λ)");
-  var metamer = new Graph(document.getElementById("metamerGraph"), 500, 300, 400, 700, 50, 0, 1, 0.25, "Metamer H(λ)");
-  var colorbarPrimary = new ColorBar(document.getElementById("colorbarPrimary"), 300, 200, "RGB response for P(λ)");
-  var colorbarSecondary = new ColorBar(document.getElementById("colorbarSecondary"), 300, 200, "RGB response for H(λ)");
+  var powerSpectrum = new Graph(document.getElementById("powerSpectrumGraph"), graphWidth, graphHeight, 400, 700, 50, 0, 1, 0.25, "Power Spectrum P(λ)");
+  var metamer = new Graph(document.getElementById("metamerGraph"), graphWidth, graphHeight, 400, 700, 50, 0, 1, 0.25, "Metamer H(λ)");
+  var colorbarPrimary = new ColorBar(document.getElementById("colorbarPrimary"), barWidth, barHeight, "RGB response for P(λ)");
+  var colorbarSecondary = new ColorBar(document.getElementById("colorbarSecondary"), barWidth, barHeight, "RGB response for H(λ)");
 
   /* Hacky way to call previous onMove function, and do something else as well */
   powerSpectrum.doMove = powerSpectrum.onMove;

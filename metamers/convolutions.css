@@ -5,12 +5,11 @@ body {
 
 .modules {
 	display: flex;
-	flex-wrap: wrap;
 	justify-content: center;
 }
 
 .module {
-	width: 600px;
+	width: 500px;
 	margin: 1em;
 }
 

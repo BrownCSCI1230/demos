@@ -1,6 +1,6 @@
 /* Nyquist limit application */
-var graphWidth = 800;
-var graphHeight = 200;
+var graphWidth = Math.max(window.innerWidth / 2, 600);
+var graphHeight = Math.max(window.innerHeight / 7, 100);
 
 // Sampler class
 function Sampler(start, end, step, f) {
