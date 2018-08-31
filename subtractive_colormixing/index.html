@@ -33,20 +33,23 @@
     <canvas id="canvas"></canvas>
     </div>
     <div class="col-sm-3">
-      <p>Color Components</p>
+      <h3>Color Components</h3>
       <div class="container" id="bars">
       <div class="col-sm-3" id="cyanBar">
       	<div id="cyanColored"></div>
+      	C
       </div>
       <div class="col-sm-3" id="magentaBar">
       	<div id="magentaColored"></div>
+      	M
       </div>
       <div class="col-sm-3" id="yellowBar">
       	<div id="yellowColored"></div>
+      	Y
       </div>
       <div class="col-sm-3" id="blackBar">
       	<div id="blackColored"></div>
- 
+      	B
       </div>
       </div>
       <div id="radio">
@@ -54,7 +57,7 @@
       	<input type="radio" name="colormode" value="cmyk" onchange="updateCMYMode()"/>cmyk
       </div>
       <br>
-      <p>Color Selector</p>
+      <h3>Color Selector</h3>
      <button onclick="changeCyan()" id="cyan">
      	<img src="images/cyanBottleClosed.gif">
      </button>
@@ -67,7 +70,7 @@
       <button onclick="changeBlack()" id="black">
      	<img src="images/blackBottleClosed.gif">
      </button>
-      <p>Alpha</p>
+      <h3>Alpha</h3>
       <input type="number" min="0" max="1.0" step="0.01" value="0.5" id="alphaNumber">
       <input type="range" min="0" max="1.0" step="0.01" value="0.5" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
     </div>

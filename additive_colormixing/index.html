@@ -34,19 +34,22 @@
     <canvas id="canvas"></canvas>
     </div>
     <div class="col-sm-3">
-      <p>Color Components</p>
+      <h3>Color Components</h3>
       <div class="container" id="bars">
       <div class="col-sm-3" id="redBar">
       	<div id="redColored"></div>
+      	R
       </div>
       <div class="col-sm-3" id="greenBar">
       	<div id="greenColored"></div>
+      	G
       </div>
       <div class="col-sm-3" id="blueBar">
       	<div id="blueColored"></div>
+      	B
       </div>
       </div>
-      <p>Color Selector</p>
+      <h3>Color Selector</h3>
      <button onclick="changeRed()" id="red">
      	<img src="images/redBulbOff.gif">
      </button>
@@ -56,7 +59,7 @@
      <button onclick="changeBlue()" id="blue">
      	<img src="images/blueBulbOff.gif">
      </button>
-  <p>Alpha</p>
+  <h3>Alpha</h3>
       <input type="number" min="0" max="1.0" step="0.01" value="0.1" id="alphaNumber">
       <input type="range" min="0" max="1.0" step="0.01" value="0.1" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
        </div>
