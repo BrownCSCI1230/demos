@@ -11,13 +11,14 @@
 </head>
 <body>
 
-    <div class="dropdown">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Canvases</button>
-  	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="#" onclick="changeCanvas()">Colorfield</a>
-    <a class="dropdown-item" href="#" onclick="changePaintCanvas()">Paint Canvas</a>
-    <a class="dropdown-item" href="#" onclick="enterURL()">URL Image</a>
-  </div>
+  <div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Canvases
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a href="#" onclick="changeCanvas()">CMY Colorfield</a></li>
+      <li><a href="#" onclick="changePaintCanvas()">Paint Canvas</a></li>
+      <li><a href="#" onclick="enterURL()">URL Image</a></li>
+    </ul>
   </div>
 
   <div id="urlForm">
@@ -81,10 +82,10 @@
  	var painting = document.getElementById('paint');
  	var windowoffset = window.innerWidth / 8;
   	var width = window.innerWidth - 4 * windowoffset;
+  	var height = window.innerHeight - windowoffset;
   	if(width < 800) {
   		width = 800;
   	}
-  	var height = window.innerHeight - windowoffset;
   	if(height < 600) {
   		height = 600;
   	}
@@ -290,12 +291,11 @@ var changeCanvas = function() {
     		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 
 		};
-		canvas.removeEventListener('mousedown', drawPaint);
-		canvas.removeEventListener('mouseup', stopPaint);
 		colorField = true;
 };
 
 var changePaintCanvas = function() {
+	storedStrokes = [];
 	urlForm.style.display = "none";
 		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -310,7 +310,6 @@ var changePaintCanvas = function() {
 
 var changeCanvasURL = function() {
 		var urlStr = document.getElementById('url');
-		console.log(urlStr.value);
 		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		var img = new Image();
@@ -318,13 +317,11 @@ var changeCanvasURL = function() {
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
-	    	var imgWidth = canvas.width / 2;
-			var imgHeight = canvas.height / 2;
+	    	var imgWidth = canvas.width * 0.25;
+			var imgHeight = canvas.height * 0.5;
     		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 
 		};
-		canvas.removeEventListener('mousedown', drawPaint);
-		canvas.removeEventListener('mouseup', stopPaint);
 		colorField = true;
 };
 
