@@ -149,8 +149,8 @@
 	img.onload = function () {
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext('2d');
-    	var imgWidth = canvas.width / 2;
-		var imgHeight = canvas.height / 2;
+    	var imgWidth = canvas.width * 0.5;
+		var imgHeight = canvas.height * 0.4;
     	ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 	};
 	 
@@ -233,8 +233,8 @@ var changeCanvas = function() {
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
-	    	var imgWidth = canvas.width / 2;
-			var imgHeight = canvas.height / 2;
+	    	var imgWidth = canvas.width * 0.5;
+			var imgHeight = canvas.height * 0.4;
     		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 		};
 		canvas.removeEventListener('mousedown', drawPaint);
