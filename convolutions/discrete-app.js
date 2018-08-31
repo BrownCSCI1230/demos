@@ -1,9 +1,9 @@
 
 $(function() {
-  var signal = new Graph(document.getElementById("signalGraph"), 600, 200, -8, 8, 1, 0, 1, 0.25, "f(x) [Function to be Convolved]", false);
-  var filter = new Graph(document.getElementById("filterGraph"), 600, 200, -8, 8, 1, 0, 1, 0.25, "g(x) [Filter]", false);
-  var product = new Graph(document.getElementById("productGraph"), 600, 200, -8, 8, 1, 0, 1, 0.25, "f(x)g(x) [Product]", false);
-  var result = new Graph(document.getElementById("resultGraph"), 600, 200, -8, 8, 1, 0, 1, 0.25, "f(x) * g(x) [Convolution]", true);
+  var signal = new Graph(document.getElementById("signalGraph"), 400, 200, -8, 8, 1, 0, 1, 0.25, "f(x) [Function to be Convolved]", false);
+  var filter = new Graph(document.getElementById("filterGraph"), 400, 200, -8, 8, 1, 0, 1, 0.25, "g(x) [Filter]", false);
+  var product = new Graph(document.getElementById("productGraph"), 400, 200, -8, 8, 1, 0, 1, 0.25, "f(x)g(x) [Product]", false);
+  var result = new Graph(document.getElementById("resultGraph"), 400, 200, -8, 8, 1, 0, 1, 0.25, "f(x) * g(x) [Convolution]", true);
 
   var currentShift = 0;
   var lastSliderPos = Math.floor(filter.graphData.length / 2);
