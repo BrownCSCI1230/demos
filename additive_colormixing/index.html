@@ -60,8 +60,8 @@
      	<img src="images/blueBulbOff.gif">
      </button>
   <h3>Alpha</h3>
-      <input type="number" min="0" max="1.0" step="0.01" value="0.1" id="alphaNumber">
-      <input type="range" min="0" max="1.0" step="0.01" value="0.1" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
+      <input type="number" min="0" max="1.0" step="0.01" value="0.5" id="alphaNumber">
+      <input type="range" min="0" max="1.0" step="0.01" value="0.5" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
        </div>
   </div>
 </div>
@@ -249,7 +249,7 @@ var changePaintCanvas = function() {
 		urlForm.style.display = "none";
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.lineWidth = 3;
+		ctx.lineWidth = 15;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
 		ctx.strokeStyle = 'rgba(255,0,0,' + alpha +')';

@@ -110,13 +110,13 @@
 		var alpha = data[3];
 
 	    if(red == null) {
-	    	red = 0;
+	    	red = 255;
 	    } 
 	    if(green == null) {
-	    	green = 0;
+	    	green = 255;
 	    }
 	    if(blue == null) {
-	    	blue = 0;
+	    	blue = 255;
 	    }
 
 	    var cyanBar = document.getElementById('cyanColored');
@@ -216,6 +216,8 @@ var onPaint = function(e) {
 
 	curStroke.push({x1:lastMouse.x, y1: lastMouse.y, x2: mouse.x, y2: mouse.y, style: ctx.strokeStyle});
 	ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 	redrawStoredStrokes();
     redrawStroke(curStroke);
 
@@ -302,7 +304,7 @@ var changePaintCanvas = function() {
 	urlForm.style.display = "none";
 		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.lineWidth = 10;
+		ctx.lineWidth = 15;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
 		ctx.strokeStyle = 'rgba(0,255,255,' + alpha + ')';
