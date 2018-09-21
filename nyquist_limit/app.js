@@ -326,11 +326,11 @@ $(function() {
 
   var graph2 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight, 
     'graphType': 1, 'barSamples': s2.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
-    'element': 'graph2', 'frequency': 20, 'title': 'f(X) [Sampled f(x)]', 'xLabel': '', 'yLabel': ''});
+    'element': 'graph2', 'frequency': 20, 'title': 'g(X) [Sampled f(x)]', 'xLabel': '', 'yLabel': ''});
 
   var graph3 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight,
     'graphType': 0, 'samples': s3.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
-    'element': 'graph3', 'title': 'f\'(x) [Reconstruction of f(x) with Triangle Filter]', 'xLabel': '', 'yLabel': ''});
+    'element': 'graph3', 'title': 'h(x) [Reconstruction of f(x) with Gaussian]', 'xLabel': '', 'yLabel': ''});
 
   // Set up pair graphs
   graph1.pairGraph = graph2;
