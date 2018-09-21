@@ -22,11 +22,6 @@ function Graph({element = undefined, frequency = 0,
   title = 'function', xLabel = 'x axis', yLabel = 'y axis',
   titleSize = 12, labelSize = 12, titleFont = 'Arial', labelFont = 'Arial'} = {})
 {
-  // TODO: save frequencty elsewhere
-  // TODO: label offset
-  // TODO: centerd graphs + smaller graphs
-  // TODO: figure out how to label sliders
-  
   // PIXI
   this.stage = new PIXI.Container;
 
@@ -307,6 +302,23 @@ $(function() {
     return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
   });
 
+  var s3 = new Sampler(0, 100, 0.1, function(x) {
+    var value = 0;
+    var step = 100 / numSamples;
+    var totalWeight = 0;
+    var startPos = x - 2 * step;
+    startPos = Math.round(startPos / 100 * numSamples) * 100 / numSamples;
+
+    for(var pos = startPos; pos < startPos + 4 * step + 0.01; pos += step) {
+      diff = (pos - x);
+      weight = Math.exp(-diff * diff / (2 * (step / 2) * (step / 2)));
+      value += weight * Math.sin(pos / 100 * 2 * Math.PI * numPeriods);
+      totalWeight += weight;
+    }
+
+    return value / totalWeight;
+  });
+
   // Add graphs
   var graph1 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight,
     'graphType': 2, 'samples': s1.samples, 'barSamples': s2.samples, 'barColor': 0xFF0000,
@@ -317,7 +329,7 @@ $(function() {
     'element': 'graph2', 'frequency': 20, 'title': 'f(X) [Sampled f(x)]', 'xLabel': '', 'yLabel': ''});
 
   var graph3 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight,
-    'graphType': 0, 'samples': s2.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
+    'graphType': 0, 'samples': s3.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
     'element': 'graph3', 'title': 'f\'(x) [Reconstruction of f(x) with Triangle Filter]', 'xLabel': '', 'yLabel': ''});
 
   // Set up pair graphs
@@ -357,10 +369,27 @@ $(function() {
       return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
     });
 
+    var s3 = new Sampler(0, 100, 0.1, function(x) {
+      var value = 0;
+      var step = 100 / numSamples;
+      var totalWeight = 0;
+      var startPos = x - 2 * step;
+      startPos = Math.round(startPos / 100 * numSamples) * 100 / numSamples;
+
+      for(var pos = startPos; pos < startPos + 4 * step + 0.01; pos += step) {
+	diff = (pos - x);
+	weight = Math.exp(-diff * diff / (2 * (step / 2) * (step / 2)));
+	value += weight * Math.sin(pos / 100 * 2 * Math.PI * numPeriods);
+	totalWeight += weight;
+      }
+
+      return value / totalWeight;
+    });
+
     graph1.setSamples(s1.samples);
     graph1.setBarSamples(s2.samples);
     graph2.setBarSamples(s2.samples);
-    graph3.setSamples(s2.samples);
+    graph3.setSamples(s3.samples);
 
     graph1.draw();
     graph2.draw();
@@ -374,9 +403,26 @@ $(function() {
       return Math.sin(x / 100 * 2 * Math.PI * numPeriods);
     });
 
+    var s3 = new Sampler(0, 100, 0.1, function(x) {
+      var value = 0;
+      var step = 100 / numSamples;
+      var totalWeight = 0;
+      var startPos = x - 2 * step;
+      startPos = Math.round(startPos / 100 * numSamples) * 100 / numSamples;
+
+      for(var pos = startPos; pos < startPos + 4 * step + 0.01; pos += step) {
+	diff = (pos - x);
+	weight = Math.exp(-diff * diff / (2 * (step / 2) * (step / 2)));
+	value += weight * Math.sin(pos / 100 * 2 * Math.PI * numPeriods);
+	totalWeight += weight;
+      }
+
+      return value / totalWeight;
+    });
+
     graph1.setBarSamples(s2.samples);
     graph2.setBarSamples(s2.samples);
-    graph3.setSamples(s2.samples);
+    graph3.setSamples(s3.samples);
 
     graph1.draw();
     graph2.draw();
