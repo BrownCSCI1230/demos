@@ -14,7 +14,8 @@ body {
 }
 
 .module {
-	width: 400px;
+    text-align: left;
+	width: 100%;
 	margin-bottom: 1em;
     margin-top: 1em;
     vertical-align:top;
@@ -47,32 +48,3 @@ body {
     padding: 0.5rem;
     font-size: 0.8rem;
 }
-
-/*
-.ui-slider {
-    width: 600px;
-    margin-top: 30px;
-    margin-bottom: 10px;
-}
-
-.module {
-	width: 600px;
-	text-align: center;
-	display: inline-block;
-	margin-left: 10px;
-	vertical-align: top;
-}
-
-#productModule {
-	display: inline-block;
-}
-
-canvas {
-    margin-top: 10px;
-}
-
-a
-{
-   color: #555555;
-   text-decoration: none;
-}*/

@@ -4,22 +4,22 @@
   <title>Additive Colormixing</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="index.css">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<!--  <script src="res/pixi.min.js"></script>
-  <script type="text/javascript" src="app.js"></script> -->
+
 </head>
 <body>
 
-    <div class="dropdown">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Canvases</button>
-  	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="#" onclick="changeCanvas()">Colorfield</a>
-    <a class="dropdown-item" href="#" onclick="changePaintCanvas()">Paint Canvas</a>
-    <a class="dropdown-item" href="#" onclick="enterURL()">URL Image</a>
-  </div>
+  <div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Canvases
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a href="#" onclick="changeCanvas()">RGB Colorfield</a></li>
+      <li><a href="#" onclick="changePaintCanvas()">Paint Canvas</a></li>
+      <li><a href="#" onclick="enterURL()">URL Image</a></li>
+    </ul>
   </div>
 
   <div id="urlForm">
@@ -34,19 +34,22 @@
     <canvas id="canvas"></canvas>
     </div>
     <div class="col-sm-3">
-      <p>Color Components</p>
+      <h3>Color Components</h3>
       <div class="container" id="bars">
       <div class="col-sm-3" id="redBar">
       	<div id="redColored"></div>
+      	R
       </div>
       <div class="col-sm-3" id="greenBar">
       	<div id="greenColored"></div>
+      	G
       </div>
       <div class="col-sm-3" id="blueBar">
       	<div id="blueColored"></div>
+      	B
       </div>
       </div>
-      <p>Color Selector</p>
+      <h3>Color Selector</h3>
      <button onclick="changeRed()" id="red">
      	<img src="images/redBulbOff.gif">
      </button>
@@ -56,26 +59,27 @@
      <button onclick="changeBlue()" id="blue">
      	<img src="images/blueBulbOff.gif">
      </button>
-  <p>Alpha</p>
-      <input type="number" min="0" max="1.0" step="0.01" value="0.1" id="alphaNumber">
-      <input type="range" min="0" max="1.0" step="0.01" value="0.1" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
+  <h3>Alpha</h3>
+      <input type="number" min="0" max="1.0" step="0.01" value="0.5" id="alphaNumber">
+      <input type="range" min="0" max="1.0" step="0.01" value="0.5" class="slider" onchange="updateAlpha(this.value)" id="alphaSlider">
        </div>
   </div>
 </div>
 </body>
 <script>
-	var alpha = 0.1;
-	function updateAlpha(val) {
-          document.getElementById('alphaNumber').value=val; 
-          alpha = val;
-    }
 
  	var canvas = document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
  	var painting = document.getElementById('paint');
- 	var offset = window.innerWidth / 8;
-  	var width = window.innerWidth - 4 * offset;
-  	var height = window.innerHeight - offset;
+ 	var windowoffset = window.innerWidth / 8;
+  	var width = window.innerWidth - 4 * windowoffset;
+  	var height = window.innerHeight - windowoffset;
+  	// if(width < 800) {
+  	// 	width = 800;
+  	// }
+  	// if(height < 600) {
+  	// 	height = 600;
+  	// }
 	canvas.width = width;
 	canvas.height = height;
 
@@ -85,13 +89,12 @@
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	canvas.addEventListener('mousemove', function(e) {
-		var x = e.pageX - this.offsetLeft - width / 20; // 30
-		var y = e.pageY - this.offsetTop - height / 20; // 10
-		var index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
-		var red = imageData.data[index];
-		var green = imageData.data[index + 1];
-		var blue = imageData.data[index + 2];
-		var alpha = imageData.data[index + 2];
+		mouse = getMousePos(canvas, e);
+		var data = ctx.getImageData(mouse.x, mouse.y, 1, 1).data;
+		var red = data[0];
+		var green = data[1];
+		var blue = data[2];
+		var alpha = data[3];
 	    
 	    var redBar = document.getElementById('redColored');
 		var greenBar = document.getElementById('greenColored');
@@ -109,14 +112,49 @@
 
 	} , false);
 
+	function getMousePos(canvas, e) {
+		var rect = canvas.getBoundingClientRect();
+		return {
+			x: e.clientX - rect.left,
+			y: e.clientY - rect.top
+		}
+	}
+
+		canvas.addEventListener('mousemove', function(e){
+		mouse = getMousePos(canvas, e);
+	}, false); 
+
+	var alpha = 0.5;
+	var paintColor = 0;
+	function updateAlpha(val) {
+          document.getElementById('alphaNumber').value=val; 
+          alpha = val;
+
+          switch(paintColor) {
+          	case 0:
+          		changeRed();
+          		break;
+
+          	case 1:
+          		changeGreen();
+          		break;
+
+          	case 2:
+          		changeBlue();
+          		break;
+          	default:
+          		break;
+          }	
+    }
+
 	var img = new Image();
 	img.src = "images/rgbColorfieldCanvas.jpg";
-	var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	img.onload = function () {
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext('2d');
-    	ctx.drawImage(img,canvas.width / 4,canvas.height / 4);
-		imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    	var imgWidth = canvas.width * 0.5;
+		var imgHeight = canvas.height * 0.4;
+    	ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 	};
 	 
 	canvas.addEventListener('mousemove', function(e){
@@ -125,37 +163,72 @@
 		mouse.y = e.pageY - this.offsetTop;
 	}, false); 
 
-var onPaint = function() {
-    ctx.lineTo(mouse.x, mouse.y);
-    ctx.stroke();
-    imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+var lastMouse = mouse;
+var storedStrokes = [];
+var curStroke = [];
+var onPaint = function(e) {
+	mouse = getMousePos(canvas, e);
+	curStroke.push({x1:lastMouse.x, y1: lastMouse.y, x2: mouse.x, y2: mouse.y, style: ctx.strokeStyle});
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	redrawStoredStrokes();
+    redrawStroke(curStroke);
+    lastMouse = mouse;
 };
 
+function redrawStoredStrokes(){
+	for(var i = 0; i < storedStrokes.length; i++) {
+		redrawStroke(storedStrokes[i]);
+	}
+}
+
+function redrawStroke(stroke){
+
+    if(stroke.length==0){ return; }
+
+
+    ctx.beginPath();
+    // redraw each stored line
+    for(var i=0;i<stroke.length;i++){
+    	ctx.strokeStyle = stroke[i].style;
+        ctx.moveTo(stroke[i].x1,stroke[i].y1);
+        ctx.lineTo(stroke[i].x2,stroke[i].y2);
+    }
+
+    ctx.stroke();
+}
+
 var drawPaint = function(e) {
+			mouse = getMousePos(canvas, e);
+	    	lastMouse = mouse;
 	    	ctx.beginPath();
-	    	ctx.moveTo(mouse.x, mouse.y);
+			ctx.moveTo(lastMouse.x, lastMouse.y);
 	    	canvas.addEventListener('mousemove', onPaint, false);
 }	
 
 var stopPaint = function() {
 		    canvas.removeEventListener('mousemove', onPaint, false);	
-};	
+		    storedStrokes.push(curStroke);
+		    curStroke = [];
+};		
 	
 	function changeRed(e) {
 		ctx.strokeStyle = 'rgba(255,0,0,' + alpha +')';
+		paintColor = 0;
 	}
 
 	function changeGreen(e) {
 		ctx.strokeStyle = 'rgba(0,255,0,' + alpha +')';
+		paintColor = 1;
 	}
 
 	function changeBlue(e) {
 		ctx.strokeStyle = 'rgba(0,0,255,' + alpha +')';
+		paintColor = 2;
 	}
 
-var colorField = true;	
 var changeCanvas = function() {
-	if(!colorField) {
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		var img = new Image();
@@ -163,93 +236,44 @@ var changeCanvas = function() {
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
-	    	ctx.drawImage(img,width / 4,height / 4);
-
+	    	var imgWidth = canvas.width * 0.5;
+			var imgHeight = canvas.height * 0.4;
+    		ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 		};
 		canvas.removeEventListener('mousedown', drawPaint);
 		canvas.removeEventListener('mouseup', stopPaint);
-		colorField = true;
-	} else {
-		ctx.fillStyle = "black";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.lineWidth = 3;
-		ctx.lineJoin = 'round';
-		ctx.lineCap = 'round';
-		ctx.strokeStyle = 'rgba(255,0,0,' + alpha +')';
-		canvas.addEventListener('mousedown', drawPaint, false);
-		canvas.addEventListener('mouseup', stopPaint, false);
-		colorField = false;
-	}
-};
-
-var changeColorfield = function() {
-		ctx.fillStyle = "black";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		var img = new Image();
-		img.src = "images/rgbColorfieldCanvas.jpg";
-		img.onload = function () {
-			var canvas = document.getElementById('canvas');
-			var ctx = canvas.getContext('2d');
-	    	ctx.drawImage(img,width / 4,height / 4);
-
-		};
-		canvas.removeEventListener('mousedown', drawPaint);
-		canvas.removeEventListener('mouseup', stopPaint);
-		colorField = true;
 };
 
 var changePaintCanvas = function() {
-	urlForm.style.display = "none";
+		storedStrokes = [];
+		urlForm.style.display = "none";
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.lineWidth = 3;
+		ctx.lineWidth = 15;
 		ctx.lineJoin = 'round';
 		ctx.lineCap = 'round';
 		ctx.strokeStyle = 'rgba(255,0,0,' + alpha +')';
 		canvas.addEventListener('mousedown', drawPaint, false);
 		canvas.addEventListener('mouseup', stopPaint, false);
-		colorField = false;
 };
 
-var uploadFile = function() {
-	var submitFile = document.getElementById('submitFile');
-	urlForm.style.display = "none";
-	fileUpload.style.display = "none";
-		ctx.fillStyle = "black";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		var reader = new FileReader();
-    	reader.onload = function(event){
-		var img = new Image();
-		img.src = event.target.result;
-		img.onload = function () {
-			var canvas = document.getElementById('canvas');
-			var ctx = canvas.getContext('2d');
-	    	ctx.drawImage(img,width / 4,height / 4);
-
-		};
-		reader.readAsDataURL(submitFile.value);
-	};
-		canvas.removeEventListener('mousedown', drawPaint);
-		canvas.removeEventListener('mouseup', stopPaint);
-		colorField = true;
-};
 
 var changeCanvasURL = function() {
-		var urlStr = document.getElementById('url');
-		console.log(urlStr.value);
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		var img = new Image();
+		var urlStr = document.getElementById('url');
 		img.src = urlStr.value;
 		img.onload = function () {
 			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
-	    	ctx.drawImage(img,width / 4,height / 4);
-
+	    	var imgWidth = canvas.width * 0.25;
+			var imgHeight = canvas.height * 0.5;
+	    	ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
 		};
 		canvas.removeEventListener('mousedown', drawPaint);
 		canvas.removeEventListener('mouseup', stopPaint);
-		colorField = true;
+
 };
 
 var enterURL = function() {

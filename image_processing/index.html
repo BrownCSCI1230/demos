@@ -1,58 +1,32 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="splash.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://pixijs.download/release/pixi.min.js"></script>
-    <script type="text/javascript" src="graph.js"></script>
-    <script type="text/javascript" src="app.js"></script>
     <title>Image Processing</title>
-    <link rel="icon" type="img/png" href="mandrill.png">
   </head>
-  <body class="centered top-small-margin">
-    <img id = "mandrill" src="mandrill.png" hidden="true">
-    <canvas id="pixelCanvas" width=256 height=256 hidden=true></canvas>
-    <div class="inline top-margin">
-        <div class="title centered">Image</div>
-        <canvas class="" id="mandrillCanvas" width=256 height=256></canvas>
-    </div>
+  <body>
+    <h1>Image Processing Demo</h1>
+    <div class="modules">
+        <div class="row">
+            <div class="module">
+                In this demo, you can experiment with different reconstruction
+                filters for image scaling.
 
-    <div class="inline">
-      <div class="inline graphContainer">
-          <div class="title centered">Filter 1</div>
-          <div id="graph1" width=256 height=256></div>
-          <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton1">Clear Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="applyFilterButton1">Apply Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="normalizeFilterButton1">Normalize Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton1">Box Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton1">Triangle Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton1">Gaussian Filter</button>
-      </div>
+                <br>
+                <br>
 
+                In order to use the demo, follow these steps:
 
-      <div class="inline graphContainer">
-          <div class="title centered">Scaled Image 1</div>
-          <canvas class="scaleCanvas" id="filteredCanvas1" width=256 height=256></canvas>
-      </div>
-
-
-      <br>
-
-      <div class="inline graphContainer">
-          <div class="title centered">Filter 2</div>
-          <div id="graph2" width=256 height=256></div>
-          <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton2">Clear Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="applyFilterButton2">Apply Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="normalizeFilterButton2">Normalize Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton2">Box Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton2">Triangle Filter</button>
-          <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton2">Gaussian Filter</button>
-      </div>
-
-      <div class="inline graphContainer">
-          <div class="title centered">Scaled Image 2</div>
-          <canvas class="scaleCanvas" id="filteredCanvas2" width=256 height=256></canvas>
-      </div>
+                <ol>
+                    <li>Sketch two different functions you want to use for scaling</li>
+                    <li>Click and drag on the mandrill to select a region you want to scale</li>
+                    <li>Click <b>apply filter</b> on the top and bottom graphs in order to see the results</li>
+                </ol>
+            </div>
+        </div>
+        <button id="metamersLink" class="ui-button ui-widget ui-corner-all"><a href="ip.html">Go to Demo</a></button>
     </div>
   </body>
+</html>

@@ -1,31 +1,34 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="splash.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <title>Metamers</title>
   </head>
   <body>
     <h1>Metamers Demo</h1>
-    <body>
-        In this demo, we ask you to edit power spectra -- which may represent the power
-        spectra of light sources. The idea of a metamer is that although two spectra
-        might be totally different, they might produce the same response for an
-        RGB camera sensor, or in our visual system (another type of light sensor).
-
-        <br>
-        <br>
-
-        In order to use the Metamers Demo, follow these steps:
-
-        <ol>
-            <li>Sketch a power spectrum on the <b>left hand</b> graph by clicking and dragging</li>
-            <li>Sketch a power spectrum on the <b>right hand</b> graph by clicking and dragging</li>
-            <li>Try to match the RGB output of the second graph with the first</li>
-        </ol>
-    </body>
     <div class="modules">
-        <button class="ui-button ui-widget ui-corner-all"><a href="metamers.html">Go to Demo</a></button>
+        <div class="row">
+            <div class="module">
+                In this demo, we ask you to edit power spectra -- which may represent the power
+                spectra of light sources. The idea of a metamer is that although two spectra
+                might be totally different, they might produce the same response for an
+                RGB camera sensor, or in our visual system (another type of light sensor).
+
+                <br>
+                <br>
+
+                In order to use the Metamers Demo, follow these steps:
+
+                <ol>
+                    <li>Sketch a power spectrum on the <b>left hand</b> graph by clicking and dragging</li>
+                    <li>Sketch a power spectrum on the <b>right hand</b> graph by clicking and dragging</li>
+                    <li>Try to match the RGB output of the second graph with the first</li>
+                </ol>
+            </div>
+        </div>
+        <button id="metamersLink" class="ui-button ui-widget ui-corner-all"><a href="metamers.html">Go to Demo</a></button>
     </div>
   </body>
 </html>

@@ -42,14 +42,13 @@ $(function() {
     mandrillSprite.width = imageWidth;
     mandrillSprite.height = imageHeight;
     stage.addChild(mandrillSprite);
-    setUpMarquee();
   }
 
   function setUpMarquee() {
     marquee.lineStyle(3, 0x000000, 1); //black
     var rectX = stage.x + 1.5;
     var rectY = stage.y + 1.5;
-    marquee.drawRect(rectX, rectY, stage.width - 3, stage.height - 3);
+    marquee.drawRect(50, 50, 150, 150);
     stage.addChild(marquee);
   }
 
@@ -168,7 +167,7 @@ $(function() {
       var scaleFactor = targetHeight / sourceHeight;
       var centerSourceRow = (targetRow + 0.5) * (1 / scaleFactor) - 0.5;
 
-      var filterRadius = scaleFactor >= 1 ? 1 : 1 / scaleFactor;
+      var filterRadius = 4;
       var filterStart = Math.floor(Math.max(centerSourceRow - filterRadius, 0));
       var filterEnd = Math.ceil(Math.min(centerSourceRow + filterRadius, sourceHeight - 1));
 
@@ -215,7 +214,7 @@ $(function() {
       var scaleFactor = targetWidth / sourceWidth;
       var centerSourceCol = (targetCol + 0.5) * (1 / scaleFactor) - 0.5;
 
-      var filterRadius = scaleFactor >= 1 ? 1 : 1 / scaleFactor;
+      var filterRadius = 4;
       var filterStart = Math.floor(Math.max(centerSourceCol - filterRadius, 0));
       var filterEnd = Math.ceil(Math.min(centerSourceCol + filterRadius, sourceWidth - 1));
 
