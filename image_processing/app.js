@@ -167,22 +167,28 @@ $(function() {
       var scaleFactor = targetHeight / sourceHeight;
       var centerSourceRow = (targetRow + 0.5) * (1 / scaleFactor) - 0.5;
 
-      var filterRadius = 4;
-      var filterStart = Math.floor(Math.max(centerSourceRow - filterRadius, 0));
-      var filterEnd = Math.ceil(Math.min(centerSourceRow + filterRadius, sourceHeight - 1));
-
-      var channelSum = 0;
-      var filterSum = 0;
-
-      for(var sourceRow = filterStart; sourceRow <= filterEnd; sourceRow++) {
-        var filterValue = Math.max(graph.getGraphData(centerSourceRow - sourceRow), 0);
-        var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
-
-        channelSum += imageData.data[index] * filterValue;
-        filterSum += filterValue;
+      if(graph.getGraphArea() < 0.01) {
+	var index = (centerSourceRow * sourceWidth + sourceCol) * 4 + channel;
+	return imageData.data[index] * 1.0;
       }
+      else {
+	var filterRadius = 4;
+	var filterStart = Math.floor(Math.max(centerSourceRow - filterRadius, 0));
+	var filterEnd = Math.ceil(Math.min(centerSourceRow + filterRadius, sourceHeight - 1));
 
-      return graph.getGraphArea() * channelSum / filterSum;
+	var channelSum = 0;
+	var filterSum = 0;
+
+	for(var sourceRow = filterStart; sourceRow <= filterEnd; sourceRow++) {
+	  var filterValue = Math.max(graph.getGraphData(centerSourceRow - sourceRow), 0);
+	  var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
+
+	  channelSum += imageData.data[index] * filterValue;
+	  filterSum += filterValue;
+	}
+
+	return graph.getGraphArea() * channelSum / filterSum;
+      }
     }
 
     function scaleImageDataX(imageData, targetWidth, graph) {
@@ -214,22 +220,28 @@ $(function() {
       var scaleFactor = targetWidth / sourceWidth;
       var centerSourceCol = (targetCol + 0.5) * (1 / scaleFactor) - 0.5;
 
-      var filterRadius = 4;
-      var filterStart = Math.floor(Math.max(centerSourceCol - filterRadius, 0));
-      var filterEnd = Math.ceil(Math.min(centerSourceCol + filterRadius, sourceWidth - 1));
-
-      var channelSum = 0;
-      var filterSum = 0;
-
-      for(var sourceCol = filterStart; sourceCol <= filterEnd; sourceCol++) {
-        var filterValue = graph.getGraphData(centerSourceCol - sourceCol);
-        var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
-
-        channelSum += imageData.data[index] * filterValue;
-        filterSum += filterValue;
+      if(graph.getGraphArea() < 0.01) {
+	var index = (sourceRow * sourceWidth + centerSourceCol) * 4 + channel;
+	return imageData.data[index] * 1.0;
       }
+      else {
+	var filterRadius = 4;
+	var filterStart = Math.floor(Math.max(centerSourceCol - filterRadius, 0));
+	var filterEnd = Math.ceil(Math.min(centerSourceCol + filterRadius, sourceWidth - 1));
 
-      return graph.getGraphArea() * channelSum / filterSum;
+	var channelSum = 0;
+	var filterSum = 0;
+
+	for(var sourceCol = filterStart; sourceCol <= filterEnd; sourceCol++) {
+	  var filterValue = graph.getGraphData(centerSourceCol - sourceCol);
+	  var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
+
+	  channelSum += imageData.data[index] * filterValue;
+	  filterSum += filterValue;
+	}
+
+	return graph.getGraphArea() * channelSum / filterSum;
+      }
     }
 
     function getPixelsUnderMarquee() {

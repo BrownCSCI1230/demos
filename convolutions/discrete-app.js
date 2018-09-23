@@ -124,7 +124,6 @@ $(function() {
 
   var normalizeButton = document.getElementById("normalizeButton");
   normalizeButton.addEventListener("click", function(){
-    console.log("clicked");
     if (filter.totalShift != 0) {
       result.clearAll();
       $("#filterSlider").slider({
@@ -134,5 +133,4 @@ $(function() {
     }
     filter.normalizePoints();
   });
-
 });
