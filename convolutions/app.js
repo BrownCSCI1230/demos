@@ -2,8 +2,8 @@
 $(function() {
   var signal = new Graph(document.getElementById("signalGraph"), 400, 200, -4, 4, 1, -1, 1, 0.5, "f(x) [Function to be Convolved]");
   var filter = new Graph(document.getElementById("filterGraph"), 400, 200, -4, 4, 1, -1, 1, 0.5, "g(x) [Filter]");
-  var product = new Graph(document.getElementById("productGraph"), 400, 200, -4, 4, 1, -1, 1, 0.5, "f(x)g(x) [Product]");
-  var result = new Graph(document.getElementById("resultGraph"), 400, 200, -4, 4, 1, -1, 1, 0.5, "f(x) * g(x) [Convolution]");
+  var product = new Graph(document.getElementById("productGraph"), 400, 200, -4, 4, 1, -1, 1, 0.5, "(fg)(x) [Product]");
+  var result = new Graph(document.getElementById("resultGraph"), 400, 200, -4, 4, 1, -1, 1, 0.5, "(f*g)(x) [Convolution] = integral f(x-t)g(t)");
 
   var lastSliderPos = Math.floor(filter.drawingIndices.length / 2);
 

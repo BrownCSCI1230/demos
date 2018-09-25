@@ -390,30 +390,13 @@ class Graph {
     this.renderer.render(this.stage);
   }
 
-  drawGaussian(start, end) {
-    var startPix = this.convertToPlotPixel(start, true);
-    var endPix = this.convertToPlotPixel(end, true);
-
-    for (var i = startPix; i <= endPix; i++) {
-      var sampleX = this.convertToPlotCoordinate(i, true);
-      var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI));
-      var gaussianExp = - (1 / 2) * Math.pow(sampleX, 2);
-      var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
-      var pixGaussianVal = this.convertToPlotPixel(gaussianVal, false);
-
-      this.addBarAt(i, pixGaussianVal);
-    }
-
-    this.renderer.render(this.stage);
-  }
-
-  drawGaussian(start, end) {
+  drawGaussian(start, end, sigma) {
     var startPix = this.convertToPixel(start, true);
     var endPix = this.convertToPixel(end, true);
 
     for (var i = startPix; i < endPix; i++) {
-      var sampleX = this.convertToPlot(i, true);
-      var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI));
+      var sampleX = this.convertToPlot(i, true) / sigma;
+      var gaussianCoeff = (1 / Math.sqrt(2 * Math.PI * sigma * sigma));
       var gaussianExp = - (1 / 2) * Math.pow(sampleX, 2);
       var gaussianVal = gaussianCoeff * Math.pow(Math.E, gaussianExp);
       var pixGaussianVal = this.convertToPixel(gaussianVal, false);

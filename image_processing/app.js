@@ -36,6 +36,20 @@ $(function() {
   var dragging = false;
   var dragStartPos = new PIXI.Point(0, 0);
 
+  // Slider callback
+  var pixelSize = 256;
+
+  $( "#slider" ).slider({
+    min: 1,
+    max: imageWidth,
+    value: imageWidth,
+    stop: function(e, u) {
+      pixelSize = u.value;
+      displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas1, graph1);
+      displayFilteredSelection(getPixelsUnderMarquee(), filteredCanvas2, graph2);
+    }
+  }).slider("pips");
+
   function setUpSprite() {
     var texture = new PIXI.Texture(new PIXI.BaseTexture(mandrill));
     mandrillSprite = new PIXI.Sprite(texture);
@@ -134,10 +148,12 @@ $(function() {
     }
 
     function scaleImageData(imageData, targetWidth, targetHeight, graph) {
-      return scaleImageDataY(scaleImageDataX(imageData, targetWidth, graph), targetHeight, graph);
+      console.log(pixelSize);
+      var data = scaleImageDataY(scaleImageDataX(imageData, Math.round(pixelSize), graph, false), Math.round(pixelSize), graph, false);
+      return scaleImageDataY(scaleImageDataX(data, targetWidth, graph, true), targetHeight, graph, true);
     }
 
-    function scaleImageDataY(imageData, targetHeight, graph) {
+    function scaleImageDataY(imageData, targetHeight, graph, bypass) {
       var sourceWidth = imageData.width;
       var sourceHeight = imageData.height;
       var data = imageData.data;
@@ -150,7 +166,7 @@ $(function() {
 
           for(var channel = 0; channel <= 2; channel++) {
             scaledData[index * 4 + channel] =
-            getTargetValueFromSourceY(imageData, row, col, channel, targetHeight, sourceHeight, graph);
+            getTargetValueFromSourceY(imageData, row, col, channel, targetHeight, sourceHeight, graph, bypass);
           }
 
           scaledData[index * 4 + 3] = 255;
@@ -161,15 +177,15 @@ $(function() {
       return scaledImageData;
     }
 
-    function getTargetValueFromSourceY(imageData, targetRow, targetCol, channel, targetHeight, sourceHeight, graph) {
+    function getTargetValueFromSourceY(imageData, targetRow, targetCol, channel, targetHeight, sourceHeight, graph, bypass) {
       var sourceCol = targetCol;
       var sourceWidth = imageData.width;
       var scaleFactor = targetHeight / sourceHeight;
       var centerSourceRow = (targetRow + 0.5) * (1 / scaleFactor) - 0.5;
 
-      if(graph.getGraphArea() < 0.01) {
-	var index = (centerSourceRow * sourceWidth + sourceCol) * 4 + channel;
-	return imageData.data[index] * 1.0;
+      if(graph.getGraphArea() < 0.01 || bypass) {
+	var index = (Math.round(centerSourceRow) * sourceWidth + sourceCol) * 4 + channel;
+	return imageData.data[index];
       }
       else {
 	var filterRadius = 4;
@@ -183,15 +199,24 @@ $(function() {
 	  var filterValue = Math.max(graph.getGraphData(centerSourceRow - sourceRow), 0);
 	  var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
 
+	  if(bypass) {
+	    filterValue = Math.max(0, 1 - Math.abs((centerSourceRow - sourceRow) / scaleFactor));
+	  }
+
 	  channelSum += imageData.data[index] * filterValue;
 	  filterSum += filterValue;
 	}
 
-	return graph.getGraphArea() * channelSum / filterSum;
+	if(bypass) {
+	  return channelSum / filterSum;
+	}
+	else {
+	  return graph.getGraphArea() * channelSum / filterSum;
+	}
       }
     }
 
-    function scaleImageDataX(imageData, targetWidth, graph) {
+    function scaleImageDataX(imageData, targetWidth, graph, bypass) {
       var sourceWidth = imageData.width;
       var sourceHeight = imageData.height;
       var data = imageData.data;
@@ -204,7 +229,7 @@ $(function() {
 
           for(var channel = 0; channel <= 2; channel++) {
             scaledData[index * 4 + channel] =
-            getTargetValueFromSourceX(imageData, row, col, channel, targetWidth, sourceWidth, graph);
+            getTargetValueFromSourceX(imageData, row, col, channel, targetWidth, sourceWidth, graph, bypass);
           }
 
           scaledData[index * 4 + 3] = 255;
@@ -215,14 +240,14 @@ $(function() {
       return scaledImageData;
     }
 
-    function getTargetValueFromSourceX(imageData, targetRow, targetCol, channel, targetWidth, sourceWidth, graph) {
+    function getTargetValueFromSourceX(imageData, targetRow, targetCol, channel, targetWidth, sourceWidth, graph, bypass) {
       var sourceRow = targetRow;
       var scaleFactor = targetWidth / sourceWidth;
       var centerSourceCol = (targetCol + 0.5) * (1 / scaleFactor) - 0.5;
 
-      if(graph.getGraphArea() < 0.01) {
-	var index = (sourceRow * sourceWidth + centerSourceCol) * 4 + channel;
-	return imageData.data[index] * 1.0;
+      if(graph.getGraphArea() < 0.01 || bypass) {
+	var index = (sourceRow * sourceWidth + Math.round(centerSourceCol)) * 4 + channel;
+	return imageData.data[index];
       }
       else {
 	var filterRadius = 4;
@@ -236,11 +261,20 @@ $(function() {
 	  var filterValue = graph.getGraphData(centerSourceCol - sourceCol);
 	  var index = (sourceRow * sourceWidth + sourceCol) * 4 + channel;
 
+	  if(bypass) {
+	    filterValue = Math.max(0, 1 - Math.abs((centerSourceCol - sourceCol) / scaleFactor));
+	  }
+
 	  channelSum += imageData.data[index] * filterValue;
 	  filterSum += filterValue;
 	}
 
-	return graph.getGraphArea() * channelSum / filterSum;
+	if(bypass) {
+	  return channelSum / filterSum;
+	}
+	else {
+	  return graph.getGraphArea() * channelSum / filterSum;
+	}
       }
     }
 
@@ -286,42 +320,52 @@ $(function() {
     var boxFilterButton1 = document.getElementById("boxFilterButton1");
     boxFilterButton1.addEventListener("click", function(){
       graph1.clearAllBars();
-      graph1.drawBox(-1, 1, 0.5);
+      var scaleFactor = Math.min(1.0, pixelSize / marquee.width);
+      var radius = Math.min(4, 0.5 / scaleFactor);
+      graph1.drawBox(-radius, radius, scaleFactor / 2);
       graph1.normalize();
     });
 
     var boxFilterButton2 = document.getElementById("boxFilterButton2");
     boxFilterButton2.addEventListener("click", function(){
       graph2.clearAllBars();
-      graph2.drawBox(-1, 1, 0.5);
+      var scaleFactor = Math.min(1.0, pixelSize / marquee.width);
+      var radius = Math.min(4, 0.5 / scaleFactor);
+      graph2.drawBox(-radius, radius, scaleFactor / 2);
       graph2.normalize();
     });
 
     var triangleFilterButton1 = document.getElementById("triangleFilterButton1");
     triangleFilterButton1.addEventListener("click", function(){
       graph1.clearAllBars();
-      graph1.drawTriangle(-1, 1, 1);
+      var scaleFactor = Math.min(1.0, pixelSize / marquee.width);
+      var radius = Math.min(4, 1 / scaleFactor);
+      graph1.drawTriangle(-radius, radius, scaleFactor);
       graph1.normalize();
     });
 
     var triangleFilterButton2 = document.getElementById("triangleFilterButton2");
     triangleFilterButton2.addEventListener("click", function(){
       graph2.clearAllBars();
-      graph2.drawTriangle(-1, 1, 1);
+      var scaleFactor = Math.min(1.0, pixelSize / marquee.width);
+      var radius = Math.min(4, 1 / scaleFactor);
+      graph2.drawTriangle(-radius, radius, scaleFactor);
       graph2.normalize();
     });
 
     var gaussianFilterButton1 = document.getElementById("gaussianFilterButton1");
     gaussianFilterButton1.addEventListener("click", function(){
       graph1.clearAllBars();
-      graph1.drawGaussian(-4, 4);
+      var scaleFactor = pixelSize / marquee.width;
+      graph1.drawGaussian(-4, 4, Math.max(0.67, (2 / scaleFactor) / 3));
       graph1.normalize();
     });
 
     var gaussianFilterButton2 = document.getElementById("gaussianFilterButton2");
     gaussianFilterButton2.addEventListener("click", function(){
       graph2.clearAllBars();
-      graph2.drawGaussian(-4, 4);
+      var scaleFactor = pixelSize / marquee.width;
+      graph2.drawGaussian(-4, 4, Math.max(0.67, (2 / scaleFactor) / 3));
       graph2.normalize();
     });
   });

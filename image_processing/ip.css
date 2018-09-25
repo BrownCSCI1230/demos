@@ -67,3 +67,15 @@
 .top-small-margin {
   margin-top: 10px;
 }
+
+#slider {
+  float: left;
+  margin-right: 20px;
+}
+
+.ui-slider {
+    width: 256px;
+    text-align: center;
+    display: block;
+    margin: auto;
+}
