@@ -18,25 +18,25 @@ PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   var greenLightButton3 = PIXI.Texture.fromImage('images/gl3.gif');
   var greenLightButton4 = PIXI.Texture.fromImage('images/gl4.gif');
   var greenLightButton5 = PIXI.Texture.fromImage('images/gl5.gif');
-  
+
   var blueLightButton1 = PIXI.Texture.fromImage('images/bl1.gif');
   var blueLightButton2 = PIXI.Texture.fromImage('images/bl2.gif');
   var blueLightButton3 = PIXI.Texture.fromImage('images/bl3.gif');
   var blueLightButton4 = PIXI.Texture.fromImage('images/bl4.gif');
   var blueLightButton5 = PIXI.Texture.fromImage('images/bl5.gif');
-  
+
   var cyanLightButton1 = PIXI.Texture.fromImage('images/cl1.gif');
   var cyanLightButton2 = PIXI.Texture.fromImage('images/cl2.gif');
   var cyanLightButton3 = PIXI.Texture.fromImage('images/cl3.gif');
   var cyanLightButton4 = PIXI.Texture.fromImage('images/cl4.gif');
   var cyanLightButton5 = PIXI.Texture.fromImage('images/cl5.gif');
-  
+
   var magentaLightButton1 = PIXI.Texture.fromImage('images/ml1.gif');
   var magentaLightButton2 = PIXI.Texture.fromImage('images/ml2.gif');
   var magentaLightButton3 = PIXI.Texture.fromImage('images/ml3.gif');
   var magentaLightButton4 = PIXI.Texture.fromImage('images/ml4.gif');
   var magentaLightButton5 = PIXI.Texture.fromImage('images/ml5.gif');
-  
+
   var yellowLightButton1 = PIXI.Texture.fromImage('images/yl1.gif');
   var yellowLightButton2 = PIXI.Texture.fromImage('images/yl2.gif');
   var yellowLightButton3 = PIXI.Texture.fromImage('images/yl3.gif');
@@ -55,37 +55,37 @@ PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   var greenPaintButton3 = PIXI.Texture.fromImage('images/gp3.gif');
   var greenPaintButton4 = PIXI.Texture.fromImage('images/gp4.gif');
   var greenPaintButton5 = PIXI.Texture.fromImage('images/gp5.gif');
-  
+
   var bluePaintButton1 = PIXI.Texture.fromImage('images/bp1.gif');
   var bluePaintButton2 = PIXI.Texture.fromImage('images/bp2.gif');
   var bluePaintButton3 = PIXI.Texture.fromImage('images/bp3.gif');
   var bluePaintButton4 = PIXI.Texture.fromImage('images/bp4.gif');
   var bluePaintButton5 = PIXI.Texture.fromImage('images/bp5.gif');
-  
+
   var cyanPaintButton1 = PIXI.Texture.fromImage('images/cp1.gif');
   var cyanPaintButton2 = PIXI.Texture.fromImage('images/cp2.gif');
   var cyanPaintButton3 = PIXI.Texture.fromImage('images/cp3.gif');
   var cyanPaintButton4 = PIXI.Texture.fromImage('images/cp4.gif');
   var cyanPaintButton5 = PIXI.Texture.fromImage('images/cp5.gif');
-  
+
   var magentaPaintButton1 = PIXI.Texture.fromImage('images/mp1.gif');
   var magentaPaintButton2 = PIXI.Texture.fromImage('images/mp2.gif');
   var magentaPaintButton3 = PIXI.Texture.fromImage('images/mp3.gif');
   var magentaPaintButton4 = PIXI.Texture.fromImage('images/mp4.gif');
   var magentaPaintButton5 = PIXI.Texture.fromImage('images/mp5.gif');
-  
+
   var yellowPaintButton1 = PIXI.Texture.fromImage('images/yp1.gif');
   var yellowPaintButton2 = PIXI.Texture.fromImage('images/yp2.gif');
   var yellowPaintButton3 = PIXI.Texture.fromImage('images/yp3.gif');
   var yellowPaintButton4 = PIXI.Texture.fromImage('images/yp4.gif');
   var yellowPaintButton5 = PIXI.Texture.fromImage('images/yp5.gif');
-  
+
   var blackPaintButton1 = PIXI.Texture.fromImage('images/kp1.gif');
   var blackPaintButton2 = PIXI.Texture.fromImage('images/kp2.gif');
   var blackPaintButton3 = PIXI.Texture.fromImage('images/kp3.gif');
   var blackPaintButton4 = PIXI.Texture.fromImage('images/kp4.gif');
   var blackPaintButton5 = PIXI.Texture.fromImage('images/kp5.gif');
-  
+
   var whitePaintButton1 = PIXI.Texture.fromImage('images/wp1.gif');
   var whitePaintButton2 = PIXI.Texture.fromImage('images/wp2.gif');
   var whitePaintButton3 = PIXI.Texture.fromImage('images/wp3.gif');
@@ -112,12 +112,11 @@ PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   // Window WIDTH, HEIGHT
   var WIDTH =  window.innerWidth;
   var HEIGHT = window.innerHeight;
-  if(WIDTH < 800) {
-    WIDTH = 800;
+  if(WIDTH < 1200) {
+    WIDTH = 1200;
   }
-  if(HEIGHT < 600) {
-    HEIGHT = 600;
-  }
+
+  HEIGHT = WIDTH / 2;
 
      // CANVAS VALUES:
   var currentColor = 0xd3d3d3;
@@ -126,7 +125,7 @@ PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   var currentBackLightColor = 0xFFFFFF;
   var currentPaintColor = 0xFFFFFF;
   var currentFilterColor = 0xFFFFFF;
-  var BEAM_BUTTON_X = WIDTH * 0.92; 
+  var BEAM_BUTTON_X = WIDTH * 0.92;
   var BEAM_BUTTON_Y = HEIGHT * 0.05;
   var FRONT_LIGHT_X = WIDTH * 0.8;
   var FRONT_LIGHT_Y = HEIGHT * 0.05;
@@ -141,7 +140,7 @@ PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   var OFFSET_X = 30;
   var OFFSET_Y = 25;
   var MINWIDTH = 600;
-  var SCALE_VALUE = 0.6 * (WIDTH / HEIGHT); 
+  var SCALE_VALUE = 0.6 * (WIDTH / HEIGHT);
 
   var allColors = new Map()
 
@@ -172,3 +171,6 @@ PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   // PIXI.js App
   var app = new PIXI.Application(WIDTH, HEIGHT, {backgroundColor : 0x000000});
   var renderer = PIXI.autoDetectRenderer(WIDTH, HEIGHT, {backgroundColor : 0x000000});
+
+
+

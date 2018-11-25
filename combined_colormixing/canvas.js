@@ -25,45 +25,23 @@ var coloredSurface = new PIXI.Graphics();
 colorSurfaceRectangle(0xFFFFFF);
 
 function colorSurfaceRectangle(color) {
+	console.log("!!");
     coloredSurface.beginFill(color);
     if(color == 0x000000) {
       coloredSurface.lineStyle(1, 0xFFFFFF, 1);
     } else {
       coloredSurface.lineStyle(2, 0x000000, 1);
     }
-    if(WIDTH <= 800) {
-    var sur_x = WIDTH * 0.31;
-    var sur_y = HEIGHT * 0.41;
-    coloredSurface.moveTo(sur_x,sur_y);
-    coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y);
-    coloredSurface.lineTo(sur_x + WIDTH * 0.09, sur_y + HEIGHT * 0.10);
-    coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y + HEIGHT * 0.15);
-    coloredSurface.lineTo(sur_x, sur_y);
-  } else if(WIDTH <= 1000 && HEIGHT <= 600) {
-      var sur_x = WIDTH * 0.31;
-      var sur_y = HEIGHT * 0.412;
-      coloredSurface.moveTo(sur_x,sur_y);
-      coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y);
-      coloredSurface.lineTo(sur_x + WIDTH * 0.09, sur_y + HEIGHT * 0.16);
-      coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y + HEIGHT * 0.21);
-      coloredSurface.lineTo(sur_x, sur_y);
-    } else if(HEIGHT <= 700) {
-      var sur_x = WIDTH * 0.31;
-      var sur_y = HEIGHT * 0.412;
-      coloredSurface.moveTo(sur_x,sur_y);
-      coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y);
-      coloredSurface.lineTo(sur_x + WIDTH * 0.09, sur_y + HEIGHT * 0.2);
-      coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y + HEIGHT * 0.25);
-      coloredSurface.lineTo(sur_x, sur_y);
-  } else {
-       var sur_x = SURFACE_X + WIDTH * 0.01;
-       var sur_y = SURFACE_Y + HEIGHT * 0.02;
-       coloredSurface.moveTo(sur_x,sur_y);
-       coloredSurface.lineTo(sur_x + WIDTH * 0.04, sur_y);
-       coloredSurface.lineTo(sur_x + WIDTH * 0.08, sur_y + HEIGHT * 0.14);
-       coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y + HEIGHT * 0.21);
-       coloredSurface.lineTo(sur_x, sur_y);
-  }
+
+    console.log(HEIGHT);
+	      var sur_x = WIDTH * 0.30;
+	      var sur_y = HEIGHT * 0.412;
+	      coloredSurface.moveTo(sur_x,sur_y);
+	      coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y);
+	      coloredSurface.lineTo(sur_x + WIDTH * 0.09, sur_y + HEIGHT * 0.16);
+	      coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y + HEIGHT * 0.21);
+	      coloredSurface.lineTo(sur_x, sur_y);
+
     coloredSurface.endFill()
     app.stage.addChild(coloredSurface);
 }
@@ -76,7 +54,7 @@ colorEyeRectangle();
 
 function colorEyeRectangle() {
     if(WIDTH <= 600) {
-      var rec_x = EYE_X + WIDTH * 0.075;
+      var rec_x = EYE_X + WIDTH * 0.072;
       var rec_y = EYE_Y;
       colorEye.beginFill(currentColor);
       colorEye.lineStyle(2, 0x000000, 1);
@@ -88,7 +66,7 @@ function colorEyeRectangle() {
       colorEye.endFill();
       app.stage.addChild(colorEye);
     } else {
-      var rec_x = EYE_X + WIDTH * 0.075;
+      var rec_x = EYE_X + WIDTH * 0.072;
       var rec_y = EYE_Y;
       colorEye.beginFill(currentColor);
       colorEye.lineStyle(2, 0x000000, 1);
