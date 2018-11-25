@@ -33,14 +33,14 @@ function colorSurfaceRectangle(color) {
       coloredSurface.lineStyle(2, 0x000000, 1);
     }
 
-    console.log(HEIGHT);
-	      var sur_x = WIDTH * 0.30;
-	      var sur_y = HEIGHT * 0.412;
+	      var sur_x = SURFACE_X - WIDTH * 0.05;
+	      var sur_y = SURFACE_Y - HEIGHT * 0.055;
 	      coloredSurface.moveTo(sur_x,sur_y);
-	      coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y);
-	      coloredSurface.lineTo(sur_x + WIDTH * 0.09, sur_y + HEIGHT * 0.16);
-	      coloredSurface.lineTo(sur_x + WIDTH * 0.05, sur_y + HEIGHT * 0.21);
+	      coloredSurface.lineTo(sur_x + 50, sur_y);
+	      coloredSurface.lineTo(sur_x + 90, sur_y + 80);
+	      coloredSurface.lineTo(sur_x + 50, sur_y + 100);
 	      coloredSurface.lineTo(sur_x, sur_y);
+        coloredSurface.scale.set(SCALE_VALUE);
 
     coloredSurface.endFill()
     app.stage.addChild(coloredSurface);
@@ -53,29 +53,25 @@ colorSurfaceRectangle(0xFFFFFF);
 colorEyeRectangle();
 
 function colorEyeRectangle() {
-    if(WIDTH <= 600) {
-      var rec_x = EYE_X + WIDTH * 0.072;
+      var w = WIDTH
+      if (w > 800) {
+        w = 800;
+      }
+
+      var h = HEIGHT
+      if (h > 600) {
+        h = 600;
+      }
+
+      var rec_x = EYE_X + w * 0.1;
       var rec_y = EYE_Y;
       colorEye.beginFill(currentColor);
       colorEye.lineStyle(2, 0x000000, 1);
       colorEye.moveTo(rec_x,rec_y);
-      colorEye.lineTo(rec_x + WIDTH * 0.08,rec_y);
-      colorEye.lineTo(rec_x + WIDTH * 0.08,rec_y + HEIGHT * 0.06);
-      colorEye.lineTo(rec_x,rec_y + HEIGHT * 0.06);
+      colorEye.lineTo(rec_x + w * 0.12,rec_y);
+      colorEye.lineTo(rec_x + w * 0.12,rec_y + h * 0.12);
+      colorEye.lineTo(rec_x,rec_y + h * 0.12);
       colorEye.lineTo(rec_x,rec_y);
       colorEye.endFill();
       app.stage.addChild(colorEye);
-    } else {
-      var rec_x = EYE_X + WIDTH * 0.072;
-      var rec_y = EYE_Y;
-      colorEye.beginFill(currentColor);
-      colorEye.lineStyle(2, 0x000000, 1);
-      colorEye.moveTo(rec_x,rec_y);
-      colorEye.lineTo(rec_x + WIDTH * 0.08,rec_y);
-      colorEye.lineTo(rec_x + WIDTH * 0.08,rec_y + HEIGHT * 0.1);
-      colorEye.lineTo(rec_x,rec_y + HEIGHT * 0.1);
-      colorEye.lineTo(rec_x,rec_y);
-      colorEye.endFill();
-      app.stage.addChild(colorEye);
-  }
 }

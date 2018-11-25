@@ -112,8 +112,9 @@ PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
   // Window WIDTH, HEIGHT
   var WIDTH =  window.innerWidth;
   var HEIGHT = window.innerHeight;
-  if(WIDTH < 1200) {
-    WIDTH = 1200;
+  console.log(WIDTH)
+  if(WIDTH < 800) {
+    WIDTH = 800;
   }
 
   HEIGHT = WIDTH / 2;
