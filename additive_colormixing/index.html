@@ -18,16 +18,10 @@
     <ul class="dropdown-menu">
       <li><a href="#" onclick="changeCanvas()">RGB Colorfield</a></li>
       <li><a href="#" onclick="changePaintCanvas()">Paint Canvas</a></li>
-      <li><a href="#" onclick="enterURL()">URL Image</a></li>
     </ul>
   </div>
 
-  <div id="urlForm">
-  Enter an image URL:
-	<input id="url" placeholder="http://250.browndailyherald.com/wp-content/uploads/2014/05/Van-dam_-Alana-Tisdale-700x465.jpg" type="text">
-	<button class="btn btn-primary" type="button" href="" id="submitUrl" onclick="changeCanvasURL()">Submit</button>
-  </div>
-
+<br>
 <div class="container">
   <div class="row">
     <div class="col-sm-9" id="app">
@@ -187,7 +181,7 @@ function redrawStroke(stroke){
 
     if(stroke.length==0){ return; }
 
-
+    ctx.globalCompositeOperation = 'lighter';
     ctx.beginPath();
     // redraw each stored line
     for(var i=0;i<stroke.length;i++){
@@ -229,6 +223,7 @@ var stopPaint = function() {
 	}
 
 var changeCanvas = function() {
+		ctx.globalCompositeOperation = 'source-over';
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		var img = new Image();
@@ -246,7 +241,6 @@ var changeCanvas = function() {
 
 var changePaintCanvas = function() {
 		storedStrokes = [];
-		urlForm.style.display = "none";
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 15;
@@ -257,35 +251,5 @@ var changePaintCanvas = function() {
 		canvas.addEventListener('mouseup', stopPaint, false);
 };
 
-
-var changeCanvasURL = function() {
-		ctx.fillStyle = "black";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		var img = new Image();
-		var urlStr = document.getElementById('url');
-		img.src = urlStr.value;
-		img.onload = function () {
-			var canvas = document.getElementById('canvas');
-			var ctx = canvas.getContext('2d');
-	    	var imgWidth = canvas.width * 0.25;
-			var imgHeight = canvas.height * 0.5;
-	    	ctx.drawImage(img,canvas.width / 4,canvas.height / 4, imgWidth, imgHeight);
-		};
-		canvas.removeEventListener('mousedown', drawPaint);
-		canvas.removeEventListener('mouseup', stopPaint);
-
-};
-
-var enterURL = function() {
-	var urlForm = document.getElementById('urlForm');
-	if (urlForm.style.display === "none") {
-        urlForm.style.display = "block";
-    } else {
-        urlForm.style.display = "none";
-    }
-}
-
-var urlForm = document.getElementById('urlForm');
-urlForm.style.display = "none";
  </script>
 </html>
