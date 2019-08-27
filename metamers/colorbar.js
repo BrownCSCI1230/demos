@@ -29,7 +29,7 @@ class ColorBar {
     this.colorCircle = 0;
     this.isClicking = false;
 
-    this.renderer = new PIXI.CanvasRenderer(width * 1.5, height, {
+    this.renderer = new PIXI.Renderer(width * 1.5, height, {
       resolution: window.devicePixelRatio || 1,
       autoResize: true
     });

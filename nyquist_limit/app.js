@@ -69,7 +69,7 @@ function Graph({element = undefined, frequency = 0,
 
   // Renderer
   this.element = document.getElementById(element);
-  this.renderer = new PIXI.CanvasRenderer(width + this.yLabel.width + 30,
+  this.renderer = new PIXI.Renderer(width + this.yLabel.width + 30,
       height + this.title.height + this.xLabel.height + 30, {
     resolution: window.devicePixelRatio || 1,
     autoResize: true
@@ -324,7 +324,7 @@ $(function() {
     'graphType': 2, 'samples': s1.samples, 'barSamples': s2.samples, 'barColor': 0xFF0000,
     'element': 'graph1', 'frequency': 10, 'title': 'f(x) [Orignal Function]', 'xLabel': '', 'yLabel': ''});
 
-  var graph2 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight, 
+  var graph2 = new Graph({'x': 0, 'y': 0, 'width': graphWidth, 'height': graphHeight,
     'graphType': 1, 'barSamples': s2.samples, 'xRange': graph1.xRange, 'yRange': graph1.yRange,
     'element': 'graph2', 'frequency': 20, 'title': 'g(X) [Sampled f(x)]', 'xLabel': '', 'yLabel': ''});
 

@@ -41,7 +41,7 @@ class Graph {
     this.clickedPoint;
     this.isClicking;
 
-    this.renderer = new PIXI.CanvasRenderer(width, height, {
+    this.renderer = new PIXI.Renderer(width, height, {
       resolution: window.devicePixelRatio || 1,
       autoResize: true
     });
