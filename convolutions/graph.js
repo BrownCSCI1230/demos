@@ -37,7 +37,9 @@ class Graph {
     this.graphData = [];
     this.isClicking = false;
 
-    this.renderer = new PIXI.Renderer(width, height, {
+    this.renderer = new PIXI.Renderer({
+      width: width,
+      height: height,
       resolution: window.devicePixelRatio || 1,
       autoResize: true
     });
