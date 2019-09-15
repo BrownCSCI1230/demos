@@ -69,8 +69,9 @@ function Graph({element = undefined, frequency = 0,
 
   // Renderer
   this.element = document.getElementById(element);
-  this.renderer = new PIXI.Renderer(width + this.yLabel.width + 30,
-      height + this.title.height + this.xLabel.height + 30, {
+  this.renderer = new PIXI.Renderer({
+    width: width + this.yLabel.width + 30,
+    height: height + this.title.height + this.xLabel.height + 30,
     resolution: window.devicePixelRatio || 1,
     autoResize: true
   });
