@@ -1,0 +1,86 @@
+#canvases {
+  text-align: center;
+  padding: 10px;
+}
+
+
+#graphs {
+  text-align: center;
+}
+
+#graph1Module {
+  display: inline-block;
+  padding: 10px;
+}
+
+#graph2Module {
+  display: inline-block;
+  padding: 10px;
+}
+
+.ui-button {
+  transform: scale(0.5);
+  margin-top: 10px;
+  margin-left: -32px;
+  margin-right: -35px;
+  horizontal-align: text-top;
+}
+
+.inline {
+  width: auto;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.graphContainer {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.centered {
+  text-align: center;
+  display: block;
+  margin: auto;
+}
+
+.vertical-centered {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  font-family: Sans-serif;
+}
+
+.bottom-margin {
+  margin-bottom: 10px;
+}
+
+.top-margin {
+  margin-top: 15px;
+}
+
+.top-small-margin {
+  margin-top: 10px;
+}
+
+#slider {
+  float: left;
+  margin-right: 20px;
+}
+
+.ui-slider {
+    width: 256px;
+    text-align: center;
+    display: block;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#graph1 {
+  margin-bottom: 10px;
+  padding: 10px;
+}

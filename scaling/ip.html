@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="res/jquery-ui-slider-pips.css">
+    <link rel="stylesheet" href="ip.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="pixi.min.js"></script>
+    <script type="text/javascript" src="res/jquery-ui-slider-pips.js"></script>
+    <script type="text/javascript" src="graph.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+    <title>Image Processing</title>
+    <link rel="icon" type="img/png" href="mandrill.png">
+  </head>
+  <body class="centered top-small-margin">
+    <img id = "mandrill" src="mandrill.png" hidden="true">
+    <canvas id="pixelCanvas" width=256 height=256 hidden=true></canvas>
+    <div class="inline top-margin">
+        <div class="title centered">Image</div>
+        <canvas class="" id="mandrillCanvas" width=128 height=128></canvas>
+        <br>
+        <br>
+        <div class="title centered">Output Image Width (pixels)</div>
+        <div id="slider"></div>
+    </div>
+
+    <div class="inline">
+      <div class="inline graphContainer">
+          <div class="title centered">Reconstruction Filter 1</div>
+          <div id="graph1" width=256 height=256></div>
+          <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton1">Clear Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="applyFilterButton1">Apply Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="normalizeFilterButton1">Normalize Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton1">Box Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton1">Triangle Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton1">Gaussian Filter</button>
+      </div>
+
+
+      <div class="inline graphContainer">
+          <div class="title centered">Scaled Image 1</div>
+          <canvas class="scaleCanvas" id="filteredCanvas1" width=256 height=256></canvas>
+      </div>
+
+
+      <br>
+
+      <div class="inline graphContainer">
+          <div class="title centered">Reconstruction Filter 2</div>
+          <div id="graph2" width=256 height=256></div>
+          <button class="ui-button ui-widget ui-corner-all" id="clearFilterButton2">Clear Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="applyFilterButton2">Apply Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="normalizeFilterButton2">Normalize Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="boxFilterButton2">Box Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="triangleFilterButton2">Triangle Filter</button>
+          <button class="ui-button ui-widget ui-corner-all" id="gaussianFilterButton2">Gaussian Filter</button>
+      </div>
+
+      <div class="inline graphContainer">
+          <div class="title centered">Scaled Image 2</div>
+          <canvas class="scaleCanvas" id="filteredCanvas2" width=256 height=256></canvas>
+      </div>
+
+      <br>
+    </div>
+  </body>
