@@ -59,7 +59,7 @@ WebGLUtils = new function() {
      * @param fragment: fragment shader source
      */
     this.loadShaderProgram = function(gl, vertex, fragment) {
-        // compile vertex shader        
+        // compile vertex shader
         var vshader = gl.createShader(gl.VERTEX_SHADER);
         gl.shaderSource(vshader, vertex);
         gl.compileShader(vshader);
@@ -69,7 +69,7 @@ WebGLUtils = new function() {
             return null;
         }
 
-        // compile fragment shader        
+        // compile fragment shader
         var fshader = gl.createShader(gl.FRAGMENT_SHADER);
         gl.shaderSource(fshader, fragment);
         gl.compileShader(fshader);
@@ -178,7 +178,7 @@ function DemoFrustumCamera() {
     this.near = 1;
     this.far = 6;
 
-    this.matrices = [ new J3DIMatrix4(), 
+    this.matrices = [ new J3DIMatrix4(),
                       new J3DIMatrix4(),
                       new J3DIMatrix4(),
                       new J3DIMatrix4() ];
@@ -208,7 +208,7 @@ function DemoFrustumCamera() {
     this.finalModelingStep = new J3DIMatrix4();
     this.targetFrustumRenderTransform = new J3DIMatrix4();
     this.targetFinalTransform = new J3DIMatrix4();
-    this.targetFinalModeling = new J3DIMatrix4(); 
+    this.targetFinalModeling = new J3DIMatrix4();
 
     this.step = 0;
     this.mode = 0;
@@ -275,7 +275,7 @@ DemoFrustumCamera.prototype.computeProjectionMatrices = function() {
 DemoFrustumCamera.prototype.changeTransformationStepAnimated = function(step) {
     // compute target matrices
     this.step = step;
-  
+
     this.targetFrustumRenderTransform.makeIdentity();
     this.targetFinalModeling.makeIdentity();
     this.targetFinalTransform.makeIdentity();
@@ -310,11 +310,11 @@ DemoFrustumCamera.prototype.stepAnimations = function() {
             this.frustumRenderTransform.add(this.frustumRenderTransformStep);
             this.finalModeling.add(this.finalModelingStep);
             this.finalTransform.add(this.finalTransformStep);
-            this.animationStep++;  
+            this.animationStep++;
         }
         if (this.animationStep == this.numAnimationSteps - 1) {
             this.animating = false;
-        
+
             this.frustumRenderTransform.load(this.targetFrustumRenderTransform);
             this.finalModeling.load(this.targetFinalModeling);
             this.finalTransform.load(this.targetFinalTransform);
@@ -547,7 +547,7 @@ function Renderer(canvas1, canvas2) {
         // vertex:           color:
         // x-axis
         buffer.push(0,0,0); buffer.push(1,0,0,1);
-        buffer.push(3,0,0); buffer.push(1,0,0,1);
+        buffer.push(3,0,0); buffer.push(1,1,0,1);
 
         // y-axis
         buffer.push(0,0,0); buffer.push(0,1,0,1);
@@ -930,7 +930,7 @@ function Renderer(canvas1, canvas2) {
     this.resize = function() {
         var cw1 = $('#frustum-canvas')[0].clientWidth,
             ch1 = $('#frustum-canvas')[0].clientHeight;
-        
+
         $('#frustum-canvas')[0].width = cw1;
         $('#frustum-canvas')[0].height = ch1;
 
@@ -998,4 +998,3 @@ function tick() {
     leftover = timeSinceLastDoLogic - (catchUpFrameCount * idealTimePerFrame);
     timeAtLastFrame = timeAtThisFrame;
 }
-
