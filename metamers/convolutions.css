@@ -16,3 +16,8 @@ body {
 .ui-widget {
 	margin-top: 0.5em;
 }
+
+#colorbars {
+    position: relative;
+    top: -300px;
+}
