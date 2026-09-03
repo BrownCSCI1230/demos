@@ -349,7 +349,10 @@ $(function() {
     value: numPeriods,
     animate: "slow",
     slide: frequencySliderMoved
-  }).slider("pips");
+  }).slider("pips", {
+    rest: "label",
+    step: 1
+  });
 
   var sampleSlider = $("#sampleSlider").slider({
     min: 0,
@@ -357,7 +360,10 @@ $(function() {
     value: numSamples,
     animate: "slow",
     slide: sampleSliderMoved
-  }).slider("pips");
+  }).slider("pips", {
+    rest: "label",
+    step: 2
+  });
 
   function frequencySliderMoved(eventSlider, uiSlider) {
     numPeriods = uiSlider.value;
