@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Idealized thin-lens camera demo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<header><h1>Idealized thin-lens camera demo</h1></header>
+<section class="workspace" aria-label="Interactive thin-lens demonstration">
+<div class="diagram-panel">
+<div class="panel-heading"><span class="pill" id="focus-status">In focus</span></div>
+<svg id="diagram" viewBox="0 0 1200 480" role="group" aria-label="Thin lens ray diagram. Use the object distance slider below as an alternative to dragging.">
+<defs><pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#e8edf0" stroke-width="1"/></pattern><linearGradient id="glass"><stop id="glass-left" stop-color="#a8dedc" stop-opacity=".8"/><stop id="glass-center" offset=".5" stop-color="#e4faf8" stop-opacity=".8"/><stop id="glass-right" offset="1" stop-color="#8acbc8" stop-opacity=".8"/></linearGradient></defs>
+<rect x="25" y="65" width="1150" height="315" rx="12" fill="url(#grid)"/>
+<text x="55" y="45" class="region">OBJECT SPACE</text><text x="720" y="45" class="region">IMAGE SPACE</text>
+<path d="M40 245H1160" stroke="#b1bcc4" stroke-dasharray="5 6"/><text x="1050" y="365" class="muted">Optical axis</text>
+<path id="focus-plane" d="M300 78V373" stroke="#21806a" stroke-width="2" stroke-dasharray="6 5"/><text id="focus-label" x="300" y="397" text-anchor="middle" class="green">Plane in focus</text>
+<g id="rays"></g>
+<path d="M600 103Q555 245 600 387Q645 245 600 103Z" fill="url(#glass)" stroke="#418b91" stroke-width="2"/>
+<g id="aperture"></g><g id="sensor"></g><g id="image-point"></g><g id="focal-mark"></g>
+<g id="object-point" tabindex="0" role="slider" aria-label="Object distance" aria-valuemin="200" aria-valuemax="1000" aria-valuenow="600"><circle r="24" fill="transparent"/><circle r="16" fill="#dff4ed" stroke="#21806a" stroke-width="1.5"/><circle r="6" fill="#21806a"/><path d="M-30 0l-5 -4v8Z M30 0l5 -4v8Z" fill="#21806a"/></g>
+<text id="object-label" y="207" text-anchor="middle" class="green">Drag this point</text>
+<text x="600" y="415" text-anchor="middle" class="label">Thin lens</text>
+<g id="distances"></g>
+</svg>
+<div class="legend"><span><i class="incoming"></i>Light through aperture</span><span><i class="chief"></i>Central ray</span><span><i class="plane"></i>Plane in focus</span><span><i class="lens-shading"></i>Darker lens = stronger bending</span></div>
+<p class="hint">↔ Drag the green point horizontally, or use the object distance slider. Diagram uses different scales for object and image space.</p>
+</div>
+<aside class="sensor-panel"><div class="panel-heading"><h2>On the sensor</h2><span class="small">FRONT VIEW</span></div><canvas id="spot" width="600" height="600" aria-label="Magnified sensor view of the point's circle of confusion"></canvas><div class="spot-value"><strong id="coc">0.00</strong><span>mm diameter</span></div><p id="spot-description">All rays meet at a single point.</p><p class="small">Fixed view: 40 × 40 mm<br>Brightness normalized to show the footprint.</p></aside>
+</section>
+<section class="controls" aria-label="Lens and object controls">
+<div class="control"><label for="focal">Focal length (lens property) <output id="focal-value">50 mm</output></label><input id="focal" type="range" min="43" max="51.5" value="50" step="0.1"><div class="endpoints"><span>43 mm · shorter</span><span>51.5 mm · longer</span></div></div>
+<div class="control"><label for="focus">Focus (lens–sensor distance) <output id="focus-value">54.55 mm</output></label><input id="focus" type="range" min="52.6315789474" max="66.6666666667" value="54.5454545455" step="any"><div class="endpoints"><span id="focus-min">Farther focus</span><span id="focus-max">Nearer focus</span></div></div>
+<div class="control"><label for="diameter">Aperture diameter <output id="diameter-value">25 mm</output></label><input id="diameter" type="range" min="2" max="60" value="25" step="0.5"><div class="endpoints"><span>2 mm · smaller</span><span id="f-number">f/2.0</span><span>60 mm · larger</span></div></div>
+<div class="control"><label for="distance">Object distance <output id="distance-value">600 mm</output></label><input id="distance" type="range" min="200" max="1000" value="600" step="any"><div class="endpoints"><span>200 mm · nearer</span><span>1000 mm · farther</span></div></div>
+<div class="actions"><button id="focus-on-point">Focus on point</button><button id="refocus">Return point to focus</button><button id="reset" class="secondary">Reset all</button></div>
+</section>
+</main><script src="demo.js"></script>
+</body></html>
