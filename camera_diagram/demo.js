@@ -10,7 +10,7 @@ function optics({ f, D, u, s = DEFAULT_SENSOR_DISTANCE }) {
   const v = f * u / (u - f);
   return { s, v, focus, c: D * Math.abs(1 - s / v) };
 }
-// Keep the focus plane within the illustrated object-distance range.
+// Focus control covers object focus distances from 200 to 1000 mm.
 function sensorLimits(f) {
   return { min: f * 1000 / (1000 - f), max: f * 200 / (200 - f) };
 }
@@ -29,6 +29,7 @@ function update() {
   $('focus-min').textContent = `${limits.min.toFixed(2)} mm · farther focus`;
   $('focus-max').textContent = `${limits.max.toFixed(2)} mm · nearer focus`;
   $('focal').value=f; $('diameter').value=D; $('distance').value=u;
+  $('distance').setAttribute('aria-valuetext', `${u.toFixed(1)} millimeters from lens`);
   // Optical power is proportional to 1/f. Shading is a symbolic cue,
   // not a simulation of absorption or a separately specified refractive index.
   const strength = Math.max(0, Math.min(1, (1/f - 1/51.5) / (1/43 - 1/51.5)));
@@ -63,6 +64,20 @@ function update() {
   $('spot-description').textContent=inFocus?'All rays meet at a single point.':'The sensor cuts through the ray cone, recording a disk.';
   drawSpot(c,inFocus);
 }
+// Teaching cue: encode aperture throughput in the disk's luminance.
+// This intentionally does not divide flux by the changing blur-disk area.
+function apertureLight(D) { return (D / 60) ** 2; }
+function spotColor(D, inFocus) {
+  const toLinear = x => x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+  const toSRGB = x => x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055;
+  const background = [20, 37, 43];
+  const peak = inFocus ? [215, 255, 233] : [244, 200, 121];
+  const light = apertureLight(D);
+  return `rgb(${peak.map((channel, i) => {
+    const base = toLinear(background[i] / 255);
+    return Math.round(255 * toSRGB(base + light * (toLinear(channel / 255) - base)));
+  }).join(', ')})`;
+}
 function drawSpot(c,inFocus) {
   const canvas=$('spot'),ctx=canvas.getContext('2d'),n=600;
   ctx.fillStyle='#14252b';ctx.fillRect(0,0,n,n);
@@ -70,17 +85,17 @@ function drawSpot(c,inFocus) {
   for(let i=0;i<=n;i+=75){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,n);ctx.moveTo(0,i);ctx.lineTo(n,i);ctx.stroke();}
   ctx.strokeStyle='#56716e';ctx.setLineDash([5,8]);ctx.beginPath();ctx.moveTo(300,30);ctx.lineTo(300,570);ctx.moveTo(30,300);ctx.lineTo(570,300);ctx.stroke();ctx.setLineDash([]);
   const r=Math.max(2,c/40*n/2);
-  ctx.beginPath();ctx.arc(300,300,r,0,2*Math.PI);ctx.fillStyle=inFocus?'#d7ffe9':'#f4c879';ctx.fill();
-  if(!inFocus){ctx.strokeStyle='#ffe6b5';ctx.lineWidth=2;ctx.stroke();}
+  ctx.beginPath();ctx.arc(300,300,r,0,2*Math.PI);ctx.fillStyle=spotColor(state.D,inFocus);ctx.fill();
   ctx.strokeStyle='#a2b7b8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(435,550);ctx.lineTo(510,550);ctx.moveTo(435,545);ctx.lineTo(435,555);ctx.moveTo(510,545);ctx.lineTo(510,555);ctx.stroke();ctx.fillStyle='#a2b7b8';ctx.font='20px system-ui';ctx.textAlign='center';ctx.fillText('5 mm',472,535);
-  canvas.setAttribute('aria-label',`Sensor footprint: ${c.toFixed(2)} millimeter diameter${inFocus?', in focus':''}.`);
+  canvas.setAttribute('aria-label',`Sensor footprint: ${c.toFixed(2)} millimeter diameter${inFocus?', in focus':''}. The disc/dot gets brighter or darker based on the size of the aperture.`);
 }
-for(const [id,key] of [['focal','f'],['focus','s'],['diameter','D'],['distance','u']]) $(id).addEventListener('input',e=>{state[key]=Number(e.target.value);
+for(const [id,key] of [['focal','f'],['focus','s'],['diameter','D']]) $(id).addEventListener('input',e=>{state[key]=Number(e.target.value);
   if(key==='f') {
     const {min,max}=sensorLimits(state.f);
     state.s=Math.max(min,Math.min(max,state.s));
   }
   update();});
+$('distance').addEventListener('input',e=>{state.u=Number(e.target.value);update();});
 $('refocus').addEventListener('click',()=>{state.u=optics(state).focus;update();});
 $('focus-on-point').addEventListener('click',()=>{state.s=optics(state).v;update();});
 $('reset').addEventListener('click',()=>{Object.assign(state,{f:50,D:25,u:600,s:DEFAULT_SENSOR_DISTANCE});update();});
@@ -89,5 +104,12 @@ function drag(e){const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.g
 point.addEventListener('pointerdown',e=>{e.preventDefault();dragging=true;point.setPointerCapture(e.pointerId);point.focus();drag(e);});
 point.addEventListener('pointermove',e=>{if(dragging)drag(e);});
 point.addEventListener('pointerup',()=>{dragging=false;});point.addEventListener('pointercancel',()=>{dragging=false;});point.addEventListener('lostpointercapture',()=>{dragging=false;});
-point.addEventListener('keydown',e=>{const delta={ArrowLeft:10,ArrowRight:-10,ArrowUp:10,ArrowDown:-10}[e.key];if(delta!==undefined||e.key==='Home'||e.key==='End'){e.preventDefault();state.u=e.key==='Home'?200:e.key==='End'?1000:Math.max(200,Math.min(1000,state.u+delta*(e.shiftKey?10:1)));update();}});
+point.addEventListener('keydown',e=>{
+  const delta={ArrowLeft:10,ArrowRight:-10,ArrowUp:10,ArrowDown:-10}[e.key];
+  if(delta!==undefined||e.key==='Home'||e.key==='End'){
+    e.preventDefault();
+    state.u=e.key==='Home'?200:e.key==='End'?1000:Math.max(200,Math.min(1000,state.u+delta*(e.shiftKey?10:1)));
+    update();
+  }
+});
 update();

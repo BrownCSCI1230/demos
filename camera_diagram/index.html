@@ -26,9 +26,9 @@
 <g id="distances"></g>
 </svg>
 <div class="legend"><span><i class="incoming"></i>Light through aperture</span><span><i class="chief"></i>Central ray</span><span><i class="plane"></i>Plane in focus</span><span><i class="lens-shading"></i>Darker lens = stronger bending</span></div>
-<p class="hint">↔ Drag the green point horizontally, or use the object distance slider. Diagram uses different scales for object and image space.</p>
+<p class="hint">↔ Drag the green point horizontally, or use the object distance slider. Diagram uses fixed, different scales for object and image space.</p>
 </div>
-<aside class="sensor-panel"><div class="panel-heading"><h2>On the sensor</h2><span class="small">FRONT VIEW</span></div><canvas id="spot" width="600" height="600" aria-label="Magnified sensor view of the point's circle of confusion"></canvas><div class="spot-value"><strong id="coc">0.00</strong><span>mm diameter</span></div><p id="spot-description">All rays meet at a single point.</p><p class="small">Fixed view: 40 × 40 mm<br>Brightness normalized to show the footprint.</p></aside>
+<aside class="sensor-panel"><div class="panel-heading"><h2>On the sensor</h2><span class="small">FRONT VIEW</span></div><canvas id="spot" width="600" height="600" aria-label="Magnified sensor view of the point's circle of confusion"></canvas><div class="spot-value"><strong id="coc">0.00</strong><span>mm diameter</span></div><p id="spot-description">All rays meet at a single point.</p><p class="small">Fixed view: 40 × 40 mm<br>The disc/dot gets brighter or darker based on the size of the aperture.</p></aside>
 </section>
 <section class="controls" aria-label="Lens and object controls">
 <div class="control"><label for="focal">Focal length (lens property) <output id="focal-value">50 mm</output></label><input id="focal" type="range" min="43" max="51.5" value="50" step="0.1"><div class="endpoints"><span>43 mm · shorter</span><span>51.5 mm · longer</span></div></div>
