@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Light attenuation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header><h1>Light attenuation</h1></header>
+  <section class="comparison" aria-label="Side-by-side lighting comparison">
+    <article><div class="panel-head"><span class="tag">01 / PHYSICAL</span><h2>Inverse square</h2><p class="formula">f(d) = min(1 / d², 1)</p></div><canvas id="physical" aria-label="Ground plane illuminated with inverse-square attenuation"></canvas><div class="readout">Attenuation directly below light <strong id="physical-value"></strong></div></article>
+    <article><div class="panel-head"><span class="tag amber">02 / ART DIRECTED</span><h2>Polynomial</h2><p class="formula">f(d) = min(1 / (c₁ + c₂d + c₃d²), 1)</p></div><canvas id="polynomial" aria-label="Ground plane illuminated with polynomial attenuation"></canvas><div class="readout">Attenuation directly below light <strong id="polynomial-value"></strong></div></article>
+  </section>
+  <p id="error" role="alert" hidden></p>
+  <section class="controls" aria-label="Demo controls">
+    <div class="motion"><div class="control-title">LIGHT MOTION <div class="motion-buttons"><button id="play" aria-pressed="true">Pause</button><button id="reset">Reset</button></div></div><label for="height">Height <output id="height-value"></output></label><input id="height" type="range" min="0.65" max="5" step="0.01" value="2"><p>Both lights move together. Drag to hold a height.</p></div>
+    <div class="coefficients"><div class="control-title">POLYNOMIAL COEFFICIENTS</div><div class="sliders"><div><label for="c1">c₁ <span>Constant</span><output id="c1-value"></output></label><input id="c1" type="range" min="0" max="4" step="0.01" value="1"></div><div><label for="c2">c₂ <span>Linear</span><output id="c2-value"></output></label><input id="c2" type="range" min="0" max="2" step="0.01" value="0.07"></div><div><label for="c3">c₃ <span>Quadratic</span><output id="c3-value"></output></label><input id="c3" type="range" min="0" max="2" step="0.01" value="0.07"></div></div><div id="presets" aria-label="Coefficient presets"></div><p id="preset-description"></p></div>
+  </section>
+</main>
+<script src="demo.js"></script>
+</body>
+</html>
