@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Why clip before dividing? · OpenGL demo</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+<header><h1>Why clip before dividing?</h1><p class="intro">A triangle crossing behind the camera can fold into a false image when you divide by <i>w</i> too early.</p></header>
+<div class="presets" aria-label="Scene presets"><span>Explore a case</span><button data-preset="crossing" class="active">Crossing the camera</button><button data-preset="front">Fully in view</button><button data-preset="behind">Fully behind</button><button data-preset="far">Beyond the far plane</button></div>
+<div class="workspace"><div class="views">
+<section class="card eye"><div class="heading"><h2>Perspective view volume · side view</h2></div><svg id="eye" viewBox="0 0 620 300" role="img" aria-label="Side view of the view frustum and the triangle"></svg><p class="caption">Eye coordinates (y–z plane); camera looks down −Z. A and B overlap in this view.</p></section>
+<section class="card"><div class="heading"><h2>Canonical view volume (NDC)</h2><span>Drag to rotate</span></div><div class="cube-wrap"><canvas id="cube" aria-label="Rotatable 3D NDC view with the canonical cube and projected triangles"></canvas><div id="cube-labels" aria-hidden="true"></div></div><div class="cube-controls"><label><input type="checkbox" id="show-naive" checked><i class="swatch orange"></i>Divide first</label><label><input type="checkbox" id="show-correct" checked><i class="swatch green"></i>Clip first</label><button id="reset-view">Reset view</button></div><p class="caption">The wire cube is −1 ≤ x, y, z ≤ 1. Out-of-bounds geometry is shown too.</p></section>
+<section class="card result"><div class="heading"><h2><i class="swatch orange"></i> Divide first</h2><span class="badge bad">Incorrect</span></div><p class="coordinate-system">Normalized device coordinates · x–y view</p><canvas id="naive" aria-label="Incorrect WebGL rendering after premature perspective division"></canvas><p class="caption">Divide each original vertex, then reconnect and clip in NDC.</p></section>
+<section class="card result"><div class="heading"><h2><i class="swatch green"></i> Clip first</h2><span class="badge good">OpenGL</span></div><p class="coordinate-system">Normalized device coordinates · x–y view</p><canvas id="correct" aria-label="Correct WebGL rendering using homogeneous clipping"></canvas><p class="caption">Clip the primitive in homogeneous coordinates, then divide.</p></section>
+</div><aside>
+<section class="card controls"><h2>Move the triangle</h2><p>Negative z is in front of the camera.<br>Positive z is behind it.</p>
+<label for="tip">Vertex C · eye-space z <output id="tip-value"></output></label><input id="tip" type="range" min="-12" max="5" step=".01" value="1.5"><div class="endpoints"><span>In front</span><span>Behind</span></div>
+<label for="base">Vertices A, B · eye-space z <output id="base-value"></output></label><input id="base" type="range" min="-12" max="5" step=".01" value="-3">
+<label for="height">Vertex C · eye-space y <output id="height-value"></output></label><input id="height" type="range" min="-3" max="3" step=".01" value="1.2">
+<label for="near">Near distance <output id="near-value"></output></label><input id="near" type="range" min=".25" max="2" step=".01" value="1"><label for="far">Far distance <output id="far-value"></output></label><input id="far" type="range" min="2.5" max="12" step=".01" value="8"><p class="small">Vertical FOV = 90° · aspect = 1<br>Depth testing and face culling are off.</p><button id="reset">Reset scene</button></section>
+<section class="insight" aria-live="polite"><div class="eyebrow">WHAT TO NOTICE</div><h2 id="status-title"></h2><p id="status"></p></section>
+</aside></div>
+<section class="card numbers"><div class="heading"><h2>Follow the coordinates</h2><span>Eye → clip → NDC</span></div><div class="table-scroll"><table><thead><tr><th>Vertex</th><th>Eye (x, y, z)</th><th>Clip (x, y, z, w)</th><th>NDC (x/w, y/w, z/w)</th><th>Clip test</th></tr></thead><tbody id="coordinates"></tbody></table></div><p class="caption" id="singularity"></p></section>
+<p id="gl-error" role="alert"></p>
+</main><script src="math.js"></script><script src="demo.js"></script></body></html>
