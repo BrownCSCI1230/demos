@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Effect of Perspective Projection on Z values</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body><main>
+<header><h1>Effect of Perspective Projection on Z values</h1></header>
+<div class="layout">
+<section class="plot-panel" aria-label="Depth compression graph">
+
+<svg id="plot" viewBox="0 0 900 540" role="img" aria-labelledby="plot-title plot-desc"><title id="plot-title">Depth after perspective division</title><desc id="plot-desc">Input canonical z runs from minus one to zero. The curve maps the far plane to minus one and the near plane to zero.</desc></svg>
+<div class="legend"><span><i class="line"></i>After perspective division</span><span><i class="dash"></i>z′ = z</span></div>
+<p id="probe" class="probe" aria-live="off">Move over the curve to inspect a depth.</p>
+</section>
+<aside>
+<section class="controls"><h2>Clipping planes</h2><p>Positive distances from the camera.</p>
+<label for="near">Near distance <input id="near-number" aria-label="Near distance value" type="number" min="0.001" max="9999" step="any" value="0.1"></label><input id="near" type="range" min="-3" max="4" step="0.001" value="-1" aria-label="Near distance (logarithmic)">
+<label for="far">Far distance <input id="far-number" aria-label="Far distance value" type="number" min="0.001" max="10000" step="any" value="1"></label><input id="far" type="range" min="-3" max="4" step="0.001" value="0" aria-label="Far distance (logarithmic)">
+<p id="error" role="alert"></p><div class="presets"><button data-near="0.1" data-far="1">Reset</button></div>
+</section>
+<section class="math" aria-label="Perspective projection matrix and depth formula">
+<div class="matrix-equation"><span>M<sub>pp</sub> =</span><div class="matrix" role="img" aria-label="Matrix rows: 1 0 0 0; 0 1 0 0; 0 0 1 over 1 plus c, minus c over 1 plus c; 0 0 minus 1 0">
+<span>1</span><span>0</span><span>0</span><span>0</span>
+<span>0</span><span>1</span><span>0</span><span>0</span>
+<span>0</span><span>0</span><span class="fraction"><span>1</span><span>1+c</span></span><span class="fraction"><span>−c</span><span>1+c</span></span>
+<span>0</span><span>0</span><span>−1</span><span>0</span>
+</div></div>
+<p>c = −near / far = <strong id="c"></strong></p>
+<div class="equation">After multiplication and division by w:<br><strong>z′ = (c − z) / (z + zc)</strong></div>
+</section>
+</aside></div>
+
+</main><script src="demo.js"></script></body></html>
